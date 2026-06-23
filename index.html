@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIRMED - Login</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="login">
+
+<h2>🏥 SIRMED</h2>
+
+<input
+id="email"
+type="email"
+placeholder="E-mail">
+
+<input
+id="senha"
+type="password"
+placeholder="Senha">
+
+<button onclick="entrar()">
+Entrar
+</button>
+
+</div>
+
+<div id="sistema" style="display:none;">
+
+<h1>🏥 SIRMED</h1>
+
+<p id="usuarioLogado"></p>
+
+<button onclick="sair()">
+Sair
+</button>
+
+</div>
+
+<script type="module" src="firebase.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
