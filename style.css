@@ -1,0 +1,36 @@
+body{
+font-family:Arial,sans-serif;
+background:#f0f2f5;
+padding:20px;
+}
+
+#login{
+max-width:400px;
+margin:100px auto;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 3px 10px rgba(0,0,0,.2);
+}
+
+input{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+box-sizing:border-box;
+}
+
+button{
+background:#006400;
+color:white;
+border:none;
+padding:12px;
+cursor:pointer;
+width:100%;
+border-radius:8px;
+}
+
+#sistema{
+max-width:1200px;
+margin:auto;
+}
