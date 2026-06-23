@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -60,9 +59,7 @@
     <!-- USUÁRIO -->
 
     <div class="usuario-logado">
-
         <span id="usuarioLogado"></span>
-
     </div>
 
     <!-- SAIR -->
@@ -81,18 +78,18 @@
         </div>
 
         <div class="card-dashboard">
+            <h3>👨‍⚕️ Profissionais</h3>
+            <span id="totalProfissionais">0</span>
+        </div>
+
+        <div class="card-dashboard">
             <h3>🏥 Consultas</h3>
             <span id="totalConsultas">0</span>
         </div>
 
         <div class="card-dashboard">
             <h3>💰 Gastos</h3>
-            <span id="totalGastos">R$ 0</span>
-        </div>
-
-        <div class="card-dashboard">
-            <h3>📅 Mês Atual</h3>
-            <span id="mesAtual">--</span>
+            <span id="totalGastos">R$ 0,00</span>
         </div>
 
     </div>
@@ -123,17 +120,9 @@
 
         <select id="pacienteSexo">
 
-            <option value="">
-                Sexo
-            </option>
-
-            <option value="Masculino">
-                Masculino
-            </option>
-
-            <option value="Feminino">
-                Feminino
-            </option>
+            <option value="">Sexo</option>
+            <option>Masculino</option>
+            <option>Feminino</option>
 
         </select>
 
@@ -156,15 +145,109 @@
 
     <hr>
 
-    <!-- CONSULTAS -->
+    <!-- PROFISSIONAIS -->
 
     <section>
 
-        <h2>🏥 Consultas</h2>
+        <h2>👨‍⚕️ Cadastro de Profissionais</h2>
 
-        <p>
-            Módulo será implementado na Versão 2.
-        </p>
+        <input
+            id="profissionalNome"
+            placeholder="Nome do Profissional">
+
+        <select id="profissionalFuncao">
+
+            <option value="">Função</option>
+            <option>Médico</option>
+            <option>Enfermeiro</option>
+            <option>Dentista</option>
+            <option>Técnico de Enfermagem</option>
+
+        </select>
+
+        <input
+            id="profissionalRegistro"
+            placeholder="CRM / COREN / CRO">
+
+        <button onclick="cadastrarProfissional()">
+            ➕ Cadastrar Profissional
+        </button>
+
+        <input
+            id="pesquisaProfissional"
+            placeholder="Pesquisar Profissional"
+            onkeyup="filtrarProfissionais()">
+
+        <ul id="listaProfissionais"></ul>
+
+    </section>
+
+    <hr>
+
+    <!-- CONSULTA -->
+
+    <section>
+
+        <h2>🏥 Registro de Consulta</h2>
+
+        <select id="consultaPaciente"></select>
+
+        <select id="consultaProfissional"></select>
+
+        <input
+            id="consultaQueixa"
+            placeholder="Queixa Principal">
+
+        <input
+            id="consultaPA"
+            placeholder="Pressão Arterial">
+
+        <input
+            id="consultaFC"
+            placeholder="Frequência Cardíaca">
+
+        <input
+            id="consultaTemperatura"
+            placeholder="Temperatura">
+
+        <input
+            id="consultaDiagnostico"
+            placeholder="Diagnóstico">
+
+        <input
+            id="consultaPrescricao"
+            placeholder="Prescrição">
+
+        <textarea
+            id="consultaObservacoes"
+            placeholder="Observações"
+            style="width:100%;height:120px;padding:10px;border-radius:8px;margin-bottom:12px;"></textarea>
+
+        <input
+            id="consultaValor"
+            type="number"
+            step="0.01"
+            placeholder="Valor da Consulta">
+
+        <button onclick="registrarConsulta()">
+            💾 Registrar Consulta
+        </button>
+
+    </section>
+
+    <hr>
+
+    <!-- HISTÓRICO -->
+
+    <section>
+
+        <h2>📋 Histórico de Consultas</h2>
+
+        <input
+            id="pesquisaConsulta"
+            placeholder="Pesquisar Consulta">
+
+        <ul id="listaConsultas"></ul>
 
     </section>
 
@@ -174,15 +257,17 @@
 
     <section>
 
-        <h2>💰 Financeiro</h2>
+        <h2>💰 Controle Financeiro</h2>
 
-        <p>
-            Módulo será implementado na Versão 2.
-        </p>
+        <ul id="listaGastos"></ul>
 
     </section>
 
 </div>
+
+<!-- PDF (usaremos na V3) -->
+
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <!-- FIREBASE -->
 
@@ -195,4 +280,3 @@
 </body>
 
 </html>
-```
