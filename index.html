@@ -1,49 +1,198 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIRMED - Login</title>
+
+<title>SIRMED - Sistema Integrado de Registros Médicos</title>
 
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div id="login">
+<!-- LOGIN -->
 
-<h2>🏥 SIRMED</h2>
+<div id="login" class="login-box">
 
-<input
-id="email"
-type="email"
-placeholder="E-mail">
+    <h2>🏥 SIRMED</h2>
 
-<input
-id="senha"
-type="password"
-placeholder="Senha">
+    <p>Sistema Integrado de Registros Médicos</p>
 
-<button onclick="entrar()">
-Entrar
-</button>
+    <input
+        id="email"
+        type="email"
+        placeholder="E-mail">
+
+    <input
+        id="senha"
+        type="password"
+        placeholder="Senha">
+
+    <button onclick="entrar()">
+        Entrar
+    </button>
 
 </div>
+
+<!-- SISTEMA -->
 
 <div id="sistema" style="display:none;">
 
-<h1>🏥 SIRMED</h1>
+    <!-- CABEÇALHO -->
 
-<p id="usuarioLogado"></p>
+    <header class="cabecalho">
 
-<button onclick="sair()">
-Sair
-</button>
+        <div>
+
+            <h1>🏥 SIRMED</h1>
+
+            <p>Sistema Integrado de Registros Médicos</p>
+
+        </div>
+
+    </header>
+
+    <!-- USUÁRIO -->
+
+    <div class="usuario-logado">
+
+        <span id="usuarioLogado"></span>
+
+    </div>
+
+    <!-- SAIR -->
+
+    <button class="btn-sair" onclick="sair()">
+        🚪 Sair
+    </button>
+
+    <!-- DASHBOARD -->
+
+    <div class="dashboard">
+
+        <div class="card-dashboard">
+            <h3>👤 Pacientes</h3>
+            <span id="totalPacientes">0</span>
+        </div>
+
+        <div class="card-dashboard">
+            <h3>🏥 Consultas</h3>
+            <span id="totalConsultas">0</span>
+        </div>
+
+        <div class="card-dashboard">
+            <h3>💰 Gastos</h3>
+            <span id="totalGastos">R$ 0</span>
+        </div>
+
+        <div class="card-dashboard">
+            <h3>📅 Mês Atual</h3>
+            <span id="mesAtual">--</span>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- PACIENTES -->
+
+    <section>
+
+        <h2>👤 Cadastro de Pacientes</h2>
+
+        <input
+            id="pacienteNome"
+            placeholder="Nome Completo">
+
+        <input
+            id="pacienteCpf"
+            placeholder="CPF">
+
+        <input
+            id="pacienteNascimento"
+            type="date">
+
+        <input
+            id="pacienteTelefone"
+            placeholder="Telefone">
+
+        <select id="pacienteSexo">
+
+            <option value="">
+                Sexo
+            </option>
+
+            <option value="Masculino">
+                Masculino
+            </option>
+
+            <option value="Feminino">
+                Feminino
+            </option>
+
+        </select>
+
+        <input
+            id="pacienteCidade"
+            placeholder="Cidade">
+
+        <button onclick="cadastrarPaciente()">
+            ➕ Cadastrar Paciente
+        </button>
+
+        <input
+            id="pesquisaPaciente"
+            placeholder="Pesquisar Paciente"
+            onkeyup="filtrarPacientes()">
+
+        <ul id="listaPacientes"></ul>
+
+    </section>
+
+    <hr>
+
+    <!-- CONSULTAS -->
+
+    <section>
+
+        <h2>🏥 Consultas</h2>
+
+        <p>
+            Módulo será implementado na Versão 2.
+        </p>
+
+    </section>
+
+    <hr>
+
+    <!-- FINANCEIRO -->
+
+    <section>
+
+        <h2>💰 Financeiro</h2>
+
+        <p>
+            Módulo será implementado na Versão 2.
+        </p>
+
+    </section>
 
 </div>
 
+<!-- FIREBASE -->
+
 <script type="module" src="firebase.js"></script>
+
+<!-- SISTEMA -->
+
 <script src="script.js"></script>
 
 </body>
+
 </html>
+```
