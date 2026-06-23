@@ -4,25 +4,9 @@ from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
 getAuth,
 signInWithEmailAndPassword,
-signOut,
-onAuthStateChanged
+signOut
 }
 from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-updateDoc,
-doc,
-query,
-where,
-orderBy,
-serverTimestamp
-}
-from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
 
@@ -44,29 +28,7 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-const db = getFirestore(app);
-
 window.auth = auth;
-window.db = db;
-
 window.signInWithEmailAndPassword =
 signInWithEmailAndPassword;
-
 window.signOut = signOut;
-
-window.onAuthStateChanged =
-onAuthStateChanged;
-
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.deleteDoc = deleteDoc;
-window.updateDoc = updateDoc;
-window.doc = doc;
-window.query = query;
-window.where = where;
-window.orderBy = orderBy;
-window.serverTimestamp =
-serverTimestamp;
-
-console.log("🏥 SIRMED conectado");
