@@ -1,8 +1,12 @@
+```javascript
 /*************************
- * SIRMED V1
+ * SIRMED V2
  *************************/
 
 let pacientes = [];
+let profissionais = [];
+let consultas = [];
+let gastos = [];
 
 /*************************
  * LOGIN
@@ -15,13 +19,6 @@ async function entrar() {
 
     const senha =
         document.getElementById("senha").value;
-
-    if (!email || !senha) {
-
-        alert("Preencha e-mail e senha");
-
-        return;
-    }
 
     try {
 
@@ -42,11 +39,9 @@ async function entrar() {
             .innerHTML =
             "👤 " + usuario.user.email;
 
-        await carregarPacientes();
+        await carregarTudo();
 
-        renderPacientes();
-
-        atualizarDashboard();
+        renderizarTudo();
 
     }
 
@@ -62,159 +57,35 @@ async function entrar() {
 
 }
 
-/*************************
- * SAIR
- *************************/
-
 async function sair() {
 
-    try {
+    await signOut(auth);
 
-        await signOut(auth);
+    document.getElementById("login")
+        .style.display = "block";
 
-        document.getElementById("login")
-            .style.display = "block";
+    document.getElementById("sistema")
+        .style.display = "none";
 
-        document.getElementById("sistema")
-            .style.display = "none";
+}
 
-        document.getElementById("email")
-            .value = "";
+/*************************
+ * CARREGAMENTO GERAL
+ *************************/
 
-        document.getElementById("senha")
-            .value = "";
+async function carregarTudo() {
 
-    }
-
-    catch (erro) {
-
-        console.error(erro);
-
-    }
+    await Promise.all([
+        carregarPacientes(),
+        carregarProfissionais(),
+        carregarConsultas(),
+        carregarGastos()
+    ]);
 
 }
 
 /*************************
  * PACIENTES
- *************************/
-
-async function cadastrarPaciente() {
-
-    const nome =
-        document.getElementById(
-            "pacienteNome"
-        ).value.trim();
-
-    const cpf =
-        document.getElementById(
-            "pacienteCpf"
-        ).value.trim();
-
-    const nascimento =
-        document.getElementById(
-            "pacienteNascimento"
-        ).value;
-
-    const telefone =
-        document.getElementById(
-            "pacienteTelefone"
-        ).value.trim();
-
-    const sexo =
-        document.getElementById(
-            "pacienteSexo"
-        ).value;
-
-    const cidade =
-        document.getElementById(
-            "pacienteCidade"
-        ).value.trim();
-
-    if (!nome) {
-
-        alert(
-            "Informe o nome do paciente"
-        );
-
-        return;
-    }
-
-    try {
-
-        await addDoc(
-            collection(db, "pacientes"),
-            {
-                nome,
-                cpf,
-                nascimento,
-                telefone,
-                sexo,
-                cidade,
-                criadoEm:
-                    serverTimestamp()
-            }
-        );
-
-        limparFormularioPaciente();
-
-        await carregarPacientes();
-
-        renderPacientes();
-
-        atualizarDashboard();
-
-        alert(
-            "Paciente cadastrado com sucesso"
-        );
-
-    }
-
-    catch (erro) {
-
-        console.error(erro);
-
-        alert(
-            "Erro ao cadastrar paciente"
-        );
-
-    }
-
-}
-
-/*************************
- * LIMPAR FORMULÁRIO
- *************************/
-
-function limparFormularioPaciente() {
-
-    document.getElementById(
-        "pacienteNome"
-    ).value = "";
-
-    document.getElementById(
-        "pacienteCpf"
-    ).value = "";
-
-    document.getElementById(
-        "pacienteNascimento"
-    ).value = "";
-
-    document.getElementById(
-        "pacienteTelefone"
-    ).value = "";
-
-    document.getElementById(
-        "pacienteSexo"
-    ).value = "";
-
-    document.getElementById(
-        "pacienteCidade"
-    ).value = "";
-
-}
-
-/*************************
- * CARREGAR PACIENTES
  *************************/
 
 async function carregarPacientes() {
@@ -232,11 +103,364 @@ async function carregarPacientes() {
     snap.forEach(docSnap => {
 
         pacientes.push({
-
             id: docSnap.id,
-
             ...docSnap.data()
+        });
 
+    });
+
+}
+
+async function cadastrarPaciente() {
+
+    const nome =
+        document
+        .getElementById(
+            "pacienteNome"
+        )
+        .value
+        .trim();
+
+    const cpf =
+        document
+        .getElementById(
+            "pacienteCpf"
+        )
+        .value
+        .trim();
+
+    const nascimento =
+        document
+        .getElementById(
+            "pacienteNascimento"
+        )
+        .value;
+
+    const telefone =
+        document
+        .getElementById(
+            "pacienteTelefone"
+        )
+        .value
+        .trim();
+
+    const sexo =
+        document
+        .getElementById(
+            "pacienteSexo"
+        )
+        .value;
+
+    const cidade =
+        document
+        .getElementById(
+            "pacienteCidade"
+        )
+        .value
+        .trim();
+
+    if (!nome) {
+
+        alert(
+            "Informe o nome"
+        );
+
+        return;
+
+    }
+
+    await addDoc(
+        collection(
+            db,
+            "pacientes"
+        ),
+        {
+            nome,
+            cpf,
+            nascimento,
+            telefone,
+            sexo,
+            cidade,
+            criadoEm:
+                serverTimestamp()
+        }
+    );
+
+    await carregarPacientes();
+
+    renderPacientes();
+
+    atualizarDashboard();
+
+}
+
+```javascript
+/*************************
+ * PROFISSIONAIS
+ *************************/
+
+async function carregarProfissionais() {
+
+    profissionais = [];
+
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "profissionais"
+            )
+        );
+
+    snap.forEach(docSnap => {
+
+        profissionais.push({
+            id: docSnap.id,
+            ...docSnap.data()
+        });
+
+    });
+
+}
+
+async function cadastrarProfissional() {
+
+    const nome =
+        document.getElementById(
+            "profissionalNome"
+        ).value.trim();
+
+    const funcao =
+        document.getElementById(
+            "profissionalFuncao"
+        ).value;
+
+    const registro =
+        document.getElementById(
+            "profissionalRegistro"
+        ).value.trim();
+
+    if (!nome || !funcao) {
+
+        alert(
+            "Preencha os campos obrigatórios"
+        );
+
+        return;
+
+    }
+
+    await addDoc(
+        collection(
+            db,
+            "profissionais"
+        ),
+        {
+            nome,
+            funcao,
+            registro,
+            criadoEm:
+                serverTimestamp()
+        }
+    );
+
+    document.getElementById(
+        "profissionalNome"
+    ).value = "";
+
+    document.getElementById(
+        "profissionalFuncao"
+    ).value = "";
+
+    document.getElementById(
+        "profissionalRegistro"
+    ).value = "";
+
+    await carregarProfissionais();
+
+    renderProfissionais();
+
+    preencherSelectsConsulta();
+
+    atualizarDashboard();
+
+}
+
+/*************************
+ * CONSULTAS
+ *************************/
+
+async function carregarConsultas() {
+
+    consultas = [];
+
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "consultas"
+            )
+        );
+
+    snap.forEach(docSnap => {
+
+        consultas.push({
+            id: docSnap.id,
+            ...docSnap.data()
+        });
+
+    });
+
+}
+
+async function registrarConsulta() {
+
+    const paciente =
+        document.getElementById(
+            "consultaPaciente"
+        ).value;
+
+    const profissional =
+        document.getElementById(
+            "consultaProfissional"
+        ).value;
+
+    const queixa =
+        document.getElementById(
+            "consultaQueixa"
+        ).value;
+
+    const pa =
+        document.getElementById(
+            "consultaPA"
+        ).value;
+
+    const fc =
+        document.getElementById(
+            "consultaFC"
+        ).value;
+
+    const temperatura =
+        document.getElementById(
+            "consultaTemperatura"
+        ).value;
+
+    const diagnostico =
+        document.getElementById(
+            "consultaDiagnostico"
+        ).value;
+
+    const prescricao =
+        document.getElementById(
+            "consultaPrescricao"
+        ).value;
+
+    const observacoes =
+        document.getElementById(
+            "consultaObservacoes"
+        ).value;
+
+    const valor =
+        Number(
+            document.getElementById(
+                "consultaValor"
+            ).value
+        );
+
+    if (
+        !paciente ||
+        !profissional
+    ) {
+
+        alert(
+            "Selecione paciente e profissional"
+        );
+
+        return;
+
+    }
+
+    await addDoc(
+        collection(
+            db,
+            "consultas"
+        ),
+        {
+            paciente,
+            profissional,
+            queixa,
+            pa,
+            fc,
+            temperatura,
+            diagnostico,
+            prescricao,
+            observacoes,
+            valor,
+            data:
+                new Date()
+                .toLocaleDateString(
+                    "pt-BR"
+                ),
+            criadoEm:
+                serverTimestamp()
+        }
+    );
+
+    await addDoc(
+        collection(
+            db,
+            "gastos"
+        ),
+        {
+            tipo:
+                "Consulta Médica",
+            paciente,
+            valor,
+            data:
+                new Date()
+                .toLocaleDateString(
+                    "pt-BR"
+                ),
+            criadoEm:
+                serverTimestamp()
+        }
+    );
+
+    alert(
+        "Consulta registrada com sucesso"
+    );
+
+    await carregarConsultas();
+    await carregarGastos();
+
+    renderConsultas();
+    renderGastos();
+
+    atualizarDashboard();
+
+}
+
+```javascript
+/*************************
+ * GASTOS
+ *************************/
+
+async function carregarGastos() {
+
+    gastos = [];
+
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "gastos"
+            )
+        );
+
+    snap.forEach(docSnap => {
+
+        gastos.push({
+            id: docSnap.id,
+            ...docSnap.data()
         });
 
     });
@@ -244,42 +468,31 @@ async function carregarPacientes() {
 }
 
 /*************************
- * RENDER PACIENTES
+ * RENDER PROFISSIONAIS
  *************************/
 
-function renderPacientes() {
+function renderProfissionais() {
 
-    const lista =
+    const el =
         document.getElementById(
-            "listaPacientes"
+            "listaProfissionais"
         );
 
-    if (!lista) return;
+    if (!el) return;
 
-    lista.innerHTML = "";
+    el.innerHTML = "";
 
-    pacientes.forEach(paciente => {
+    profissionais.forEach(p => {
 
-        lista.innerHTML += `
+        el.innerHTML += `
 
 <li>
 
-<b>👤 ${paciente.nome}</b><br>
+<b>👨‍⚕️ ${p.nome}</b><br>
 
-CPF: ${paciente.cpf || "-"}<br>
+Função: ${p.funcao}<br>
 
-📞 ${paciente.telefone || "-"}<br>
-
-⚧️ ${paciente.sexo || "-"}<br>
-
-🏙️ ${paciente.cidade || "-"}<br>
-
-<button
-onclick="excluirPaciente('${paciente.id}')">
-
-🗑️ Excluir
-
-</button>
+Registro: ${p.registro || "-"}
 
 </li>
 
@@ -290,80 +503,132 @@ onclick="excluirPaciente('${paciente.id}')">
 }
 
 /*************************
- * EXCLUIR PACIENTE
+ * RENDER CONSULTAS
  *************************/
 
-async function excluirPaciente(id) {
+function renderConsultas() {
 
-    const confirmar =
-        confirm(
-            "Deseja excluir este paciente?"
+    const el =
+        document.getElementById(
+            "listaConsultas"
         );
 
-    if (!confirmar) {
+    if (!el) return;
 
-        return;
-    }
+    el.innerHTML = "";
 
-    try {
+    consultas.forEach(c => {
 
-        await deleteDoc(
-            doc(
-                db,
-                "pacientes",
-                id
-            )
-        );
+        el.innerHTML += `
 
-        await carregarPacientes();
+<li>
 
-        renderPacientes();
+<b>👤 ${c.paciente}</b><br>
 
-        atualizarDashboard();
+👨‍⚕️ ${c.profissional}<br>
 
-    }
+📅 ${c.data}<br>
 
-    catch (erro) {
+🩺 ${c.queixa}<br>
 
-        console.error(erro);
+📋 ${c.diagnostico}<br>
 
-        alert(
-            "Erro ao excluir paciente"
-        );
+💊 ${c.prescricao}<br>
 
-    }
+💰 R$ ${(c.valor || 0).toFixed(2)}
+
+</li>
+
+`;
+
+    });
 
 }
 
 /*************************
- * FILTRO
+ * RENDER GASTOS
  *************************/
 
-function filtrarPacientes() {
+function renderGastos() {
 
-    const filtro =
+    const el =
         document.getElementById(
-            "pesquisaPaciente"
-        )
-        .value
-        .toLowerCase();
+            "listaGastos"
+        );
 
-    document
-        .querySelectorAll(
-            "#listaPacientes li"
-        )
-        .forEach(li => {
+    if (!el) return;
 
-            li.style.display =
-                li.textContent
-                    .toLowerCase()
-                    .includes(filtro)
+    el.innerHTML = "";
 
-                    ? ""
+    gastos.forEach(g => {
 
-                    : "none";
+        el.innerHTML += `
+
+<li>
+
+<b>${g.tipo}</b><br>
+
+👤 ${g.paciente}<br>
+
+📅 ${g.data}<br>
+
+<span class="valor-financeiro">
+
+R$ ${(g.valor || 0).toFixed(2)}
+
+</span>
+
+</li>
+
+`;
+
+    });
+
+}
+
+/*************************
+ * SELECTS CONSULTA
+ *************************/
+
+function preencherSelectsConsulta() {
+
+    const pacientesSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+    const profissionaisSelect =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+    if (pacientesSelect) {
+
+        pacientesSelect.innerHTML =
+            "<option value=''>Selecione o Paciente</option>";
+
+        pacientes.forEach(p => {
+
+            pacientesSelect.innerHTML +=
+                `<option>${p.nome}</option>`;
 
         });
+
+    }
+
+    if (profissionaisSelect) {
+
+        profissionaisSelect.innerHTML =
+            "<option value=''>Selecione o Profissional</option>";
+
+        profissionais.forEach(p => {
+
+            profissionaisSelect.innerHTML +=
+                `<option>${p.nome}</option>`;
+
+        });
+
+    }
 
 }
 
@@ -378,87 +643,119 @@ function atualizarDashboard() {
             "totalPacientes"
         );
 
-    if (totalPacientes) {
+    const totalProfissionais =
+        document.getElementById(
+            "totalProfissionais"
+        );
 
+    const totalConsultas =
+        document.getElementById(
+            "totalConsultas"
+        );
+
+    const totalGastos =
+        document.getElementById(
+            "totalGastos"
+        );
+
+    if (totalPacientes)
         totalPacientes.innerText =
             pacientes.length;
 
-    }
+    if (totalProfissionais)
+        totalProfissionais.innerText =
+            profissionais.length;
 
-    const mesAtual =
-        document.getElementById(
-            "mesAtual"
-        );
+    if (totalConsultas)
+        totalConsultas.innerText =
+            consultas.length;
 
-    if (mesAtual) {
+    let soma = 0;
 
-        mesAtual.innerText =
-            new Date()
-                .toLocaleDateString(
-                    "pt-BR",
-                    {
-                        month: "short",
-                        year: "numeric"
-                    }
-                );
+    gastos.forEach(g => {
 
-    }
+        soma +=
+            Number(g.valor || 0);
+
+    });
+
+    if (totalGastos)
+        totalGastos.innerText =
+            "R$ " +
+            soma.toFixed(2);
 
 }
 
 /*************************
- * AUTO LOGIN
+ * RENDER GERAL
  *************************/
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
+function renderizarTudo() {
 
-        if (user) {
+    renderPacientes();
 
-            document
-                .getElementById("login")
-                .style.display = "none";
+    renderProfissionais();
 
-            document
-                .getElementById("sistema")
-                .style.display = "block";
+    renderConsultas();
 
-            document
-                .getElementById("usuarioLogado")
-                .innerHTML =
-                "👤 " + user.email;
+    renderGastos();
 
-            await carregarPacientes();
+    preencherSelectsConsulta();
 
-            renderPacientes();
+    atualizarDashboard();
 
-            atualizarDashboard();
+}
 
-        }
+/*************************
+ * FILTRO PROFISSIONAIS
+ *************************/
 
-    }
-);
+function filtrarProfissionais() {
+
+    const filtro =
+        document.getElementById(
+            "pesquisaProfissional"
+        )
+        .value
+        .toLowerCase();
+
+    document
+        .querySelectorAll(
+            "#listaProfissionais li"
+        )
+        .forEach(li => {
+
+            li.style.display =
+                li.textContent
+                .toLowerCase()
+                .includes(filtro)
+
+                ? ""
+
+                : "none";
+
+        });
+
+}
 
 /*************************
  * EXPORTAÇÃO GLOBAL
  *************************/
 
-window.entrar =
-    entrar;
+window.cadastrarProfissional =
+    cadastrarProfissional;
 
-window.sair =
-    sair;
+window.registrarConsulta =
+    registrarConsulta;
 
-window.cadastrarPaciente =
-    cadastrarPaciente;
+window.filtrarProfissionais =
+    filtrarProfissionais;
 
-window.excluirPaciente =
-    excluirPaciente;
-
-window.filtrarPacientes =
-    filtrarPacientes;
+/*************************
+ * INICIALIZAÇÃO
+ *************************/
 
 console.log(
-    "🏥 SIRMED carregado"
+    "🏥 SIRMED V2 carregado"
 );
+```
