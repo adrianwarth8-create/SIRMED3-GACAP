@@ -1,189 +1,29 @@
 /* =========================
-   CONFIGURAÇÃO GERAL
+   TEXTAREA
 ========================= */
 
-body{
-    font-family: Arial, sans-serif;
-    background: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-}
-
-/* =========================
-   LOGIN
-========================= */
-
-.login-box{
-    max-width: 420px;
-    margin: 80px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    text-align: center;
-}
-
-.login-box h2{
-    color: #006400;
-    margin-bottom: 10px;
-}
-
-.login-box p{
-    color: #666;
-    margin-bottom: 20px;
-}
-
-/* =========================
-   SISTEMA
-========================= */
-
-#sistema{
-    max-width: 1200px;
-    margin: auto;
-}
-
-/* =========================
-   CABEÇALHO
-========================= */
-
-.cabecalho{
-    background: #006400;
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    box-shadow: 0 3px 8px rgba(0,0,0,.2);
-}
-
-.cabecalho h1{
-    margin: 0;
-}
-
-.cabecalho p{
-    margin-top: 5px;
-}
-
-/* =========================
-   USUÁRIO
-========================= */
-
-.usuario-logado{
-    text-align: right;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #006400;
-}
-
-/* =========================
-   DASHBOARD
-========================= */
-
-.dashboard{
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.card-dashboard{
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-
-.card-dashboard h3{
-    margin: 0;
-    color: #666;
-    font-size: 15px;
-}
-
-.card-dashboard span{
-    display: block;
-    margin-top: 10px;
-    font-size: 30px;
-    font-weight: bold;
-    color: #006400;
-}
-
-/* =========================
-   FORMULÁRIOS
-========================= */
-
-input,
-select{
+textarea{
     width: 100%;
     padding: 12px;
-    margin-top: 8px;
-    margin-bottom: 12px;
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
-    font-size: 15px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+    margin-bottom: 12px;
 }
 
-input:focus,
-select:focus{
+textarea:focus{
     outline: none;
     border-color: #006400;
     box-shadow: 0 0 5px rgba(0,100,0,.3);
 }
 
 /* =========================
-   BOTÕES
+   PROFISSIONAIS
 ========================= */
 
-button{
-    background: #006400;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: .2s;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-button:hover{
-    transform: scale(1.02);
-}
-
-.btn-sair{
-    background: #c62828;
-    margin-bottom: 20px;
-}
-
-/* =========================
-   TÍTULOS
-========================= */
-
-h2{
-    background: white;
-    padding: 12px;
-    border-left: 5px solid #006400;
-    border-radius: 8px;
-    color: #333;
-}
-
-/* =========================
-   LISTAS
-========================= */
-
-ul{
-    padding: 0;
-}
-
-li{
-    list-style: none;
-}
-
-/* =========================
-   PACIENTES
-========================= */
-
-#listaPacientes li{
+#listaProfissionais li{
     background: white;
     margin-bottom: 12px;
     padding: 15px;
@@ -191,54 +31,43 @@ li{
     box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
 
-#listaPacientes button{
-    background: #c62828;
-    margin-top: 10px;
+/* =========================
+   CONSULTAS
+========================= */
+
+#listaConsultas li{
+    background: white;
+    margin-bottom: 15px;
+    padding: 18px;
+    border-radius: 12px;
+    border-left: 6px solid #1565c0;
+    box-shadow: 0 3px 8px rgba(0,0,0,.12);
 }
 
 /* =========================
-   SEPARADORES
+   GASTOS
 ========================= */
 
-hr{
-    border: none;
-    height: 1px;
-    background: #ddd;
-    margin: 25px 0;
-}
-
-/* =========================
-   SCROLL
-========================= */
-
-::-webkit-scrollbar{
-    width: 8px;
-}
-
-::-webkit-scrollbar-thumb{
-    background: #006400;
+#listaGastos li{
+    background: white;
+    margin-bottom: 12px;
+    padding: 15px;
     border-radius: 10px;
+    border-left: 6px solid #ef6c00;
+    box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
 
 /* =========================
-   RESPONSIVO
+   CARDS FINANCEIROS
 ========================= */
 
-@media(max-width:768px){
+.valor-financeiro{
+    color: #006400;
+    font-weight: bold;
+    font-size: 18px;
+}
 
-    body{
-        padding: 10px;
-    }
-
-    .dashboard{
-        grid-template-columns: 1fr;
-    }
-
-    .cabecalho{
-        text-align: center;
-    }
-
-    button{
-        width: 100%;
-    }
+.valor-negativo{
+    color: #c62828;
+}
 }
