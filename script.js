@@ -6,6 +6,7 @@ let pacientes = [];
 let profissionais = [];
 let consultas = [];
 let gastos = [];
+let prontuarios = [];
 
 /*************************
  * LOGIN
@@ -75,11 +76,12 @@ async function sair() {
 async function carregarTudo() {
 
     await Promise.all([
-        carregarPacientes(),
-        carregarProfissionais(),
-        carregarConsultas(),
-        carregarGastos()
-    ]);
+    carregarPacientes(),
+    carregarProfissionais(),
+    carregarConsultas(),
+    carregarGastos(),
+    carregarProntuarios()
+]);
 
 }
 
@@ -168,20 +170,19 @@ async function cadastrarPaciente() {
 
     }
 
-    await addDoc(
-        collection(
-            db,
-            "pacientes"
-        ),
-        {
-            nome,
-            cpf,
-            nascimento,
-            telefone,
-            sexo,
-            cidade,
-            criadoEm:
-                serverTimestamp()
+   await addDoc(
+    collection(db,"pacientes"),
+    {
+        nome,
+        cpf,
+        nascimento,
+        telefone,
+        sexo,
+        cidade,
+        criadoEm: serverTimestamp()
+    }
+);
+
 document.getElementById("pacienteNome").value = "";
 document.getElementById("pacienteCpf").value = "";
 document.getElementById("pacienteNascimento").value = "";
@@ -333,31 +334,6 @@ async function carregarConsultas() {
                 "consultas"
             )
         );
-
-await addDoc(
-collection(db,"prontuarios"),
-{
- pacienteNome: paciente,
-
- profissional,
-
- data:
-new Date().toLocaleDateString("pt-BR"),
-
- queixa,
-
- exameFisico,
-
- diagnostico,
-
- prescricao,
-
- observacoes,
-
- criadoEm:
-serverTimestamp()
-}
-);
     
     snap.forEach(docSnap => {
 
@@ -429,6 +405,26 @@ document.getElementById(
             ).value
         );
 
+await addDoc(
+    collection(db,"pacientes"),
+    {
+        nome,
+        cpf,
+        nascimento,
+        telefone,
+        sexo,
+        cidade,
+        criadoEm: serverTimestamp()
+    }
+);
+
+document.getElementById("pacienteNome").value = "";
+document.getElementById("pacienteCpf").value = "";
+document.getElementById("pacienteNascimento").value = "";
+document.getElementById("pacienteTelefone").value = "";
+document.getElementById("pacienteSexo").value = "";
+document.getElementById("pacienteCidade").value = "";
+    
     if (
         !paciente ||
         !profissional
@@ -597,7 +593,7 @@ function renderConsultas() {
 
 💊 ${c.prescricao}<br>
 
-💰 R$ ${Number(g.valor || 0).toFixed(2)}
+💰 R$ ${Number(c.valor || 0).toFixed(2)}
 
 </li>
 
@@ -850,8 +846,6 @@ function renderizarTudo(){
  preencherSelectsConsulta();
 
  atualizarDashboard();
-
-}
 
 }
 
