@@ -334,6 +334,31 @@ async function carregarConsultas() {
             )
         );
 
+await addDoc(
+collection(db,"prontuarios"),
+{
+ pacienteNome: paciente,
+
+ profissional,
+
+ data:
+new Date().toLocaleDateString("pt-BR"),
+
+ queixa,
+
+ exameFisico,
+
+ diagnostico,
+
+ prescricao,
+
+ observacoes,
+
+ criadoEm:
+serverTimestamp()
+}
+);
+    
     snap.forEach(docSnap => {
 
         consultas.push({
@@ -381,6 +406,11 @@ async function registrarConsulta() {
         document.getElementById(
             "consultaDiagnostico"
         ).value;
+
+    const exameFisico =
+document.getElementById(
+"consultaExameFisico"
+).value;
 
     const prescricao =
         document.getElementById(
