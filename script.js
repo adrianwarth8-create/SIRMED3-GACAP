@@ -173,8 +173,8 @@ async function cadastrarPaciente() {
 
     }
 
-   await addDoc(
-    collection(db,"pacientes"),
+  await addDoc(
+    collection(db, "pacientes"),
     {
         nome,
         cpf,
@@ -186,6 +186,7 @@ async function cadastrarPaciente() {
     }
 );
 
+// Limpar formulário
 document.getElementById("pacienteNome").value = "";
 document.getElementById("pacienteCpf").value = "";
 document.getElementById("pacienteNascimento").value = "";
@@ -635,7 +636,7 @@ function renderGastos() {
 
 <span class="valor-financeiro">
 
-R$ ${Number(g.valor || 0).toFixed(2)}
+R$ ${Number(c.valor || 0).toFixed(2)}
 
 </span>
 
