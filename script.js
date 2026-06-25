@@ -289,10 +289,7 @@ async function cadastrarProfissional() {
 
 function renderPacientes() {
 
-    const el =
-        document.getElementById(
-            "listaPacientes"
-        );
+    const el = document.getElementById("listaPacientes");
 
     if (!el) return;
 
@@ -302,19 +299,12 @@ function renderPacientes() {
 
         el.innerHTML += `
         <li>
-
             <b>👤 ${p.nome}</b><br>
-
             CPF: ${p.cpf || "-"}<br>
-
             Nascimento: ${p.nascimento || "-"}<br>
-
             Telefone: ${p.telefone || "-"}<br>
-
             Sexo: ${p.sexo || "-"}<br>
-
             Cidade: ${p.cidade || "-"}
-
         </li>
         `;
 
