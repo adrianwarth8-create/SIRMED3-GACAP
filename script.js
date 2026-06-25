@@ -1,3 +1,6 @@
+console.log(auth);
+console.log(signInWithEmailAndPassword);
+
 /*************************
  * SIRMED V2
  *************************/
