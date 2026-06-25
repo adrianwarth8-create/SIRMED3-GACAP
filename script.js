@@ -284,6 +284,45 @@ async function cadastrarProfissional() {
 }
 
 /*************************
+ * RENDER PACIENTES
+ *************************/
+
+function renderPacientes() {
+
+    const el =
+        document.getElementById(
+            "listaPacientes"
+        );
+
+    if (!el) return;
+
+    el.innerHTML = "";
+
+    pacientes.forEach(p => {
+
+        el.innerHTML += `
+        <li>
+
+            <b>👤 ${p.nome}</b><br>
+
+            CPF: ${p.cpf || "-"}<br>
+
+            Nascimento: ${p.nascimento || "-"}<br>
+
+            Telefone: ${p.telefone || "-"}<br>
+
+            Sexo: ${p.sexo || "-"}<br>
+
+            Cidade: ${p.cidade || "-"}
+
+        </li>
+        `;
+
+    });
+
+}
+
+/*************************
  * CONSULTAS
  *************************/
 
