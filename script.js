@@ -182,6 +182,12 @@ async function cadastrarPaciente() {
             cidade,
             criadoEm:
                 serverTimestamp()
+document.getElementById("pacienteNome").value = "";
+document.getElementById("pacienteCpf").value = "";
+document.getElementById("pacienteNascimento").value = "";
+document.getElementById("pacienteTelefone").value = "";
+document.getElementById("pacienteSexo").value = "";
+document.getElementById("pacienteCidade").value = "";
         }
     );
 
@@ -561,7 +567,7 @@ function renderConsultas() {
 
 💊 ${c.prescricao}<br>
 
-💰 R$ ${(c.valor || 0).toFixed(2)}
+💰 R$ ${Number(g.valor || 0).toFixed(2)}
 
 </li>
 
@@ -600,7 +606,7 @@ function renderGastos() {
 
 <span class="valor-financeiro">
 
-R$ ${(g.valor || 0).toFixed(2)}
+R$ ${Number(g.valor || 0).toFixed(2)}
 
 </span>
 
@@ -712,6 +718,29 @@ function atualizarDashboard() {
 
 }
 
+function filtrarPacientes() {
+
+    const filtro =
+        document.getElementById("pesquisaPaciente")
+        .value
+        .toLowerCase();
+
+    document
+        .querySelectorAll("#listaPacientes li")
+        .forEach(li => {
+
+            li.style.display =
+                li.textContent
+                .toLowerCase()
+                .includes(filtro)
+                ? ""
+                : "none";
+
+        });
+
+}
+
+window.filtrarPacientes = filtrarPacientes;
 /*************************
  * RENDER GERAL
  *************************/
@@ -776,7 +805,6 @@ window.registrarConsulta =
 
 window.filtrarProfissionais =
     filtrarProfissionais;
-
 /*************************
  * INICIALIZAÇÃO
  *************************/
@@ -784,3 +812,9 @@ window.filtrarProfissionais =
 console.log(
     "🏥 SIRMED V2 carregado"
 );
+window.entrar = entrar;
+window.sair = sair;
+window.cadastrarPaciente = cadastrarPaciente;
+window.cadastrarProfissional = cadastrarProfissional;
+window.registrarConsulta = registrarConsulta;
+window.filtrarProfissionais = filtrarProfissionais;
