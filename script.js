@@ -183,7 +183,9 @@ async function cadastrarPaciente() {
         sexo,
         cidade,
         criadoEm: serverTimestamp()
-
+    }
+);
+      
 // Limpar formulário
 document.getElementById("pacienteNome").value = "";
 document.getElementById("pacienteCpf").value = "";
