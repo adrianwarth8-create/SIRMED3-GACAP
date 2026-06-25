@@ -770,24 +770,88 @@ function filtrarPacientes() {
 
 }
 
+async function carregarProntuarios(){
+
+ prontuarios = [];
+
+ const snap =
+ await getDocs(
+ collection(
+ db,
+ "prontuarios"
+ )
+ );
+
+ snap.forEach(docSnap=>{
+
+ prontuarios.push({
+ id: docSnap.id,
+ ...docSnap.data()
+ });
+
+ });
+
+}
+
+function renderProntuarios(){
+
+ const el =
+ document.getElementById(
+ "listaProntuarios"
+ );
+
+ if(!el) return;
+
+ el.innerHTML = "";
+
+ prontuarios.forEach(p=>{
+
+ el.innerHTML += `
+
+<li>
+
+<b>👤 ${p.pacienteNome}</b><br>
+
+👨‍⚕️ ${p.profissional}<br>
+
+📅 ${p.data}<br>
+
+🩺 ${p.queixa}<br>
+
+📋 ${p.diagnostico}<br>
+
+💊 ${p.prescricao}
+
+</li>
+
+`;
+
+ });
+
+}
+
 window.filtrarPacientes = filtrarPacientes;
 /*************************
  * RENDER GERAL
  *************************/
 
-function renderizarTudo() {
+function renderizarTudo(){
 
-    renderPacientes();
+ renderPacientes();
 
-    renderProfissionais();
+ renderProfissionais();
 
-    renderConsultas();
+ renderConsultas();
 
-    renderGastos();
+ renderGastos();
 
-    preencherSelectsConsulta();
+ renderProntuarios();
 
-    atualizarDashboard();
+ preencherSelectsConsulta();
+
+ atualizarDashboard();
+
+}
 
 }
 
