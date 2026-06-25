@@ -1,4 +1,3 @@
-```javascript
 /*************************
  * SIRMED V2
  *************************/
@@ -194,7 +193,6 @@ async function cadastrarPaciente() {
 
 }
 
-```javascript
 /*************************
  * PROFISSIONAIS
  *************************/
@@ -439,7 +437,6 @@ async function registrarConsulta() {
 
 }
 
-```javascript
 /*************************
  * GASTOS
  *************************/
@@ -758,4 +755,3 @@ window.filtrarProfissionais =
 console.log(
     "🏥 SIRMED V2 carregado"
 );
-```
