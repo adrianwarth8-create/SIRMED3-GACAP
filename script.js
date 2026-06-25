@@ -183,8 +183,6 @@ async function cadastrarPaciente() {
         sexo,
         cidade,
         criadoEm: serverTimestamp()
-    }
-);
 
 // Limpar formulário
 document.getElementById("pacienteNome").value = "";
