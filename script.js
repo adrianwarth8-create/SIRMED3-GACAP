@@ -1,5 +1,4 @@
-console.log(auth);
-console.log(signInWithEmailAndPassword);
+alert("SCRIPT CARREGOU");
 
 /*************************
  * SIRMED V2
@@ -401,11 +400,11 @@ document.getElementById(
         ).value;
 
     const valor =
-        Number(
-            document.getElementById(
-                "consultaValor"
-            ).value
-        );
+    Number(
+        document.getElementById(
+            "consultaValor"
+        ).value
+    );
     
     if (
         !paciente ||
