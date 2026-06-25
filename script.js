@@ -1,4 +1,4 @@
-alert("SCRIPT CARREGOU");
+alert("Bem-Vindo ao SIRMED - BY CB WARTH");
 
 /*************************
  * SIRMED V2
@@ -9,6 +9,8 @@ let profissionais = [];
 let consultas = [];
 let gastos = [];
 let prontuarios = [];
+
+let perfilUsuario = "";
 
 /*************************
  * LOGIN
@@ -31,6 +33,29 @@ async function entrar() {
                 senha
             );
 
+        const q = query(
+            collection(db, "usuarios"),
+            where("email", "==", usuario.user.email)
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+
+            alert("Usuário não possui perfil cadastrado.");
+
+            await signOut(auth);
+
+            return;
+        }
+
+        snap.forEach(docSnap => {
+
+            perfilUsuario =
+                docSnap.data().perfil;
+
+        });
+
         document.getElementById("login")
             .style.display = "none";
 
@@ -39,11 +64,13 @@ async function entrar() {
 
         document.getElementById("usuarioLogado")
             .innerHTML =
-            "👤 " + usuario.user.email;
+            `👤 ${usuario.user.email} (${perfilUsuario})`;
 
         await carregarTudo();
 
         renderizarTudo();
+
+        aplicarPermissoes();
 
     }
 
@@ -51,9 +78,51 @@ async function entrar() {
 
         console.error(erro);
 
-        alert(
-            "Usuário ou senha inválidos"
-        );
+        alert("Usuário ou senha inválidos");
+
+    }
+
+}
+
+function aplicarPermissoes() {
+
+    console.log("Perfil:", perfilUsuario);
+
+    if (perfilUsuario === "gestor") {
+
+        return;
+
+    }
+
+    if (perfilUsuario === "medico") {
+
+        const financeiro =
+            document.getElementById("financeiro");
+
+        if (financeiro)
+            financeiro.style.display = "none";
+
+    }
+
+    if (perfilUsuario === "operador") {
+
+        const paciente =
+            document.getElementById("secaoPacientes");
+
+        const profissional =
+            document.getElementById("secaoProfissionais");
+
+        const consulta =
+            document.getElementById("secaoConsultas");
+
+        if (paciente)
+            paciente.style.display = "none";
+
+        if (profissional)
+            profissional.style.display = "none";
+
+        if (consulta)
+            consulta.style.display = "none";
 
     }
 
