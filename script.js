@@ -430,6 +430,7 @@ document.getElementById(
             queixa,
             pa,
             fc,
+            exameFisico,
             temperatura,
             diagnostico,
             prescricao,
@@ -764,6 +765,30 @@ function filtrarPacientes() {
 
 }
 
+function filtrarConsultas(){
+
+    const filtro =
+        document.getElementById(
+            "pesquisaConsulta"
+        ).value.toLowerCase();
+
+    document
+        .querySelectorAll(
+            "#listaConsultas li"
+        )
+        .forEach(li => {
+
+            li.style.display =
+                li.textContent
+                .toLowerCase()
+                .includes(filtro)
+                ? ""
+                : "none";
+
+        });
+
+}
+
 async function carregarProntuarios(){
 
  prontuarios = [];
@@ -891,6 +916,9 @@ window.registrarConsulta =
 
 window.filtrarProfissionais =
     filtrarProfissionais;
+
+window.filtrarConsultas =
+    filtrarConsultas;
 /*************************
  * INICIALIZAÇÃO
  *************************/
@@ -904,3 +932,23 @@ window.cadastrarPaciente = cadastrarPaciente;
 window.cadastrarProfissional = cadastrarProfissional;
 window.registrarConsulta = registrarConsulta;
 window.filtrarProfissionais = filtrarProfissionais;
+onAuthStateChanged(auth, async (user) => {
+
+    if(user){
+
+        document.getElementById("login")
+            .style.display = "none";
+
+        document.getElementById("sistema")
+            .style.display = "block";
+
+        document.getElementById("usuarioLogado")
+            .innerHTML =
+            "👤 " + user.email;
+
+        await carregarTudo();
+
+        renderizarTudo();
+    }
+
+});
