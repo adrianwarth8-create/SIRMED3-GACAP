@@ -193,8 +193,6 @@ document.getElementById("pacienteNascimento").value = "";
 document.getElementById("pacienteTelefone").value = "";
 document.getElementById("pacienteSexo").value = "";
 document.getElementById("pacienteCidade").value = "";
-        }
-    );
 
     await carregarPacientes();
 
@@ -408,26 +406,6 @@ document.getElementById(
                 "consultaValor"
             ).value
         );
-
-await addDoc(
-    collection(db,"pacientes"),
-    {
-        nome,
-        cpf,
-        nascimento,
-        telefone,
-        sexo,
-        cidade,
-        criadoEm: serverTimestamp()
-    }
-);
-
-document.getElementById("pacienteNome").value = "";
-document.getElementById("pacienteCpf").value = "";
-document.getElementById("pacienteNascimento").value = "";
-document.getElementById("pacienteTelefone").value = "";
-document.getElementById("pacienteSexo").value = "";
-document.getElementById("pacienteCidade").value = "";
     
     if (
         !paciente ||
@@ -492,11 +470,28 @@ document.getElementById("pacienteCidade").value = "";
         "Consulta registrada com sucesso"
     );
 
+    await addDoc(
+    collection(db, "prontuarios"),
+    {
+        pacienteNome: paciente,
+        profissional,
+        data: new Date().toLocaleDateString("pt-BR"),
+        queixa,
+        exameFisico,
+        diagnostico,
+        prescricao,
+        observacoes,
+        criadoEm: serverTimestamp()
+    }
+);
+    
     await carregarConsultas();
     await carregarGastos();
+    await carregarProntuarios();
 
     renderConsultas();
     renderGastos();
+    renderProntuarios();
 
     atualizarDashboard();
 
@@ -636,7 +631,7 @@ function renderGastos() {
 
 <span class="valor-financeiro">
 
-R$ ${Number(c.valor || 0).toFixed(2)}
+R$ ${Number(g.valor || 0).toFixed(2)}
 
 </span>
 
