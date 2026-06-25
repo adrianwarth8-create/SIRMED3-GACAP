@@ -39,6 +39,12 @@ async function entrar() {
         );
 
         const snap = await getDocs(q);
+        console.log("Email logado:", usuario.user.email);
+console.log("Quantidade encontrada:", snap.size);
+
+snap.forEach(docSnap => {
+    console.log("Dados usuário:", docSnap.data());
+});
 
         if (snap.empty) {
 
@@ -53,6 +59,7 @@ async function entrar() {
 
             perfilUsuario =
                 docSnap.data().perfil;
+            console.log("Perfil carregado:", perfilUsuario);
 
         });
 
@@ -86,6 +93,7 @@ async function entrar() {
 
 function aplicarPermissoes() {
 
+    console.log("Aplicando permissões...");
     console.log("Perfil:", perfilUsuario);
 
     if (perfilUsuario === "gestor") {
