@@ -121,3 +121,6 @@ window.serverTimestamp =
 
 console.log("🔥 Firestore pronto");
 console.log("🔐 Authentication pronto");
+console.log("🔥 Firebase carregado");
+console.log(auth);
+console.log(db);
