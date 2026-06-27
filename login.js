@@ -119,7 +119,6 @@ export async function sair() {
                 EXPORTAÇÃO
 *************************************************/
 
-export { entrar, sair };
 export const perfilUsuarioAtual = () => perfilUsuario;
 export const usuarioAtualLogado = () => usuarioAtual;
 
