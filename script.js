@@ -4,7 +4,6 @@ alert("Bem-Vindo ao SIRMED - BY CB WARTH");
  * SIRMED V2
  *************************/
 
-let profissionais = [];
 let consultas = [];
 let gastos = [];
 let prontuarios = [];
@@ -18,102 +17,13 @@ let perfilUsuario = "";
 async function carregarTudo() {
 
     await Promise.all([
-    carregarProfissionais(),
     carregarConsultas(),
     carregarGastos(),
     carregarProntuarios()
 ]);
 
 }
-/*************************
- * PROFISSIONAIS
- *************************/
 
-async function carregarProfissionais() {
-
-    profissionais = [];
-
-    const snap =
-        await getDocs(
-            collection(
-                db,
-                "profissionais"
-            )
-        );
-
-    snap.forEach(docSnap => {
-
-        profissionais.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
-
-    });
-
-}
-
-async function cadastrarProfissional() {
-
-    const nome =
-        document.getElementById(
-            "profissionalNome"
-        ).value.trim();
-
-    const funcao =
-        document.getElementById(
-            "profissionalFuncao"
-        ).value;
-
-    const registro =
-        document.getElementById(
-            "profissionalRegistro"
-        ).value.trim();
-
-    if (!nome || !funcao) {
-
-        alert(
-            "Preencha os campos obrigatórios"
-        );
-
-        return;
-
-    }
-
-    await addDoc(
-        collection(
-            db,
-            "profissionais"
-        ),
-        {
-            nome,
-            funcao,
-            registro,
-            criadoEm:
-                serverTimestamp()
-        }
-    );
-
-    document.getElementById(
-        "profissionalNome"
-    ).value = "";
-
-    document.getElementById(
-        "profissionalFuncao"
-    ).value = "";
-
-    document.getElementById(
-        "profissionalRegistro"
-    ).value = "";
-
-    await carregarProfissionais();
-
-    renderProfissionais();
-
-    preencherSelectsConsulta();
-
-    atualizarDashboard();
-
-}
 /*************************
  * CONSULTAS
  *************************/
@@ -313,41 +223,6 @@ async function carregarGastos() {
             id: docSnap.id,
             ...docSnap.data()
         });
-
-    });
-
-}
-
-/*************************
- * RENDER PROFISSIONAIS
- *************************/
-
-function renderProfissionais() {
-
-    const el =
-        document.getElementById(
-            "listaProfissionais"
-        );
-
-    if (!el) return;
-
-    el.innerHTML = "";
-
-    profissionais.forEach(p => {
-
-        el.innerHTML += `
-
-<li>
-
-<b>👨‍⚕️ ${p.nome}</b><br>
-
-Função: ${p.funcao}<br>
-
-Registro: ${p.registro || "-"}
-
-</li>
-
-`;
 
     });
 
@@ -679,9 +554,6 @@ function renderProntuarios(){
 
 function renderizarTudo(){
 
- renderPacientes();
-
- renderProfissionais();
 
  renderConsultas();
 
@@ -694,38 +566,6 @@ function renderizarTudo(){
     preencherRelatorioPaciente();
 
  atualizarDashboard();
-
-}
-
-/*************************
- * FILTRO PROFISSIONAIS
- *************************/
-
-function filtrarProfissionais() {
-
-    const filtro =
-        document.getElementById(
-            "pesquisaProfissional"
-        )
-        .value
-        .toLowerCase();
-
-    document
-        .querySelectorAll(
-            "#listaProfissionais li"
-        )
-        .forEach(li => {
-
-            li.style.display =
-                li.textContent
-                .toLowerCase()
-                .includes(filtro)
-
-                ? ""
-
-                : "none";
-
-        });
 
 }
 
@@ -775,9 +615,7 @@ console.log(
 );
 window.entrar = entrar;
 window.sair = sair;
-window.cadastrarProfissional = cadastrarProfissional;
 window.registrarConsulta = registrarConsulta;
-window.filtrarProfissionais = filtrarProfissionais;
 onAuthStateChanged(auth, async (user) => {
 
     if(user){
