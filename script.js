@@ -925,6 +925,15 @@ async function carregarProntuarios(){
 
 }
 
+async function gerarPDF(){
+
+    const paciente =
+        document.getElementById("relatorioPaciente").value;
+
+    alert("Paciente escolhido: " + paciente);
+
+}
+
 function renderProntuarios(){
 
  const el =
@@ -980,6 +989,8 @@ function renderizarTudo(){
  renderProntuarios();
 
  preencherSelectsConsulta();
+
+    preencherRelatorioPaciente();
 
  atualizarDashboard();
 
@@ -1065,3 +1076,23 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 });
+function preencherRelatorioPacientes(){
+
+    const select =
+        document.getElementById("relatorioPaciente");
+
+    if(!select) return;
+
+    select.innerHTML = "";
+
+    select.innerHTML +=
+    `<option value="todos">Todos os pacientes</option>`;
+
+    pacientes.forEach(p=>{
+
+        select.innerHTML +=
+        `<option value="${p.nome}">${p.nome}</option>`;
+
+    });
+
+}
