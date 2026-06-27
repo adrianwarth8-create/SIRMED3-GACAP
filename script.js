@@ -12,107 +12,6 @@ let prontuarios = [];
 
 let perfilUsuario = "";
 
-/*************************
- * LOGIN
- *************************/
-
-async function entrar() {
-
-    const email =
-        document.getElementById("email").value;
-
-    const senha =
-        document.getElementById("senha").value;
-
-try{
-
-    const credenciais =
-    await signInWithEmailAndPassword(
-        auth,
-        email,
-        senha
-    );
-
-    console.log("Login realizado.");
-
-}
-catch(e){
-
-    alert("Usuário ou senha inválidos.");
-    return;
-
-}
-        snap.forEach(docSnap => {
-
-            perfilUsuario =
-                docSnap.data().perfil;
-            console.log("Perfil carregado:", perfilUsuario);
-
-        });
-
-        document.getElementById("login")
-            .style.display = "none";
-
-        document.getElementById("sistema")
-            .style.display = "block";
-
-        document.getElementById("usuarioLogado")
-            .innerHTML =
-            `👤 ${usuario.user.email} (${perfilUsuario})`;
-
-// Buscar perfil do usuário logado
-const docUser = await getDoc(
-    doc(db, "usuarios", usuario.user.uid)
-);
-
-if (docUser.exists()) {
-
-    const perfil = docUser.data().perfil;
-
-    if (perfil === "medico") {
-
-        // Médico NÃO vê essas áreas
-        document.getElementById("secaoProfissionais").style.display = "none";
-        document.getElementById("financeiro").style.display = "none";
-        document.getElementById("secaoProntuarios").style.display = "none";
-
-    }
-
-    if (perfil === "operador") {
-
-        // Operador SIRE NÃO vê essas áreas
-        document.getElementById("secaoPacientes").style.display = "none";
-        document.getElementById("secaoProfissionais").style.display = "none";
-        document.getElementById("secaoConsultas").style.display = "none";
-
-        // O operador continua vendo:
-        // Dashboard
-        // Histórico de Consultas
-        // Prontuários
-        // Financeiro
-
-    }
-
-    // Gestor vê tudo, não precisa esconder nada
-}
-        
-        await carregarTudo();
-
-        renderizarTudo();
-
-        aplicarPermissoes();
-
-    }
-
-    catch (erro) {
-
-        console.error(erro);
-
-        alert("Usuário ou senha inválidos");
-
-    }
-
-}
 
 function aplicarPermissoes() {
 
@@ -159,11 +58,6 @@ function aplicarPermissoes() {
 
 }
 
-async function sair() {
-
-    await signOut(auth);
-
-}
 /*************************
  * CARREGAMENTO GERAL
  *************************/
@@ -1044,7 +938,6 @@ window.filtrarProfissionais =
 
 window.filtrarConsultas =
     filtrarConsultas;
-onAuthStateChanged(auth, async (user) => {
 
     if (user) {
 
