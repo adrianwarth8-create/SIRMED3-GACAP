@@ -1,10 +1,10 @@
-/*************************************************
+/*****************
                 UTILS.JS - SIRMED V4
-*************************************************/
+*****************/
 
-/*************************************************
-            FORMATA DATA (dd/mm/aaaa)
-*************************************************/
+/*****************
+                FORMATA DATA
+*****************/
 
 function formatarData(data) {
 
@@ -17,7 +17,9 @@ function formatarData(data) {
         const partes = data.split("-");
 
         if (partes.length === 3) {
-            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+            return ${partes[2]}/${partes[1]}/${partes[0]};
+
         }
 
     }
@@ -26,9 +28,9 @@ function formatarData(data) {
 
 }
 
-/*************************************************
-            FORMATA MOEDA
-*************************************************/
+/*****************
+                FORMATA MOEDA
+*****************/
 
 function formatarMoeda(valor) {
 
@@ -41,9 +43,59 @@ function formatarMoeda(valor) {
 
 }
 
-/*************************************************
-            LIMPAR CAMPOS
-*************************************************/
+/*****************
+                DATA ATUAL
+*****************/
+
+function dataAtual() {
+
+    return new Date().toLocaleDateString("pt-BR");
+
+}
+
+/*****************
+                HORA ATUAL
+*****************/
+
+function horaAtual() {
+
+    return new Date().toLocaleTimeString("pt-BR");
+
+}
+
+/*****************
+                DATA E HORA
+*****************/
+
+function dataHoraAtual() {
+
+    return ${dataAtual()} ${horaAtual()};
+
+}
+
+/*****************
+                LIMPAR TEXTO
+*****************/
+
+function limparTexto(texto) {
+
+    return texto.trim();
+
+}
+
+/*****************
+                CAMPO VAZIO
+*****************/
+
+function campoVazio(valor) {
+
+    return !valor || valor.trim() === "";
+
+}
+
+/*****************
+                LIMPAR CAMPOS
+*****************/
 
 function limparCampos(ids) {
 
@@ -67,9 +119,9 @@ function limparCampos(ids) {
 
 }
 
-/*************************************************
-            MENSAGEM
-*************************************************/
+/*****************
+                MENSAGEM
+*****************/
 
 function mensagem(texto) {
 
@@ -77,9 +129,9 @@ function mensagem(texto) {
 
 }
 
-/*************************************************
-            CONFIRMAÇÃO
-*************************************************/
+/*****************
+                CONFIRMAÇÃO
+*****************/
 
 function confirmar(texto) {
 
@@ -87,69 +139,87 @@ function confirmar(texto) {
 
 }
 
-/*************************************************
-            DATA ATUAL
-*************************************************/
+/*****************
+                FORMATA CPF
+*****************/
 
-function dataAtual() {
+function formatarCPF(cpf) {
 
-    return new Date().toLocaleDateString("pt-BR");
+    cpf = cpf.replace(/\D/g, "");
 
-}
+    if (cpf.length <= 11) {
 
-/*************************************************
-            HORA ATUAL
-*************************************************/
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-function horaAtual() {
+    }
 
-    return new Date().toLocaleTimeString("pt-BR");
-
-}
-
-/*************************************************
-            DATA E HORA
-*************************************************/
-
-function dataHoraAtual() {
-
-    return `${dataAtual()} ${horaAtual()}`;
+    return cpf;
 
 }
 
-/*************************************************
-            REMOVER ESPAÇOS
-*************************************************/
+/*****************
+                FORMATA TELEFONE
+*****************/
 
-function limparTexto(texto) {
+function formatarTelefone(telefone) {
 
-    return texto.trim();
+    telefone = telefone.replace(/\D/g, "");
+
+    if (telefone.length <= 10) {
+
+        telefone = telefone.replace(/^(\d{2})(\d)/g, "($1) $2");
+        telefone = telefone.replace(/(\d)(\d{4})$/, "$1-$2");
+
+    } else {
+
+        telefone = telefone.replace(/^(\d{2})(\d)/g, "($1) $2");
+        telefone = telefone.replace(/(\d)(\d{4})$/, "$1-$2");
+
+    }
+
+    return telefone;
 
 }
 
-/*************************************************
-            VALIDA CAMPO
-*************************************************/
+/*****************
+                SOMENTE NÚMEROS
+*****************/
 
-function campoVazio(valor) {
+function somenteNumeros(texto) {
 
-    return !valor || valor.trim() === "";
+    return texto.replace(/\D/g, "");
 
 }
 
-/*************************************************
-            EXPORTAÇÃO
-*************************************************/
+/*****************
+                GERA ID
+*****************/
+
+function gerarID() {
+
+    return Date.now().toString();
+
+}
+
+/*****************
+                EXPORTAÇÃO GLOBAL
+*****************/
 
 window.formatarData = formatarData;
 window.formatarMoeda = formatarMoeda;
-window.limparCampos = limparCampos;
-window.mensagem = mensagem;
-window.confirmar = confirmar;
 window.dataAtual = dataAtual;
 window.horaAtual = horaAtual;
 window.dataHoraAtual = dataHoraAtual;
 window.limparTexto = limparTexto;
 window.campoVazio = campoVazio;
+window.limparCampos = limparCampos;
+window.mensagem = mensagem;
+window.confirmar = confirmar;
+window.formatarCPF = formatarCPF;
+window.formatarTelefone = formatarTelefone;
+window.somenteNumeros = somenteNumeros;
+window.gerarID = gerarID;
 
 console.log("✅ utils.js carregado");
