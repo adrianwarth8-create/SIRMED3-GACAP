@@ -6,7 +6,7 @@
             ATUALIZAR DASHBOARD
 *************************************************/
 
-function atualizarDashboard() {
+export function atualizarDashboard() {
 
     atualizarTotalPacientes();
     atualizarTotalProfissionais();
@@ -19,7 +19,7 @@ function atualizarDashboard() {
             PACIENTES
 *************************************************/
 
-function atualizarTotalPacientes() {
+export function atualizarTotalPacientes() {
 
     const elemento =
         document.getElementById("totalPacientes");
@@ -34,7 +34,7 @@ function atualizarTotalPacientes() {
             PROFISSIONAIS
 *************************************************/
 
-function atualizarTotalProfissionais() {
+export function atualizarTotalProfissionais() {
 
     const elemento =
         document.getElementById("totalProfissionais");
@@ -49,7 +49,7 @@ function atualizarTotalProfissionais() {
             CONSULTAS
 *************************************************/
 
-function atualizarTotalConsultas() {
+export function atualizarTotalConsultas() {
 
     const elemento =
         document.getElementById("totalConsultas");
@@ -64,7 +64,7 @@ function atualizarTotalConsultas() {
             FINANCEIRO
 *************************************************/
 
-function atualizarTotalFinanceiro() {
+export function atualizarTotalFinanceiro() {
 
     const elemento =
         document.getElementById("totalGastos");
@@ -87,7 +87,7 @@ function atualizarTotalFinanceiro() {
             ESTATÍSTICAS
 *************************************************/
 
-function estatisticasSistema() {
+export function estatisticasSistema() {
 
     return {
 
