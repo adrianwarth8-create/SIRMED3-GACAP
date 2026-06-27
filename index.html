@@ -315,6 +315,28 @@ placeholder="Valor da Consulta">
 
 <hr>
 
+<section id="secaoRelatorios">
+
+    <h2>📄 Relatórios</h2>
+
+    <select id="relatorioPaciente">
+        <option value="">Selecione o paciente</option>
+    </select>
+
+    <input type="date" id="dataInicial">
+
+    <input type="date" id="dataFinal">
+
+    <button onclick="gerarPDF()">
+        📕 Gerar PDF
+    </button>
+
+    <button onclick="gerarWord()">
+        📄 Gerar Word
+    </button>
+
+</section>
+    
 <!-- FINANCEIRO -->
 
 <section id="financeiro">
