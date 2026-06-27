@@ -6,7 +6,7 @@
                 FORMATA DATA
 *****************/
 
-function formatarData(data) {
+export function formatarData(data) {
 
     if (!data) return "-";
 
@@ -31,7 +31,7 @@ function formatarData(data) {
                 FORMATA MOEDA
 *****************/
 
-function formatarMoeda(valor) {
+export function formatarMoeda(valor) {
 
     valor = Number(valor || 0);
 
@@ -46,7 +46,7 @@ function formatarMoeda(valor) {
                 DATA ATUAL
 *****************/
 
-function dataAtual() {
+export function dataAtual() {
 
     return new Date().toLocaleDateString("pt-BR");
 
@@ -56,7 +56,7 @@ function dataAtual() {
                 HORA ATUAL
 *****************/
 
-function horaAtual() {
+export function horaAtual() {
 
     return new Date().toLocaleTimeString("pt-BR");
 
@@ -66,7 +66,7 @@ function horaAtual() {
                 DATA E HORA
 *****************/
 
-function dataHoraAtual() {
+export function dataHoraAtual() {
 
     return `${dataAtual()} ${horaAtual()}`;
 
@@ -76,7 +76,7 @@ function dataHoraAtual() {
                 LIMPAR TEXTO
 *****************/
 
-function limparTexto(texto) {
+export function limparTexto(texto) {
 
     return texto.trim();
 
@@ -86,7 +86,7 @@ function limparTexto(texto) {
                 CAMPO VAZIO
 *****************/
 
-function campoVazio(valor) {
+export function campoVazio(valor) {
 
     return !valor || valor.trim() === "";
 
@@ -96,7 +96,7 @@ function campoVazio(valor) {
                 LIMPAR CAMPOS
 *****************/
 
-function limparCampos(ids) {
+export function limparCampos(ids) {
 
     ids.forEach(id => {
 
@@ -122,7 +122,7 @@ function limparCampos(ids) {
                 MENSAGEM
 *****************/
 
-function mensagem(texto) {
+export function mensagem(texto) {
 
     alert(texto);
 
@@ -132,7 +132,7 @@ function mensagem(texto) {
                 CONFIRMAÇÃO
 *****************/
 
-function confirmar(texto) {
+export function confirmar(texto) {
 
     return confirm(texto);
 
@@ -142,7 +142,7 @@ function confirmar(texto) {
                 FORMATA CPF
 *****************/
 
-function formatarCPF(cpf) {
+export function formatarCPF(cpf) {
 
     cpf = cpf.replace(/\D/g, "");
 
@@ -162,7 +162,7 @@ function formatarCPF(cpf) {
                 FORMATA TELEFONE
 *****************/
 
-function formatarTelefone(telefone) {
+export function formatarTelefone(telefone) {
 
     telefone = telefone.replace(/\D/g, "");
 
@@ -186,7 +186,7 @@ function formatarTelefone(telefone) {
                 SOMENTE NÚMEROS
 *****************/
 
-function somenteNumeros(texto) {
+export function somenteNumeros(texto) {
 
     return texto.replace(/\D/g, "");
 
@@ -196,7 +196,7 @@ function somenteNumeros(texto) {
                 GERA ID
 *****************/
 
-function gerarID() {
+export function gerarID() {
 
     return Date.now().toString();
 
