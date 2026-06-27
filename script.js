@@ -1,3 +1,44 @@
+import { entrar, sair } from "./login.js";
+import { cadastrarPaciente } from "./pacientes.js";
+import { cadastrarProfissional } from "./profissionais.js";
+import { registrarConsulta } from "./consultas.js";
+import { gerarPDF, gerarWord } from "./relatorios.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document
+        .getElementById("btnEntrar")
+        ?.addEventListener("click", entrar);
+
+    document
+        .getElementById("btnSair")
+        ?.addEventListener("click", sair);
+
+    document
+        .getElementById("btnCadastrarPaciente")
+        ?.addEventListener("click", cadastrarPaciente);
+
+    document
+        .getElementById("btnCadastrarProfissional")
+        ?.addEventListener("click", cadastrarProfissional);
+
+    document
+        .getElementById("btnRegistrarConsulta")
+        ?.addEventListener("click", registrarConsulta);
+
+    document
+        .getElementById("btnPDF")
+        ?.addEventListener("click", gerarPDF);
+
+    document
+        .getElementById("btnWord")
+        ?.addEventListener("click", gerarWord);
+
+    document
+        .getElementById("btnImprimir")
+        ?.addEventListener("click", () => window.print());
+
+});
 /*************************************************
                 SCRIPT.JS - SIRMED V4
 *************************************************/
