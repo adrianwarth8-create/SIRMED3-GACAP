@@ -66,8 +66,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("usuarioLogado").innerHTML =
         `👤 ${user.email} (${perfilUsuario})`;
 
-    carregarTudo();
-
     renderizarTudo();
 
     aplicarPermissoes();
