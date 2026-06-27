@@ -6,7 +6,7 @@
         PREENCHER PACIENTES
 *************************************************/
 
-function preencherRelatorioPaciente() {
+export function preencherRelatorioPaciente() {
 
     const select =
         document.getElementById("relatorioPaciente");
@@ -29,7 +29,7 @@ function preencherRelatorioPaciente() {
         PREENCHER PROFISSIONAIS
 *************************************************/
 
-function preencherRelatorioProfissional() {
+export function preencherRelatorioProfissional() {
 
     const select =
         document.getElementById("relatorioProfissional");
@@ -52,7 +52,7 @@ function preencherRelatorioProfissional() {
             FILTRAR CONSULTAS
 *************************************************/
 
-function consultasFiltradas() {
+export function consultasFiltradas() {
 
     const paciente =
         document.getElementById("relatorioPaciente").value;
@@ -92,7 +92,7 @@ function consultasFiltradas() {
                 PDF
 *************************************************/
 
-async function gerarPDF() {
+export async function gerarPDF() {
 
     const { jsPDF } = window.jspdf;
 
@@ -166,7 +166,7 @@ async function gerarPDF() {
                 WORD
 *************************************************/
 
-function gerarWord() {
+export function gerarWord() {
 
     const lista = consultasFiltradas();
 
