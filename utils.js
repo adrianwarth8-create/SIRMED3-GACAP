@@ -18,8 +18,7 @@ function formatarData(data) {
 
         if (partes.length === 3) {
 
-            return ${partes[2]}/${partes[1]}/${partes[0]};
-
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
         }
 
     }
@@ -69,7 +68,7 @@ function horaAtual() {
 
 function dataHoraAtual() {
 
-    return ${dataAtual()} ${horaAtual()};
+    return `${dataAtual()} ${horaAtual()}`;
 
 }
 
