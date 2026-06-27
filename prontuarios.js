@@ -8,7 +8,7 @@ let prontuarios = [];
             CARREGAR PRONTUÁRIOS
 *************************************************/
 
-async function carregarProntuarios() {
+export async function carregarProntuarios() {
 
     prontuarios = [];
 
@@ -31,7 +31,7 @@ async function carregarProntuarios() {
             RENDER PRONTUÁRIOS
 *************************************************/
 
-function renderProntuarios() {
+export function renderProntuarios() {
 
     const lista =
         document.getElementById("listaProntuarios");
@@ -88,7 +88,7 @@ ${p.observacoes || "-"}
         PRONTUÁRIO POR PACIENTE
 *************************************************/
 
-function buscarProntuariosPaciente(nomePaciente) {
+export function buscarProntuariosPaciente(nomePaciente) {
 
     return prontuarios.filter(prontuario =>
 
@@ -102,7 +102,7 @@ function buscarProntuariosPaciente(nomePaciente) {
         QUANTIDADE DE PRONTUÁRIOS
 *************************************************/
 
-function totalProntuarios() {
+export function totalProntuarios() {
 
     return prontuarios.length;
 
