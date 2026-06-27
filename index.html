@@ -26,9 +26,9 @@
 
     <input id="senha" type="password" placeholder="Senha">
 
-    <button onclick="entrar()">
-        Entrar
-    </button>
+   <button id="btnEntrar">
+Entrar
+</button>
 
 </div>
 
@@ -54,10 +54,8 @@
 
 </div>
 
-<button class="btn-sair" onclick="sair()">
-
+<button id="btnSair">
 🚪 Sair
-
 </button>
 
 <!-- DASHBOARD -->
@@ -114,10 +112,8 @@
 
 <input id="pacienteCidade" placeholder="Cidade">
 
-<button onclick="cadastrarPaciente()">
-
+<button id="btnCadastrarPaciente">
 ➕ Cadastrar Paciente
-
 </button>
 
 <input
@@ -159,10 +155,8 @@ placeholder="Nome do Profissional">
 id="profissionalRegistro"
 placeholder="CRM / COREN / CRO">
 
-<button onclick="cadastrarProfissional()">
-
+<button id="btnCadastrarProfissional">
 ➕ Cadastrar Profissional
-
 </button>
 
 <input
@@ -226,10 +220,8 @@ type="number"
 step="0.01"
 placeholder="Valor da Consulta">
 
-<button onclick="registrarConsulta()">
-
+<button id="btnRegistrarConsulta">
 💾 Registrar Consulta
-
 </button>
 
 </section>
@@ -283,15 +275,15 @@ placeholder="Valor da Consulta">
 
 <div class="botoesRelatorio">
 
-<button onclick="gerarPDF()">
+<button id="btnPDF">
 📕 Gerar PDF
 </button>
 
-<button onclick="gerarWord()">
+<button id="btnWord">
 📄 Gerar Word
 </button>
 
-<button onclick="window.print()">
+<button id="btnImprimir">
 🖨️ Imprimir
 </button>
 
