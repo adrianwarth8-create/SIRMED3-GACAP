@@ -176,14 +176,7 @@ async function sair() {
 
     await signOut(auth);
 
-    document.getElementById("login")
-        .style.display = "block";
-
-    document.getElementById("sistema")
-        .style.display = "none";
-
 }
-
 /*************************
  * CARREGAMENTO GERAL
  *************************/
@@ -1043,6 +1036,29 @@ window.filtrarProfissionais =
 
 window.filtrarConsultas =
     filtrarConsultas;
+onAuthStateChanged(auth, async (user) => {
+
+    if (user) {
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("sistema").style.display = "block";
+
+        document.getElementById("usuarioLogado").innerHTML =
+            "👤 " + user.email;
+
+        await carregarTudo();
+
+        renderizarTudo();
+
+    } else {
+
+        document.getElementById("login").style.display = "block";
+        document.getElementById("sistema").style.display = "none";
+
+    }
+
+});
+
 /*************************
  * INICIALIZAÇÃO
  *************************/
@@ -1096,3 +1112,24 @@ function preencherRelatorioPacientes(){
     });
 
 }
+onAuthStateChanged(auth, async (usuario) => {
+
+    if (usuario) {
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("sistema").style.display = "block";
+
+        document.getElementById("usuarioLogado").innerHTML =
+            "👤 " + usuario.email;
+
+        await carregarTudo();
+        renderizarTudo();
+
+    } else {
+
+        document.getElementById("login").style.display = "block";
+        document.getElementById("sistema").style.display = "none";
+
+    }
+
+});
