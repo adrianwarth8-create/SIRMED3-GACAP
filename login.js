@@ -18,7 +18,7 @@ let usuarioAtual = null;
                 ENTRAR
 *************************************************/
 
-async function entrar() {
+export async function entrar() {
 
     const email = document.getElementById("email").value.trim();
     const senha = document.getElementById("senha").value;
@@ -46,7 +46,7 @@ async function entrar() {
             LOGIN AUTOMÁTICO
 *************************************************/
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, export (user) => {
 
     if (!user) {
 
@@ -77,7 +77,7 @@ onAuthStateChanged(auth, async (user) => {
             CARREGAR PERFIL
 *************************************************/
 
-async function carregarPerfil() {
+export async function carregarPerfil() {
 
     try {
 
@@ -109,7 +109,7 @@ async function carregarPerfil() {
                     SAIR
 *************************************************/
 
-async function sair() {
+export async function sair() {
 
     await signOut(auth);
 
