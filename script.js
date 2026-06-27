@@ -3,6 +3,11 @@ import { cadastrarPaciente } from "./pacientes.js";
 import { cadastrarProfissional } from "./profissionais.js";
 import { registrarConsulta } from "./consultas.js";
 import { gerarPDF, gerarWord } from "./relatorios.js";
+import { carregarPacientes, renderPacientes } from "./pacientes.js";
+import { carregarProfissionais, renderProfissionais } from "./profissionais.js";
+import { carregarConsultas, renderConsultas } from "./consultas.js";
+import { carregarProntuarios, renderProntuarios } from "./prontuarios.js";
+import { carregarGastos, renderGastos } from "./financeiro.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
