@@ -24,37 +24,24 @@ async function entrar() {
     const senha =
         document.getElementById("senha").value;
 
-    try {
+try{
 
-        const usuario =
-            await signInWithEmailAndPassword(
-                auth,
-                email,
-                senha
-            );
+    const credenciais =
+    await signInWithEmailAndPassword(
+        auth,
+        email,
+        senha
+    );
 
-        const q = query(
-            collection(db, "usuarios"),
-            where("email", "==", usuario.user.email)
-        );
+    console.log("Login realizado.");
 
-        const snap = await getDocs(q);
-        console.log("Email logado:", usuario.user.email);
-console.log("Quantidade encontrada:", snap.size);
+}
+catch(e){
 
-snap.forEach(docSnap => {
-    console.log("Dados usuário:", docSnap.data());
-});
+    alert("Usuário ou senha inválidos.");
+    return;
 
-        if (snap.empty) {
-
-            alert("Usuário não possui perfil cadastrado.");
-
-            await signOut(auth);
-
-            return;
-        }
-
+}
         snap.forEach(docSnap => {
 
             perfilUsuario =
@@ -849,6 +836,27 @@ function atualizarDashboard() {
 
 }
 
+function preencherRelatorioPaciente(){
+
+    const select =
+    document.getElementById("relatorioPaciente");
+
+    if(!select) return;
+
+    select.innerHTML =
+    "<option value=''>Todos os pacientes</option>";
+
+    pacientes.forEach(p=>{
+
+        select.innerHTML +=
+        `<option value="${p.nome}">
+            ${p.nome}
+        </option>`;
+
+    });
+
+}
+
 function filtrarPacientes() {
 
     const filtro =
@@ -1092,28 +1100,13 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 });
-function preencherRelatorioPacientes(){
+window.onAuthStateChanged(window.auth, (user) => {
 
-    const select =
-        document.getElementById("relatorioPaciente");
+    if(user){
+        entrarAutomatico(user);
+    }
 
-    if(!select) return;
-
-    select.innerHTML = "";
-
-    select.innerHTML +=
-    `<option value="todos">Todos os pacientes</option>`;
-
-    pacientes.forEach(p=>{
-
-        select.innerHTML +=
-        `<option value="${p.nome}">${p.nome}</option>`;
-
-    });
-
-}
-onAuthStateChanged(auth, async (usuario) => {
-
+});
     if (usuario) {
 
         document.getElementById("login").style.display = "none";
