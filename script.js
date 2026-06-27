@@ -56,7 +56,7 @@ console.log("🏥 SIRMED V4 carregado");
                 CARREGAR TUDO
 *************************************************/
 
-async function carregarTudo() {
+export async function carregarTudo() {
 
     await carregarPacientes();
 
@@ -74,7 +74,7 @@ async function carregarTudo() {
                 RENDERIZAR TUDO
 *************************************************/
 
-function renderizarTudo() {
+export function renderizarTudo() {
 
     renderPacientes();
 
@@ -96,7 +96,7 @@ function renderizarTudo() {
 
 }
 
-function aplicarPermissoes() {
+export function aplicarPermissoes() {
     console.log("Permissões aplicadas");
 }
 
