@@ -4,7 +4,6 @@ alert("Bem-Vindo ao SIRMED - BY CB WARTH");
  * SIRMED V2
  *************************/
 
-let pacientes = [];
 let profissionais = [];
 let consultas = [];
 let gastos = [];
@@ -19,7 +18,6 @@ let perfilUsuario = "";
 async function carregarTudo() {
 
     await Promise.all([
-    carregarPacientes(),
     carregarProfissionais(),
     carregarConsultas(),
     carregarGastos(),
@@ -27,121 +25,6 @@ async function carregarTudo() {
 ]);
 
 }
-
-/*************************
- * PACIENTES
- *************************/
-
-async function carregarPacientes() {
-
-    pacientes = [];
-
-    const snap =
-        await getDocs(
-            collection(
-                db,
-                "pacientes"
-            )
-        );
-
-    snap.forEach(docSnap => {
-
-        pacientes.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
-
-    });
-
-}
-
-async function cadastrarPaciente() {
-
-    const nome =
-        document
-        .getElementById(
-            "pacienteNome"
-        )
-        .value
-        .trim();
-
-    const cpf =
-        document
-        .getElementById(
-            "pacienteCpf"
-        )
-        .value
-        .trim();
-
-    const nascimento =
-        document
-        .getElementById(
-            "pacienteNascimento"
-        )
-        .value;
-
-    const telefone =
-        document
-        .getElementById(
-            "pacienteTelefone"
-        )
-        .value
-        .trim();
-
-    const sexo =
-        document
-        .getElementById(
-            "pacienteSexo"
-        )
-        .value;
-
-    const cidade =
-        document
-        .getElementById(
-            "pacienteCidade"
-        )
-        .value
-        .trim();
-
-    if (!nome) {
-
-        alert(
-            "Informe o nome"
-        );
-
-        return;
-
-    }
-
-  await addDoc(
-    collection(db, "pacientes"),
-    {
-        nome,
-        cpf,
-        nascimento,
-        telefone,
-        sexo,
-        cidade,
-        criadoEm: serverTimestamp()
-    }
-);
-      
-// Limpar formulário
-document.getElementById("pacienteNome").value = "";
-document.getElementById("pacienteCpf").value = "";
-document.getElementById("pacienteNascimento").value = "";
-document.getElementById("pacienteTelefone").value = "";
-document.getElementById("pacienteSexo").value = "";
-document.getElementById("pacienteCidade").value = "";
-
-    await carregarPacientes();
-
-    renderPacientes();
-
-    atualizarDashboard();
-
-}
-
 /*************************
  * PROFISSIONAIS
  *************************/
@@ -231,36 +114,6 @@ async function cadastrarProfissional() {
     atualizarDashboard();
 
 }
-
-/*************************
- * RENDER PACIENTES
- *************************/
-
-function renderPacientes() {
-
-    const el = document.getElementById("listaPacientes");
-
-    if (!el) return;
-
-    el.innerHTML = "";
-
-    pacientes.forEach(p => {
-
-        el.innerHTML += `
-        <li>
-            <b>👤 ${p.nome}</b><br>
-            CPF: ${p.cpf || "-"}<br>
-            Nascimento: ${p.nascimento || "-"}<br>
-            Telefone: ${p.telefone || "-"}<br>
-            Sexo: ${p.sexo || "-"}<br>
-            Cidade: ${p.cidade || "-"}
-        </li>
-        `;
-
-    });
-
-}
-
 /*************************
  * CONSULTAS
  *************************/
@@ -820,7 +673,6 @@ function renderProntuarios(){
 
 }
 
-window.filtrarPacientes = filtrarPacientes;
 /*************************
  * RENDER GERAL
  *************************/
@@ -923,7 +775,6 @@ console.log(
 );
 window.entrar = entrar;
 window.sair = sair;
-window.cadastrarPaciente = cadastrarPaciente;
 window.cadastrarProfissional = cadastrarProfissional;
 window.registrarConsulta = registrarConsulta;
 window.filtrarProfissionais = filtrarProfissionais;
