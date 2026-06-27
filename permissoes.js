@@ -2,7 +2,7 @@
             PERMISSOES.JS - SIRMED V4
 *************************************************/
 
-function mostrar(id) {
+export function mostrar(id) {
 
     const elemento = document.getElementById(id);
 
@@ -12,7 +12,7 @@ function mostrar(id) {
 
 }
 
-function esconder(id) {
+export function esconder(id) {
 
     const elemento = document.getElementById(id);
 
@@ -22,7 +22,7 @@ function esconder(id) {
 
 }
 
-function aplicarPermissoes() {
+export function aplicarPermissoes() {
 
     // Primeiro mostra tudo
     mostrar("secaoPacientes");
