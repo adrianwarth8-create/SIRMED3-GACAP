@@ -358,60 +358,6 @@ function preencherSelectsConsulta() {
 
 }
 
-/*************************
- * DASHBOARD
- *************************/
-
-function atualizarDashboard() {
-
-    const totalPacientes =
-        document.getElementById(
-            "totalPacientes"
-        );
-
-    const totalProfissionais =
-        document.getElementById(
-            "totalProfissionais"
-        );
-
-    const totalConsultas =
-        document.getElementById(
-            "totalConsultas"
-        );
-
-    const totalGastos =
-        document.getElementById(
-            "totalGastos"
-        );
-
-    if (totalPacientes)
-        totalPacientes.innerText =
-            pacientes.length;
-
-    if (totalProfissionais)
-        totalProfissionais.innerText =
-            profissionais.length;
-
-    if (totalConsultas)
-        totalConsultas.innerText =
-            consultas.length;
-
-    let soma = 0;
-
-    gastos.forEach(g => {
-
-        soma +=
-            Number(g.valor || 0);
-
-    });
-
-    if (totalGastos)
-        totalGastos.innerText =
-            "R$ " +
-            soma.toFixed(2);
-
-}
-
 function preencherRelatorioPaciente(){
 
     const select =
