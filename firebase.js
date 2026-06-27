@@ -65,16 +65,24 @@ console.log("🏥 SIRMED conectado ao Firebase");
  * AUTH
  *************************/
 
-window.auth = auth;
+export { auth, db };
 
-window.signInWithEmailAndPassword =
-    signInWithEmailAndPassword;
-
-window.signOut =
-    signOut;
-
-window.onAuthStateChanged =
-    onAuthStateChanged;
+export {
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    updateDoc,
+    doc,
+    getDoc,
+    query,
+    where,
+    orderBy,
+    serverTimestamp
+};
 
 /*************************
  * FIRESTORE
