@@ -8,7 +8,7 @@ let consultas = [];
             CARREGAR CONSULTAS
 *************************************************/
 
-async function carregarConsultas() {
+export async function carregarConsultas() {
 
     consultas = [];
 
@@ -31,7 +31,7 @@ async function carregarConsultas() {
             REGISTRAR CONSULTA
 *************************************************/
 
-async function registrarConsulta() {
+export async function registrarConsulta() {
 
     const paciente =
         document.getElementById("consultaPaciente").value;
@@ -194,7 +194,7 @@ async function registrarConsulta() {
             RENDER CONSULTAS
 *************************************************/
 
-function renderConsultas() {
+export function renderConsultas() {
 
     const lista =
         document.getElementById("listaConsultas");
@@ -235,7 +235,7 @@ function renderConsultas() {
             FILTRAR CONSULTAS
 *************************************************/
 
-function filtrarConsultas() {
+export function filtrarConsultas() {
 
     const filtro =
         document.getElementById("pesquisaConsulta")
@@ -264,7 +264,7 @@ function filtrarConsultas() {
         PREENCHER SELECTS
 *************************************************/
 
-function preencherSelectsConsulta() {
+export function preencherSelectsConsulta() {
 
     const pacienteSelect =
         document.getElementById("consultaPaciente");
