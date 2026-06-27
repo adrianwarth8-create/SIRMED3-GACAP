@@ -46,7 +46,7 @@ export async function entrar() {
             LOGIN AUTOMÁTICO
 *************************************************/
 
-onAuthStateChanged(auth, export (user) => {
+onAuthStateChanged(auth, await (user) => {
 
     if (!user) {
 
