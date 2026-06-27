@@ -22,15 +22,9 @@
 
     <p>Sistema Integrado de Registros Médicos</p>
 
-    <input
-        id="email"
-        type="email"
-        placeholder="E-mail">
+    <input id="email" type="email" placeholder="E-mail">
 
-    <input
-        id="senha"
-        type="password"
-        placeholder="Senha">
+    <input id="senha" type="password" placeholder="Senha">
 
     <button onclick="entrar()">
         Entrar
@@ -42,244 +36,298 @@
 
 <div id="sistema" style="display:none;">
 
-    <!-- CABEÇALHO -->
+<header class="cabecalho">
 
-    <header class="cabecalho">
+    <div>
 
-        <div>
+        <h1>🏥 SIRMED</h1>
 
-            <h1>🏥 SIRMED</h1>
-
-            <p>Sistema Integrado de Registros Médicos</p>
-
-        </div>
-
-    </header>
-
-    <!-- USUÁRIO -->
-
-    <div class="usuario-logado">
-        <span id="usuarioLogado"></span>
-    </div>
-
-    <!-- SAIR -->
-
-    <button class="btn-sair" onclick="sair()">
-        🚪 Sair
-    </button>
-
-    <!-- DASHBOARD -->
-
-    <div class="dashboard">
-
-        <div class="card-dashboard">
-            <h3>👤 Pacientes</h3>
-            <span id="totalPacientes">0</span>
-        </div>
-
-        <div class="card-dashboard">
-            <h3>👨‍⚕️ Profissionais</h3>
-            <span id="totalProfissionais">0</span>
-        </div>
-
-        <div class="card-dashboard">
-            <h3>🏥 Consultas</h3>
-            <span id="totalConsultas">0</span>
-        </div>
-
-        <div class="card-dashboard">
-            <h3>💰 Gastos</h3>
-            <span id="totalGastos">R$ 0,00</span>
-        </div>
+        <p>Sistema Integrado de Registros Médicos</p>
 
     </div>
 
-    <hr>
+</header>
 
-    <!-- PACIENTES -->
+<div class="usuario-logado">
 
-   <section id="secaoPacientes">
+    <span id="usuarioLogado"></span>
 
-        <h2>👤 Cadastro de Pacientes</h2>
+</div>
 
-        <input
-            id="pacienteNome"
-            placeholder="Nome Completo">
+<button class="btn-sair" onclick="sair()">
 
-        <input
-            id="pacienteCpf"
-            placeholder="CPF">
+🚪 Sair
 
-        <input
-            id="pacienteNascimento"
-            type="date">
+</button>
 
-        <input
-            id="pacienteTelefone"
-            placeholder="Telefone">
+<!-- DASHBOARD -->
 
-        <select id="pacienteSexo">
+<div class="dashboard">
 
-            <option value="">Sexo</option>
-            <option>Masculino</option>
-            <option>Feminino</option>
+    <div class="card-dashboard">
+        <h3>👤 Pacientes</h3>
+        <span id="totalPacientes">0</span>
+    </div>
 
-        </select>
+    <div class="card-dashboard">
+        <h3>👨‍⚕️ Profissionais</h3>
+        <span id="totalProfissionais">0</span>
+    </div>
 
-        <input
-            id="pacienteCidade"
-            placeholder="Cidade">
+    <div class="card-dashboard">
+        <h3>🏥 Consultas</h3>
+        <span id="totalConsultas">0</span>
+    </div>
 
-        <button onclick="cadastrarPaciente()">
-            ➕ Cadastrar Paciente
-        </button>
+    <div class="card-dashboard">
+        <h3>💰 Financeiro</h3>
+        <span id="totalGastos">R$ 0,00</span>
+    </div>
 
-        <input
-            id="pesquisaPaciente"
-            placeholder="Pesquisar Paciente"
-            onkeyup="filtrarPacientes()">
+</div>
 
-        <ul id="listaPacientes"></ul>
+<hr>
 
-    </section>
+<!-- PACIENTES -->
 
-    <hr>
+<section id="secaoPacientes">
 
-<section>
+<h2>👤 Cadastro de Pacientes</h2>
 
-    <!-- PROFISSIONAIS -->
+<input id="pacienteNome" placeholder="Nome Completo">
 
-    <section id="secaoProfissionais">
+<input id="pacienteCpf" placeholder="CPF">
 
-        <h2>👨‍⚕️ Cadastro de Profissionais</h2>
+<input id="pacienteNascimento" type="date">
 
-        <input
-            id="profissionalNome"
-            placeholder="Nome do Profissional">
+<input id="pacienteTelefone" placeholder="Telefone">
 
-        <select id="profissionalFuncao">
+<select id="pacienteSexo">
 
-            <option value="">Função</option>
-            <option>Médico</option>
-            <option>Enfermeiro</option>
-            <option>Dentista</option>
-            <option>Técnico de Enfermagem</option>
+<option value="">Sexo</option>
 
-        </select>
+<option>Masculino</option>
 
-        <input
-            id="profissionalRegistro"
-            placeholder="CRM / COREN / CRO">
+<option>Feminino</option>
 
-        <button onclick="cadastrarProfissional()">
-            ➕ Cadastrar Profissional
-        </button>
+</select>
 
-        <input
-            id="pesquisaProfissional"
-            placeholder="Pesquisar Profissional"
-            onkeyup="filtrarProfissionais()">
+<input id="pacienteCidade" placeholder="Cidade">
 
-        <ul id="listaProfissionais"></ul>
+<button onclick="cadastrarPaciente()">
 
-    </section>
+➕ Cadastrar Paciente
 
-    <hr>
+</button>
 
-    <!-- CONSULTA -->
+<input
+id="pesquisaPaciente"
+placeholder="Pesquisar Paciente"
+onkeyup="filtrarPacientes()">
 
-    <section id="secaoConsultas">
+<ul id="listaPacientes"></ul>
 
-        <h2>🏥 Registro de Consulta</h2>
+</section>
 
-        <select id="consultaPaciente"></select>
+<hr>
 
-        <select id="consultaProfissional"></select>
+<!-- PROFISSIONAIS -->
 
-        <input
-            id="consultaQueixa"
-            placeholder="Queixa Principal">
+<section id="secaoProfissionais">
 
-        <input
-            id="consultaPA"
-            placeholder="Pressão Arterial">
+<h2>👨‍⚕️ Cadastro de Profissionais</h2>
 
-        <input
-            id="consultaFC"
-            placeholder="Frequência Cardíaca">
+<input
+id="profissionalNome"
+placeholder="Nome do Profissional">
 
-        <input
-            id="consultaTemperatura"
-            placeholder="Temperatura">
+<select id="profissionalFuncao">
 
-        <input
-            id="consultaDiagnostico"
-            placeholder="Diagnóstico">
+<option value="">Função</option>
 
-        <input
-            id="consultaPrescricao"
-            placeholder="Prescrição">
+<option>Médico</option>
 
-        <textarea
-            id="consultaObservacoes"
-            placeholder="Observações"
-            style="width:100%;height:120px;padding:10px;border-radius:8px;margin-bottom:12px;"></textarea>
+<option>Enfermeiro</option>
 
-        <input
-            id="consultaValor"
-            type="number"
-            step="0.01"
-            placeholder="Valor da Consulta">
+<option>Dentista</option>
 
-        <button onclick="registrarConsulta()">
-            💾 Registrar Consulta
-        </button>
+<option>Técnico de Enfermagem</option>
 
-    </section>
+</select>
 
-    <hr>
+<input
+id="profissionalRegistro"
+placeholder="CRM / COREN / CRO">
+
+<button onclick="cadastrarProfissional()">
+
+➕ Cadastrar Profissional
+
+</button>
+
+<input
+id="pesquisaProfissional"
+placeholder="Pesquisar Profissional"
+onkeyup="filtrarProfissionais()">
+
+<ul id="listaProfissionais"></ul>
+
+</section>
+
+<hr>
+
+<!-- CONSULTAS -->
+
+<section id="secaoConsultas">
+
+<h2>🏥 Registro de Consulta</h2>
+
+<select id="consultaPaciente"></select>
+
+<select id="consultaProfissional"></select>
+
+<input
+id="consultaQueixa"
+placeholder="Queixa Principal">
+
+<input
+id="consultaPA"
+placeholder="Pressão Arterial">
+
+<input
+id="consultaFC"
+placeholder="Frequência Cardíaca">
+
+<input
+id="consultaTemperatura"
+placeholder="Temperatura">
+
+<input
+id="consultaDiagnostico"
+placeholder="Diagnóstico">
 
 <h3>📋 Prontuário Clínico</h3>
 
 <textarea
 id="consultaExameFisico"
-placeholder="Exame Físico"
-style="width:100%;height:100px;">
-</textarea>
-    
-    <!-- HISTÓRICO -->
+placeholder="Exame Físico"></textarea>
 
-    <section>
+<input
+id="consultaPrescricao"
+placeholder="Prescrição">
 
-        <h2>📋 Histórico de Consultas</h2>
-        <h2>📁 Prontuários</h2>
+<textarea
+id="consultaObservacoes"
+placeholder="Observações"></textarea>
 
-<ul id="listaProntuarios"></ul>
+<input
+id="consultaValor"
+type="number"
+step="0.01"
+placeholder="Valor da Consulta">
 
-       <input
-id="pesquisaConsulta"
-placeholder="Pesquisar Consulta"
-onkeyup="filtrarConsultas()">
+<button onclick="registrarConsulta()">
 
-        <ul id="listaConsultas"></ul>
+💾 Registrar Consulta
 
-    </section>
+</button>
 
-    <hr>
+</section>
 
-    <!-- FINANCEIRO -->
+<hr>
 
-    <section id="financeiro">
+    <!-- CONSULTAS -->
 
-        <h2>💰 Controle Financeiro</h2>
+<section id="secaoConsultas">
 
-        <ul id="listaGastos"></ul>
+    <h2>🏥 Registro de Consulta</h2>
 
-    </section>
+    <select id="consultaPaciente"></select>
+
+    <select id="consultaProfissional"></select>
+
+    <input id="consultaQueixa" placeholder="Queixa Principal">
+
+    <input id="consultaPA" placeholder="Pressão Arterial">
+
+    <input id="consultaFC" placeholder="Frequência Cardíaca">
+
+    <input id="consultaTemperatura" placeholder="Temperatura">
+
+    <input id="consultaDiagnostico" placeholder="Diagnóstico">
+
+    <textarea
+        id="consultaExameFisico"
+        placeholder="Exame Físico"
+        style="width:100%;height:100px;">
+    </textarea>
+
+    <input
+        id="consultaPrescricao"
+        placeholder="Prescrição">
+
+    <textarea
+        id="consultaObservacoes"
+        placeholder="Observações"
+        style="width:100%;height:120px;">
+    </textarea>
+
+    <input
+        id="consultaValor"
+        type="number"
+        step="0.01"
+        placeholder="Valor da Consulta">
+
+    <button onclick="registrarConsulta()">
+        💾 Registrar Consulta
+    </button>
+
+</section>
+
+<hr>
+
+<!-- HISTÓRICO -->
+
+<section id="secaoHistorico">
+
+    <h2>📋 Histórico de Consultas</h2>
+
+    <input
+        id="pesquisaConsulta"
+        placeholder="Pesquisar Consulta"
+        onkeyup="filtrarConsultas()">
+
+    <ul id="listaConsultas"></ul>
+
+</section>
+
+<hr>
+
+<!-- PRONTUÁRIOS -->
+
+<section id="secaoProntuarios">
+
+    <h2>📁 Prontuários Clínicos</h2>
+
+    <ul id="listaProntuarios"></ul>
+
+</section>
+
+<hr>
+
+<!-- FINANCEIRO -->
+
+<section id="financeiro">
+
+    <h2>💰 Controle Financeiro</h2>
+
+    <ul id="listaGastos"></ul>
+
+</section>
 
 </div>
 
-<!-- PDF (usaremos na V3) -->
+<!-- PDF -->
 
 <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
@@ -287,7 +335,7 @@ onkeyup="filtrarConsultas()">
 
 <script type="module" src="firebase.js"></script>
 
-<!-- SISTEMA -->
+<!-- SCRIPT -->
 
 <script src="script.js"></script>
 
