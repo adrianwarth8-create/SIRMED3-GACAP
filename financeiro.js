@@ -8,7 +8,7 @@ let gastos = [];
             CARREGAR FINANCEIRO
 *************************************************/
 
-async function carregarGastos() {
+export async function carregarGastos() {
 
     gastos = [];
 
@@ -31,7 +31,7 @@ async function carregarGastos() {
             RENDER FINANCEIRO
 *************************************************/
 
-function renderGastos() {
+export function renderGastos() {
 
     const lista =
         document.getElementById("listaGastos");
@@ -76,7 +76,7 @@ Valor:
             TOTAL ARRECADADO
 *************************************************/
 
-function totalFinanceiro() {
+export function totalFinanceiro() {
 
     let total = 0;
 
@@ -94,7 +94,7 @@ function totalFinanceiro() {
             QUANTIDADE
 *************************************************/
 
-function quantidadeMovimentacoes() {
+export function quantidadeMovimentacoes() {
 
     return gastos.length;
 
@@ -104,7 +104,7 @@ function quantidadeMovimentacoes() {
             FILTRAR
 *************************************************/
 
-function filtrarFinanceiro(texto) {
+export function filtrarFinanceiro(texto) {
 
     texto = texto.toLowerCase();
 
