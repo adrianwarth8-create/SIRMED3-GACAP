@@ -66,7 +66,7 @@ onAuthStateChanged(auth, export (user) => {
     document.getElementById("usuarioLogado").innerHTML =
         `👤 ${user.email} (${perfilUsuario})`;
 
-    await carregarTudo();
+    carregarTudo();
 
     renderizarTudo();
 
