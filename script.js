@@ -12,52 +12,6 @@ let prontuarios = [];
 
 let perfilUsuario = "";
 
-
-function aplicarPermissoes() {
-
-    console.log("Aplicando permissões...");
-    console.log("Perfil:", perfilUsuario);
-
-    if (perfilUsuario === "gestor") {
-
-        return;
-
-    }
-
-    if (perfilUsuario === "medico") {
-
-        const financeiro =
-            document.getElementById("financeiro");
-
-        if (financeiro)
-            financeiro.style.display = "none";
-
-    }
-
-    if (perfilUsuario === "operador") {
-
-        const paciente =
-            document.getElementById("secaoPacientes");
-
-        const profissional =
-            document.getElementById("secaoProfissionais");
-
-        const consulta =
-            document.getElementById("secaoConsultas");
-
-        if (paciente)
-            paciente.style.display = "none";
-
-        if (profissional)
-            profissional.style.display = "none";
-
-        if (consulta)
-            consulta.style.display = "none";
-
-    }
-
-}
-
 /*************************
  * CARREGAMENTO GERAL
  *************************/
