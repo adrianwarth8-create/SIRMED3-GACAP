@@ -5,9 +5,6 @@ alert("Bem-Vindo ao SIRMED - BY CB WARTH");
  *************************/
 
 let gastos = [];
-let prontuarios = [];
-
-let perfilUsuario = "";
 
 /*************************
  * CARREGAMENTO GERAL
@@ -17,7 +14,6 @@ async function carregarTudo() {
 
     await Promise.all([
     carregarGastos(),
-    carregarProntuarios()
 ]);
 
 }
@@ -89,72 +85,12 @@ R$ ${Number(g.valor || 0).toFixed(2)}
 
 }
 
-async function carregarProntuarios(){
-
- prontuarios = [];
-
- const snap =
- await getDocs(
- collection(
- db,
- "prontuarios"
- )
- );
-
- snap.forEach(docSnap=>{
-
- prontuarios.push({
- id: docSnap.id,
- ...docSnap.data()
- });
-
- });
-
-}
-
 async function gerarPDF(){
 
     const paciente =
         document.getElementById("relatorioPaciente").value;
 
     alert("Paciente escolhido: " + paciente);
-
-}
-
-function renderProntuarios(){
-
- const el =
- document.getElementById(
- "listaProntuarios"
- );
-
- if(!el) return;
-
- el.innerHTML = "";
-
- prontuarios.forEach(p=>{
-
- el.innerHTML += `
-
-<li>
-
-<b>👤 ${p.pacienteNome}</b><br>
-
-👨‍⚕️ ${p.profissional}<br>
-
-📅 ${p.data}<br>
-
-🩺 ${p.queixa}<br>
-
-📋 ${p.diagnostico}<br>
-
-💊 ${p.prescricao}
-
-</li>
-
-`;
-
- });
 
 }
 
@@ -167,8 +103,6 @@ function renderizarTudo(){
 
 
  renderGastos();
-
- renderProntuarios();
 
 }
 
