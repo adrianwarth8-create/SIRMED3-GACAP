@@ -37,7 +37,7 @@ async function entrar() {
             LOGIN AUTOMÁTICO
 *************************************************/
 
-window.onAuthStateChanged(window.auth, async(user)=>{
+window.onAuthStateChanged(window.auth, async (user) => {
 
     if (!user) {
 
