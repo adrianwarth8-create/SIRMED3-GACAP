@@ -1,3 +1,12 @@
+import {
+    auth,
+    db,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    doc,
+    getDoc
+} from "./firebase.js";
 /*************************************************
                 LOGIN.JS - SIRMED V4
 *************************************************/
@@ -37,13 +46,12 @@ async function entrar() {
             LOGIN AUTOMÁTICO
 *************************************************/
 
-window.onAuthStateChanged(window.auth, async (user) => {
+onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
 
         document.getElementById("login").style.display = "block";
         document.getElementById("sistema").style.display = "none";
-
         return;
 
     }
@@ -65,7 +73,6 @@ window.onAuthStateChanged(window.auth, async (user) => {
     aplicarPermissoes();
 
 });
-
 /*************************************************
             CARREGAR PERFIL
 *************************************************/
@@ -112,9 +119,8 @@ async function sair() {
                 EXPORTAÇÃO
 *************************************************/
 
-window.entrar = entrar;
-window.sair = sair;
-window.perfilUsuario = () => perfilUsuario;
-window.usuarioAtual = () => usuarioAtual;
+export { entrar, sair };
+export const perfilUsuarioAtual = () => perfilUsuario;
+export const usuarioAtualLogado = () => usuarioAtual;
 
 console.log("✅ login.js carregado");
