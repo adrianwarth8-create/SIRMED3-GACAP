@@ -8,7 +8,7 @@ let pacientes = [];
         CARREGAR PACIENTES
 *************************************************/
 
-async function carregarPacientes(){
+export async function carregarPacientes(){
 
     pacientes = [];
 
@@ -96,7 +96,7 @@ export async function cadastrarPaciente(){
         RENDER
 *************************************************/
 
-function renderPacientes(){
+export function renderPacientes(){
 
     const lista =
         document.getElementById("listaPacientes");
@@ -135,7 +135,7 @@ Cidade: ${p.cidade || "-"}
         PESQUISA
 *************************************************/
 
-function filtrarPacientes(){
+export function filtrarPacientes(){
 
     const filtro =
         document
@@ -165,7 +165,7 @@ function filtrarPacientes(){
         LIMPAR FORMULÁRIO
 *************************************************/
 
-function limparFormularioPaciente(){
+export function limparFormularioPaciente(){
 
     document.getElementById("pacienteNome").value="";
 
