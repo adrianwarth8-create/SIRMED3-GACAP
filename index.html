@@ -236,56 +236,6 @@ placeholder="Valor da Consulta">
 
 <hr>
 
-    <!-- CONSULTAS -->
-
-<section id="secaoConsultas">
-
-    <h2>🏥 Registro de Consulta</h2>
-
-    <select id="consultaPaciente"></select>
-
-    <select id="consultaProfissional"></select>
-
-    <input id="consultaQueixa" placeholder="Queixa Principal">
-
-    <input id="consultaPA" placeholder="Pressão Arterial">
-
-    <input id="consultaFC" placeholder="Frequência Cardíaca">
-
-    <input id="consultaTemperatura" placeholder="Temperatura">
-
-    <input id="consultaDiagnostico" placeholder="Diagnóstico">
-
-    <textarea
-        id="consultaExameFisico"
-        placeholder="Exame Físico"
-        style="width:100%;height:100px;">
-    </textarea>
-
-    <input
-        id="consultaPrescricao"
-        placeholder="Prescrição">
-
-    <textarea
-        id="consultaObservacoes"
-        placeholder="Observações"
-        style="width:100%;height:120px;">
-    </textarea>
-
-    <input
-        id="consultaValor"
-        type="number"
-        step="0.01"
-        placeholder="Valor da Consulta">
-
-    <button onclick="registrarConsulta()">
-        💾 Registrar Consulta
-    </button>
-
-</section>
-
-<hr>
-
 <!-- HISTÓRICO -->
 
 <section id="secaoHistorico">
@@ -317,23 +267,35 @@ placeholder="Valor da Consulta">
 
 <section id="secaoRelatorios">
 
-    <h2>📄 Relatórios</h2>
+<h2>📄 Central de Relatórios</h2>
 
-    <select id="relatorioPaciente">
-        <option value="">Selecione o paciente</option>
-    </select>
+<select id="relatorioPaciente">
+<option value="">Selecione um paciente</option>
+</select>
 
-    <input type="date" id="dataInicial">
+<select id="relatorioProfissional">
+<option value="">Todos os profissionais</option>
+</select>
 
-    <input type="date" id="dataFinal">
+<input type="date" id="dataInicial">
 
-    <button onclick="gerarPDF()">
-        📕 Gerar PDF
-    </button>
+<input type="date" id="dataFinal">
 
-    <button onclick="gerarWord()">
-        📄 Gerar Word
-    </button>
+<div class="botoesRelatorio">
+
+<button onclick="gerarPDF()">
+📕 Gerar PDF
+</button>
+
+<button onclick="gerarWord()">
+📄 Gerar Word
+</button>
+
+<button onclick="window.print()">
+🖨️ Imprimir
+</button>
+
+</div>
 
 </section>
     
