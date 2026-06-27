@@ -31,7 +31,7 @@ async function carregarPacientes(){
         CADASTRAR PACIENTE
 *************************************************/
 
-async function cadastrarPaciente(){
+export async function cadastrarPaciente(){
 
     const nome =
         document.getElementById("pacienteNome").value.trim();
