@@ -8,7 +8,7 @@ let profissionais = [];
         CARREGAR
 *************************************************/
 
-async function carregarProfissionais(){
+ export async function carregarProfissionais(){
 
     profissionais = [];
 
@@ -31,7 +31,7 @@ async function carregarProfissionais(){
         CADASTRAR
 *************************************************/
 
-async function cadastrarProfissional(){
+export async function cadastrarProfissional(){
 
     const nome =
         document.getElementById("profissionalNome").value.trim();
@@ -82,7 +82,7 @@ async function cadastrarProfissional(){
         RENDER
 *************************************************/
 
-function renderProfissionais(){
+export function renderProfissionais(){
 
     const lista =
         document.getElementById("listaProfissionais");
@@ -115,7 +115,7 @@ Registro: ${p.registro || "-"}
         PESQUISA
 *************************************************/
 
-function filtrarProfissionais(){
+export function filtrarProfissionais(){
 
     const filtro =
         document.getElementById("pesquisaProfissional")
@@ -144,7 +144,7 @@ function filtrarProfissionais(){
         LIMPAR FORMULÁRIO
 *************************************************/
 
-function limparFormularioProfissional(){
+export function limparFormularioProfissional(){
 
     document.getElementById("profissionalNome").value="";
 
