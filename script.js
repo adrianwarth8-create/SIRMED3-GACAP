@@ -96,11 +96,15 @@ function renderizarTudo() {
 
 }
 
+function aplicarPermissoes() {
+    console.log("Permissões aplicadas");
+}
+
 /*************************************************
                 EXPORTAÇÃO
 *************************************************/
 
 window.carregarTudo = carregarTudo;
 window.renderizarTudo = renderizarTudo;
-
+window.aplicarPermissoes = aplicarPermissoes;
 console.log("✅ script.js carregado");
