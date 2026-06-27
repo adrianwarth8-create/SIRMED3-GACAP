@@ -170,7 +170,7 @@ document.getElementById(
         }
     );
 
-    alert(
+    mensagem(
         "Consulta registrada com sucesso"
     );
 
