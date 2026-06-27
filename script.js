@@ -73,6 +73,42 @@ snap.forEach(docSnap => {
             .innerHTML =
             `👤 ${usuario.user.email} (${perfilUsuario})`;
 
+// Buscar perfil do usuário logado
+const docUser = await getDoc(
+    doc(db, "usuarios", usuario.user.uid)
+);
+
+if (docUser.exists()) {
+
+    const perfil = docUser.data().perfil;
+
+    if (perfil === "medico") {
+
+        // Médico NÃO vê essas áreas
+        document.getElementById("secaoProfissionais").style.display = "none";
+        document.getElementById("financeiro").style.display = "none";
+        document.getElementById("secaoProntuarios").style.display = "none";
+
+    }
+
+    if (perfil === "operador") {
+
+        // Operador SIRE NÃO vê essas áreas
+        document.getElementById("secaoPacientes").style.display = "none";
+        document.getElementById("secaoProfissionais").style.display = "none";
+        document.getElementById("secaoConsultas").style.display = "none";
+
+        // O operador continua vendo:
+        // Dashboard
+        // Histórico de Consultas
+        // Prontuários
+        // Financeiro
+
+    }
+
+    // Gestor vê tudo, não precisa esconder nada
+}
+        
         await carregarTudo();
 
         renderizarTudo();
