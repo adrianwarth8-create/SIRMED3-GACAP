@@ -1,5 +1,5 @@
 /*************************************************
-          PERMISSOES.JS - SIRMED V4.3
+        PERMISSOES.JS - SIRMED V4.4
 *************************************************/
 
 import {
@@ -8,55 +8,125 @@ import {
 
 
 /*************************************************
-              MAPA DE PERMISSÕES
+            MAPA DE PERMISSÕES
 *************************************************/
 
 const permissoes = {
 
+
+    /*************************************************
+                    GESTOR
+    *************************************************/
+
     gestor: [
+
         "inicio",
+
         "secaoPacientes",
+
         "secaoProfissionais",
+
         "secaoConsultas",
+
         "secaoHistorico",
+
         "secaoProntuarios",
+
+        "secaoTriagem",
+
         "financeiro",
+
         "secaoRelatorios"
+
     ],
+
+
+    /*************************************************
+                    MÉDICO
+    *************************************************/
 
     medico: [
+
         "inicio",
+
         "secaoPacientes",
+
         "secaoConsultas",
+
         "secaoHistorico",
+
         "secaoProntuarios"
+
     ],
 
+
+    /*************************************************
+                    OPERADOR
+    *************************************************/
+
     operador: [
+
         "inicio",
+
         "financeiro",
+
         "secaoRelatorios"
+
+    ],
+
+
+    /*************************************************
+                    TRIAGEM
+    *************************************************/
+
+    triagem: [
+
+        "inicio",
+
+        "secaoPacientes",
+
+        "secaoTriagem"
+
     ]
 
 };
 
 
 /*************************************************
-             OBTER PERMISSÕES
+            NORMALIZAR PERFIL
+*************************************************/
+
+function obterPerfilAtual() {
+
+    return String(
+        perfilUsuarioAtual() || ""
+    )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+/*************************************************
+            OBTER PERMISSÕES
 *************************************************/
 
 export function obterPermissoesPerfil() {
 
     const perfil =
-        String(
-            perfilUsuarioAtual() || ""
-        )
-        .trim()
-        .toLowerCase();
+        obterPerfilAtual();
 
 
-    return permissoes[perfil]
-        || ["inicio"];
+    /*
+        Caso o perfil não seja reconhecido,
+        libera somente o início.
+    */
+
+    return (
+        permissoes[perfil]
+        ||
+        ["inicio"]
+    );
 
 }
 
@@ -69,10 +139,13 @@ export function temPermissao(
     secaoId
 ) {
 
-    return obterPermissoesPerfil()
-        .includes(
-            secaoId
-        );
+    const permitidas =
+        obterPermissoesPerfil();
+
+
+    return permitidas.includes(
+        secaoId
+    );
 
 }
 
@@ -84,11 +157,7 @@ export function temPermissao(
 export function aplicarPermissoes() {
 
     const perfil =
-        String(
-            perfilUsuarioAtual() || ""
-        )
-        .trim()
-        .toLowerCase();
+        obterPerfilAtual();
 
 
     const permitidas =
@@ -108,7 +177,7 @@ export function aplicarPermissoes() {
 
 
     /*************************************************
-                SEÇÕES DO SISTEMA
+            CONTROLAR SEÇÕES
     *************************************************/
 
     document
@@ -128,6 +197,11 @@ export function aplicarPermissoes() {
                     !permitido;
 
 
+                /*
+                    Remove a classe ativa
+                    das seções proibidas.
+                */
+
                 if (!permitido) {
 
                     secao.classList.remove(
@@ -141,7 +215,7 @@ export function aplicarPermissoes() {
 
 
     /*************************************************
-                MENU PRINCIPAL
+            CONTROLAR MENU
     *************************************************/
 
     document
@@ -155,6 +229,16 @@ export function aplicarPermissoes() {
                     botao.dataset.secao;
 
 
+                if (!destino) {
+
+                    botao.hidden =
+                        true;
+
+                    return;
+
+                }
+
+
                 const permitido =
                     permitidas.includes(
                         destino
@@ -164,6 +248,11 @@ export function aplicarPermissoes() {
                 botao.hidden =
                     !permitido;
 
+
+                /*
+                    Remove marcação ativa
+                    dos botões proibidos.
+                */
 
                 if (!permitido) {
 
@@ -178,74 +267,179 @@ export function aplicarPermissoes() {
 
 
     /*************************************************
-            GARANTIR TELA INICIAL
+        VERIFICAR SE A TELA ATIVA É PERMITIDA
     *************************************************/
 
-    const ativa =
+    const telaAtiva =
         document.querySelector(
-            ".tela-sistema.tela-ativa:not([hidden])"
+            ".tela-sistema.tela-ativa"
         );
 
 
-    if (!ativa) {
+    if (
+        telaAtiva
+        &&
+        permitidas.includes(
+            telaAtiva.id
+        )
+        &&
+        !telaAtiva.hidden
+    ) {
 
-        document
-            .querySelectorAll(
-                ".tela-sistema"
-            )
-            .forEach(
-                (secao) => {
-
-                    secao.classList.remove(
-                        "tela-ativa"
-                    );
-
-                }
-            );
-
-
-        const inicio =
-            document.getElementById(
-                "inicio"
-            );
+        console.log(
+            "✅ Tela ativa autorizada:",
+            telaAtiva.id
+        );
 
 
-        if (inicio) {
-
-            inicio.hidden =
-                false;
-
-            inicio.classList.add(
-                "tela-ativa"
-            );
-
-        }
-
-
-        document
-            .querySelectorAll(
-                ".menu-item"
-            )
-            .forEach(
-                (botao) => {
-
-                    botao.classList.toggle(
-                        "ativo",
-                        botao.dataset.secao ===
-                            "inicio"
-                    );
-
-                }
-            );
+        return;
 
     }
 
 
+    /*************************************************
+                ABRIR INÍCIO
+    *************************************************/
+
+    document
+        .querySelectorAll(
+            ".tela-sistema"
+        )
+        .forEach(
+            (secao) => {
+
+                secao.classList.remove(
+                    "tela-ativa"
+                );
+
+            }
+        );
+
+
+    const inicio =
+        document.getElementById(
+            "inicio"
+        );
+
+
+    if (inicio) {
+
+        inicio.hidden =
+            false;
+
+
+        inicio.classList.add(
+            "tela-ativa"
+        );
+
+    }
+
+
+    /*************************************************
+            MARCAR BOTÃO INÍCIO
+    *************************************************/
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.classList.toggle(
+
+                    "ativo",
+
+                    botao.dataset.secao ===
+                    "inicio"
+
+                );
+
+            }
+        );
+
+
     console.log(
-        "✅ Permissões aplicadas."
+        "🏠 Tela inicial ativada."
     );
 
 }
+
+
+/*************************************************
+        VERIFICAR PERFIL ESPECÍFICO
+*************************************************/
+
+export function usuarioEhGestor() {
+
+    return (
+        obterPerfilAtual()
+        ===
+        "gestor"
+    );
+
+}
+
+
+export function usuarioEhMedico() {
+
+    return (
+        obterPerfilAtual()
+        ===
+        "medico"
+    );
+
+}
+
+
+export function usuarioEhOperador() {
+
+    return (
+        obterPerfilAtual()
+        ===
+        "operador"
+    );
+
+}
+
+
+export function usuarioEhTriagem() {
+
+    return (
+        obterPerfilAtual()
+        ===
+        "triagem"
+    );
+
+}
+
+
+/*************************************************
+            EXPORTAÇÃO GLOBAL
+*************************************************/
+
+window.temPermissao =
+    temPermissao;
+
+
+window.aplicarPermissoes =
+    aplicarPermissoes;
+
+
+window.usuarioEhGestor =
+    usuarioEhGestor;
+
+
+window.usuarioEhMedico =
+    usuarioEhMedico;
+
+
+window.usuarioEhOperador =
+    usuarioEhOperador;
+
+
+window.usuarioEhTriagem =
+    usuarioEhTriagem;
 
 
 /*************************************************
@@ -253,5 +447,5 @@ export function aplicarPermissoes() {
 *************************************************/
 
 console.log(
-    "✅ permissoes.js V4.3 carregado"
+    "✅ permissoes.js V4.4 carregado"
 );
