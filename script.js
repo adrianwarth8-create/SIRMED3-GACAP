@@ -1,5 +1,5 @@
 /*************************************************
-                SCRIPT.JS - SIRMED V4
+                SCRIPT.JS - SIRMED V4.1
 *************************************************/
 
 import {
@@ -137,11 +137,6 @@ export function renderizarTudo() {
 
 async function atualizarSistema() {
 
-    /*
-        Impede duas atualizações completas
-        ao mesmo tempo.
-    */
-
     if (
         atualizacaoEmAndamento
     ) {
@@ -162,23 +157,11 @@ async function atualizarSistema() {
                     );
 
 
-                    /*********************************
-                        CARREGAR FIRESTORE
-                    *********************************/
-
                     await carregarTudo();
 
 
-                    /*********************************
-                        ATUALIZAR INTERFACE
-                    *********************************/
-
                     renderizarTudo();
 
-
-                    /*********************************
-                        APLICAR PERMISSÕES
-                    *********************************/
 
                     aplicarPermissoes();
 
@@ -219,14 +202,8 @@ async function atualizarSistema() {
                 LIGAR EVENTOS
 *************************************************/
 
-document
-    .getElementById(
-        "pesquisaProntuario"
-    )
-    ?.addEventListener(
-        "input",
-        filtrarProntuarios
-    );
+function ligarEventos() {
+
 
     /*************************************************
                         LOGIN
@@ -253,7 +230,7 @@ document
 
 
     /*************************************************
-                ENTER NA SENHA
+                    ENTER NA SENHA
     *************************************************/
 
     document
@@ -323,7 +300,7 @@ document
 
 
     /*************************************************
-                FORMATAÇÃO TELEFONE
+            FORMATAÇÃO TELEFONE
     *************************************************/
 
     document
@@ -344,7 +321,7 @@ document
 
 
     /*************************************************
-                    PROFISSIONAIS
+                PROFISSIONAIS
     *************************************************/
 
     document
@@ -392,6 +369,20 @@ document
 
 
     /*************************************************
+                    PRONTUÁRIOS
+    *************************************************/
+
+    document
+        .getElementById(
+            "pesquisaProntuario"
+        )
+        ?.addEventListener(
+            "input",
+            filtrarProntuarios
+        );
+
+
+    /*************************************************
                     RELATÓRIOS
     *************************************************/
 
@@ -430,9 +421,8 @@ document
 
 
     /*************************************************
-        EVENTO INTERNO DE ATUALIZAÇÃO DO SIRMED
+            EVENTO INTERNO DO SIRMED
     *************************************************/
-function ligareventos() {
 
     document
         .addEventListener(
@@ -441,6 +431,8 @@ function ligareventos() {
         );
 
 }
+
+
 /*************************************************
             INICIAR O SIRMED
 *************************************************/
@@ -452,7 +444,7 @@ document.addEventListener(
     () => {
 
         console.log(
-            "🏥 SIRMED V4 carregado"
+            "🏥 SIRMED V4.1 carregado"
         );
 
 
@@ -469,10 +461,6 @@ document.addEventListener(
 
         iniciarObservadorAuth({
 
-            /*********************************
-                    AO ENTRAR
-            *********************************/
-
             aoEntrar:
                 async () => {
 
@@ -485,10 +473,6 @@ document.addEventListener(
 
                 },
 
-
-            /*********************************
-                    AO SAIR
-            *********************************/
 
             aoSair:
                 async () => {
@@ -511,5 +495,5 @@ document.addEventListener(
 *************************************************/
 
 console.log(
-    "✅ script.js carregado"
+    "✅ script.js V4.1 carregado"
 );
