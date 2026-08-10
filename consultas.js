@@ -1,24 +1,19 @@
 /*************************************************
-              CONSULTAS.JS - SIRMED V4
+              CONSULTAS.JS - SIRMED V4.1
 *************************************************/
 
 import {
     db,
     collection,
+    addDoc,
     getDocs,
+    updateDoc,
+    deleteDoc,
     doc,
-    serverTimestamp,
-    writeBatch
+    query,
+    where,
+    serverTimestamp
 } from "./firebase.js";
-
-import {
-    mensagem,
-    limparCampos,
-    formatarMoeda,
-    formatarData,
-    dataAtualISO,
-    escaparHTML
-} from "./utils.js";
 
 import {
     obterPacientes
@@ -28,12 +23,24 @@ import {
     obterProfissionais
 } from "./profissionais.js";
 
+import {
+    mensagem,
+    confirmar,
+    limparCampos,
+    formatarMoeda,
+    formatarData,
+    dataAtual,
+    escaparHTML
+} from "./utils.js";
+
 
 /*************************************************
-                VARIÁVEL PRINCIPAL
+                    VARIÁVEIS
 *************************************************/
 
 const consultas = [];
+
+let consultaEmEdicao = null;
 
 
 /*************************************************
@@ -81,33 +88,13 @@ export async function carregarConsultas() {
 
             consultas.push({
 
-                id:
-                    docSnap.id,
+                id: docSnap.id,
 
                 ...docSnap.data()
 
             });
 
         }
-    );
-
-
-    /*************************************************
-                ORDENAR POR DATA
-    *************************************************/
-
-    consultas.sort(
-        (a, b) =>
-
-            String(
-                b.data || ""
-            ).localeCompare(
-
-                String(
-                    a.data || ""
-                )
-
-            )
     );
 
 }
@@ -119,51 +106,41 @@ export async function carregarConsultas() {
 
 export async function registrarConsulta() {
 
+    const pacienteSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    const profissionalSelect =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
     const pacienteId =
-        document
-            .getElementById(
-                "consultaPaciente"
-            )
-            ?.value
-        || "";
+        pacienteSelect?.value || "";
 
 
     const profissionalId =
-        document
-            .getElementById(
-                "consultaProfissional"
-            )
-            ?.value
+        profissionalSelect?.value || "";
+
+
+    const paciente =
+        pacienteSelect
+            ?.selectedOptions[0]
+            ?.textContent
+            ?.trim()
         || "";
 
 
-    /*************************************************
-            LOCALIZAR PACIENTE
-    *************************************************/
-
-    const paciente =
-        obterPacientes()
-            .find(
-                (p) =>
-                    p.id === pacienteId
-            );
-
-
-    /*************************************************
-            LOCALIZAR PROFISSIONAL
-    *************************************************/
-
     const profissional =
-        obterProfissionais()
-            .find(
-                (p) =>
-                    p.id === profissionalId
-            );
+        profissionalSelect
+            ?.selectedOptions[0]
+            ?.textContent
+            ?.trim()
+        || "";
 
-
-    /*************************************************
-                    CAMPOS
-    *************************************************/
 
     const queixa =
         document
@@ -245,27 +222,16 @@ export async function registrarConsulta() {
         || "";
 
 
-    /*************************************************
-                    VALOR
-    *************************************************/
-
-    const valorTexto =
-        document
-            .getElementById(
-                "consultaValor"
-            )
-            ?.value
-        || "0";
-
-
     const valor =
         Number(
-            String(
-                valorTexto
-            ).replace(
-                ",",
-                "."
-            )
+
+            document
+                .getElementById(
+                    "consultaValor"
+                )
+                ?.value
+            || 0
+
         );
 
 
@@ -274,8 +240,8 @@ export async function registrarConsulta() {
     *************************************************/
 
     if (
-        !paciente ||
-        !profissional
+        !pacienteId ||
+        !profissionalId
     ) {
 
         mensagem(
@@ -287,240 +253,213 @@ export async function registrarConsulta() {
     }
 
 
-    if (
-        !Number.isFinite(valor) ||
-        valor < 0
-    ) {
-
-        mensagem(
-            "Informe um valor válido para a consulta."
-        );
-
-        return;
-
-    }
-
-
-    const data =
-        dataAtualISO();
-
-
-    /*************************************************
-            GRAVAÇÃO EM LOTE
-    *************************************************/
-
     try {
 
-        const batch =
-            writeBatch(db);
-
-
         /*************************************************
-                    CONSULTA
+                    EDITAR CONSULTA
         *************************************************/
 
-        const consultaRef =
-            doc(
-                collection(
-                    db,
-                    "consultas"
-                )
-            );
+        if (
+            consultaEmEdicao
+        ) {
 
+            await atualizarConsulta({
 
-        batch.set(
+                pacienteId,
+                paciente,
 
-            consultaRef,
-
-            {
-
-                pacienteId:
-                    paciente.id,
-
-                paciente:
-                    paciente.nome,
-
-                profissionalId:
-                    profissional.id,
-
-                profissional:
-                    profissional.nome,
+                profissionalId,
+                profissional,
 
                 queixa,
-
                 pa,
-
                 fc,
-
                 temperatura,
 
                 diagnostico,
-
                 exameFisico,
-
                 prescricao,
-
                 observacoes,
 
-                valor,
+                valor
 
-                data,
-
-                criadoEm:
-                    serverTimestamp()
-
-            }
-
-        );
+            });
 
 
-        /*************************************************
-                    FINANCEIRO
-        *************************************************/
-
-        const gastoRef =
-            doc(
-                collection(
-                    db,
-                    "gastos"
-                )
+            mensagem(
+                "Consulta atualizada com sucesso."
             );
 
 
-        batch.set(
+            consultaEmEdicao =
+                null;
 
-            gastoRef,
 
-            {
+            atualizarBotaoConsulta(
+                false
+            );
 
-                consultaId:
-                    consultaRef.id,
-
-                tipo:
-                    "Consulta Médica",
-
-                pacienteId:
-                    paciente.id,
-
-                paciente:
-                    paciente.nome,
-
-                valor,
-
-                data,
-
-                criadoEm:
-                    serverTimestamp()
-
-            }
-
-        );
+        }
 
 
         /*************************************************
-                    PRONTUÁRIO
+                    NOVA CONSULTA
         *************************************************/
 
-        const prontuarioRef =
-            doc(
+        else {
+
+            const data =
+                dataAtual();
+
+
+            /*************************************************
+                CRIAR CONSULTA PRINCIPAL
+            *************************************************/
+
+            const consultaRef =
+                await addDoc(
+
+                    collection(
+                        db,
+                        "consultas"
+                    ),
+
+                    {
+
+                        pacienteId,
+                        paciente,
+
+                        profissionalId,
+                        profissional,
+
+                        queixa,
+
+                        pa,
+
+                        fc,
+
+                        temperatura,
+
+                        diagnostico,
+
+                        exameFisico,
+
+                        prescricao,
+
+                        observacoes,
+
+                        valor,
+
+                        data,
+
+                        criadoEm:
+                            serverTimestamp()
+
+                    }
+
+                );
+
+
+            const consultaId =
+                consultaRef.id;
+
+
+            /*************************************************
+                    CRIAR PRONTUÁRIO
+            *************************************************/
+
+            await addDoc(
+
                 collection(
                     db,
                     "prontuarios"
-                )
+                ),
+
+                {
+
+                    consultaId,
+
+                    pacienteId,
+
+                    pacienteNome:
+                        paciente,
+
+                    profissionalId,
+
+                    profissional,
+
+                    data,
+
+                    queixa,
+
+                    pa,
+
+                    fc,
+
+                    temperatura,
+
+                    exameFisico,
+
+                    diagnostico,
+
+                    prescricao,
+
+                    observacoes,
+
+                    criadoEm:
+                        serverTimestamp()
+
+                }
+
             );
 
 
-        batch.set(
+            /*************************************************
+                    CRIAR FINANCEIRO
+            *************************************************/
 
-            prontuarioRef,
+            await addDoc(
 
-            {
+                collection(
+                    db,
+                    "gastos"
+                ),
 
-                consultaId:
-                    consultaRef.id,
+                {
 
-                pacienteId:
-                    paciente.id,
+                    consultaId,
 
-                pacienteNome:
-                    paciente.nome,
+                    tipo:
+                        "Consulta Médica",
 
-                profissionalId:
-                    profissional.id,
+                    pacienteId,
 
-                profissional:
-                    profissional.nome,
+                    paciente,
 
-                profissionalNome:
-                    profissional.nome,
+                    valor,
 
-                data,
+                    data,
 
-                queixa,
+                    criadoEm:
+                        serverTimestamp()
 
-                pa,
+                }
 
-                fc,
+            );
 
-                temperatura,
 
-                exameFisico,
+            mensagem(
+                "Consulta registrada com sucesso."
+            );
 
-                diagnostico,
+        }
 
-                prescricao,
 
-                observacoes,
-
-                criadoEm:
-                    serverTimestamp()
-
-            }
-
-        );
+        limparFormularioConsulta();
 
 
         /*************************************************
-                CONFIRMAR GRAVAÇÃO
-        *************************************************/
-
-        await batch.commit();
-
-
-        /*************************************************
-                LIMPAR FORMULÁRIO
-        *************************************************/
-
-        limparCampos([
-
-            "consultaQueixa",
-
-            "consultaPA",
-
-            "consultaFC",
-
-            "consultaTemperatura",
-
-            "consultaDiagnostico",
-
-            "consultaExameFisico",
-
-            "consultaPrescricao",
-
-            "consultaObservacoes",
-
-            "consultaValor"
-
-        ]);
-
-
-        mensagem(
-            "Consulta registrada com sucesso."
-        );
-
-
-        /*************************************************
-                ATUALIZAR SISTEMA
+                ATUALIZAR TODO O SISTEMA
         *************************************************/
 
         document.dispatchEvent(
@@ -549,6 +488,580 @@ export async function registrarConsulta() {
 
 
 /*************************************************
+                EDITAR CONSULTA
+*************************************************/
+
+export function editarConsulta(
+    id
+) {
+
+    const consulta =
+        consultas.find(
+            (c) =>
+                c.id === id
+        );
+
+
+    if (!consulta) {
+
+        mensagem(
+            "Consulta não encontrada."
+        );
+
+        return;
+
+    }
+
+
+    consultaEmEdicao =
+        id;
+
+
+    /*************************************************
+                    SELECT PACIENTE
+    *************************************************/
+
+    const pacienteSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    if (
+        pacienteSelect
+    ) {
+
+        if (
+            consulta.pacienteId
+        ) {
+
+            pacienteSelect.value =
+                consulta.pacienteId;
+
+        } else {
+
+            const option =
+                [
+                    ...pacienteSelect.options
+                ]
+                .find(
+                    (op) =>
+                        op.textContent.trim() ===
+                        consulta.paciente
+                );
+
+
+            if (option) {
+
+                pacienteSelect.value =
+                    option.value;
+
+            }
+
+        }
+
+    }
+
+
+    /*************************************************
+                SELECT PROFISSIONAL
+    *************************************************/
+
+    const profissionalSelect =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    if (
+        profissionalSelect
+    ) {
+
+        if (
+            consulta.profissionalId
+        ) {
+
+            profissionalSelect.value =
+                consulta.profissionalId;
+
+        } else {
+
+            const option =
+                [
+                    ...profissionalSelect.options
+                ]
+                .find(
+                    (op) =>
+                        op.textContent.trim() ===
+                        consulta.profissional
+                );
+
+
+            if (option) {
+
+                profissionalSelect.value =
+                    option.value;
+
+            }
+
+        }
+
+    }
+
+
+    /*************************************************
+                    CAMPOS
+    *************************************************/
+
+    definirValor(
+        "consultaQueixa",
+        consulta.queixa
+    );
+
+
+    definirValor(
+        "consultaPA",
+        consulta.pa
+    );
+
+
+    definirValor(
+        "consultaFC",
+        consulta.fc
+    );
+
+
+    definirValor(
+        "consultaTemperatura",
+        consulta.temperatura
+    );
+
+
+    definirValor(
+        "consultaDiagnostico",
+        consulta.diagnostico
+    );
+
+
+    definirValor(
+        "consultaExameFisico",
+        consulta.exameFisico
+    );
+
+
+    definirValor(
+        "consultaPrescricao",
+        consulta.prescricao
+    );
+
+
+    definirValor(
+        "consultaObservacoes",
+        consulta.observacoes
+    );
+
+
+    definirValor(
+        "consultaValor",
+        consulta.valor
+    );
+
+
+    atualizarBotaoConsulta(
+        true
+    );
+
+
+    document
+        .getElementById(
+            "secaoConsultas"
+        )
+        ?.scrollIntoView({
+
+            behavior:
+                "smooth"
+
+        });
+
+}
+
+
+/*************************************************
+                ATUALIZAR CONSULTA
+*************************************************/
+
+async function atualizarConsulta(
+    dados
+) {
+
+    const id =
+        consultaEmEdicao;
+
+
+    /*************************************************
+                    CONSULTA
+    *************************************************/
+
+    await updateDoc(
+
+        doc(
+            db,
+            "consultas",
+            id
+        ),
+
+        {
+
+            ...dados,
+
+            atualizadoEm:
+                serverTimestamp()
+
+        }
+
+    );
+
+
+    /*************************************************
+                    PRONTUÁRIO
+    *************************************************/
+
+    const prontuarioQuery =
+        query(
+
+            collection(
+                db,
+                "prontuarios"
+            ),
+
+            where(
+                "consultaId",
+                "==",
+                id
+            )
+
+        );
+
+
+    const prontuarioSnap =
+        await getDocs(
+            prontuarioQuery
+        );
+
+
+    for (
+        const prontuarioDoc
+        of prontuarioSnap.docs
+    ) {
+
+        await updateDoc(
+
+            doc(
+                db,
+                "prontuarios",
+                prontuarioDoc.id
+            ),
+
+            {
+
+                pacienteId:
+                    dados.pacienteId,
+
+                pacienteNome:
+                    dados.paciente,
+
+                profissionalId:
+                    dados.profissionalId,
+
+                profissional:
+                    dados.profissional,
+
+                queixa:
+                    dados.queixa,
+
+                pa:
+                    dados.pa,
+
+                fc:
+                    dados.fc,
+
+                temperatura:
+                    dados.temperatura,
+
+                exameFisico:
+                    dados.exameFisico,
+
+                diagnostico:
+                    dados.diagnostico,
+
+                prescricao:
+                    dados.prescricao,
+
+                observacoes:
+                    dados.observacoes,
+
+                atualizadoEm:
+                    serverTimestamp()
+
+            }
+
+        );
+
+    }
+
+
+    /*************************************************
+                    FINANCEIRO
+    *************************************************/
+
+    const financeiroQuery =
+        query(
+
+            collection(
+                db,
+                "gastos"
+            ),
+
+            where(
+                "consultaId",
+                "==",
+                id
+            )
+
+        );
+
+
+    const financeiroSnap =
+        await getDocs(
+            financeiroQuery
+        );
+
+
+    for (
+        const financeiroDoc
+        of financeiroSnap.docs
+    ) {
+
+        await updateDoc(
+
+            doc(
+                db,
+                "gastos",
+                financeiroDoc.id
+            ),
+
+            {
+
+                pacienteId:
+                    dados.pacienteId,
+
+                paciente:
+                    dados.paciente,
+
+                valor:
+                    dados.valor,
+
+                atualizadoEm:
+                    serverTimestamp()
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/*************************************************
+                EXCLUIR CONSULTA
+*************************************************/
+
+export async function excluirConsulta(
+    id
+) {
+
+    const consulta =
+        consultas.find(
+            (c) =>
+                c.id === id
+        );
+
+
+    if (!consulta) {
+
+        mensagem(
+            "Consulta não encontrada."
+        );
+
+        return;
+
+    }
+
+
+    const resposta =
+        confirmar(
+
+            `Deseja realmente excluir a consulta de "${consulta.paciente}"?`
+
+        );
+
+
+    if (!resposta) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /*************************************************
+                EXCLUIR PRONTUÁRIO VINCULADO
+        *************************************************/
+
+        const prontuarioQuery =
+            query(
+
+                collection(
+                    db,
+                    "prontuarios"
+                ),
+
+                where(
+                    "consultaId",
+                    "==",
+                    id
+                )
+
+            );
+
+
+        const prontuarioSnap =
+            await getDocs(
+                prontuarioQuery
+            );
+
+
+        for (
+            const prontuarioDoc
+            of prontuarioSnap.docs
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "prontuarios",
+                    prontuarioDoc.id
+                )
+
+            );
+
+        }
+
+
+        /*************************************************
+                EXCLUIR FINANCEIRO VINCULADO
+        *************************************************/
+
+        const financeiroQuery =
+            query(
+
+                collection(
+                    db,
+                    "gastos"
+                ),
+
+                where(
+                    "consultaId",
+                    "==",
+                    id
+                )
+
+            );
+
+
+        const financeiroSnap =
+            await getDocs(
+                financeiroQuery
+            );
+
+
+        for (
+            const financeiroDoc
+            of financeiroSnap.docs
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "gastos",
+                    financeiroDoc.id
+                )
+
+            );
+
+        }
+
+
+        /*************************************************
+                    EXCLUIR CONSULTA
+        *************************************************/
+
+        await deleteDoc(
+
+            doc(
+                db,
+                "consultas",
+                id
+            )
+
+        );
+
+
+        if (
+            consultaEmEdicao ===
+            id
+        ) {
+
+            limparFormularioConsulta();
+
+        }
+
+
+        mensagem(
+            "Consulta excluída com sucesso."
+        );
+
+
+        document.dispatchEvent(
+
+            new CustomEvent(
+                "sirmed:dados-alterados"
+            )
+
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir consulta:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível excluir a consulta."
+        );
+
+    }
+
+}
+
+
+/*************************************************
                 RENDER CONSULTAS
 *************************************************/
 
@@ -566,10 +1079,6 @@ export function renderConsultas() {
 
     }
 
-
-    /*************************************************
-                LISTA VAZIA
-    *************************************************/
 
     if (
         consultas.length === 0
@@ -591,10 +1100,6 @@ export function renderConsultas() {
     }
 
 
-    /*************************************************
-                RENDERIZAR
-    *************************************************/
-
     lista.innerHTML =
 
         consultas.map(
@@ -604,24 +1109,29 @@ export function renderConsultas() {
 
                     <strong>
 
-                        🏥 ${
-                            escaparHTML(
-                                c.paciente || "-"
-                            )
-                        }
+                        🏥 Consulta
 
                     </strong>
 
 
                     <span>
 
+                        <b>Paciente:</b>
+
+                        ${escaparHTML(
+                            c.paciente || "-"
+                        )}
+
+                    </span>
+
+
+                    <span>
+
                         <b>Profissional:</b>
 
-                        ${
-                            escaparHTML(
-                                c.profissional || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            c.profissional || "-"
+                        )}
 
                     </span>
 
@@ -630,13 +1140,11 @@ export function renderConsultas() {
 
                         <b>Data:</b>
 
-                        ${
-                            escaparHTML(
-                                formatarData(
-                                    c.data
-                                )
+                        ${escaparHTML(
+                            formatarData(
+                                c.data
                             )
-                        }
+                        )}
 
                     </span>
 
@@ -645,11 +1153,9 @@ export function renderConsultas() {
 
                         <b>Queixa:</b>
 
-                        ${
-                            escaparHTML(
-                                c.queixa || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            c.queixa || "-"
+                        )}
 
                     </span>
 
@@ -658,11 +1164,9 @@ export function renderConsultas() {
 
                         <b>Diagnóstico:</b>
 
-                        ${
-                            escaparHTML(
-                                c.diagnostico || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            c.diagnostico || "-"
+                        )}
 
                     </span>
 
@@ -671,11 +1175,9 @@ export function renderConsultas() {
 
                         <b>Prescrição:</b>
 
-                        ${
-                            escaparHTML(
-                                c.prescricao || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            c.prescricao || "-"
+                        )}
 
                     </span>
 
@@ -684,20 +1186,97 @@ export function renderConsultas() {
 
                         <b>Valor:</b>
 
-                        ${
-                            escaparHTML(
-                                formatarMoeda(
-                                    c.valor
-                                )
+                        ${escaparHTML(
+                            formatarMoeda(
+                                c.valor
                             )
-                        }
+                        )}
 
                     </span>
+
+
+                    <div class="acoes-registro">
+
+                        <button
+                            type="button"
+                            class="btn-editar"
+                            data-editar-consulta="${c.id}"
+                        >
+                            ✏️ Editar
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn-excluir"
+                            data-excluir-consulta="${c.id}"
+                        >
+                            🗑️ Excluir
+                        </button>
+
+                    </div>
 
                 </li>
 
             `
         ).join("");
+
+
+    ligarBotoesConsultas();
+
+}
+
+
+/*************************************************
+            LIGAR BOTÕES CONSULTAS
+*************************************************/
+
+function ligarBotoesConsultas() {
+
+    document
+        .querySelectorAll(
+            "[data-editar-consulta]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        editarConsulta(
+                            botao.dataset
+                                .editarConsulta
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-excluir-consulta]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        excluirConsulta(
+                            botao.dataset
+                                .excluirConsulta
+                        );
+
+                    }
+                );
+
+            }
+        );
 
 }
 
@@ -747,7 +1326,7 @@ export function filtrarConsultas() {
 
 
 /*************************************************
-            PREENCHER SELECTS
+            PREENCHER SELECTS CONSULTA
 *************************************************/
 
 export function preencherSelectsConsulta() {
@@ -768,18 +1347,21 @@ export function preencherSelectsConsulta() {
                     PACIENTES
     *************************************************/
 
-    if (pacienteSelect) {
+    if (
+        pacienteSelect
+    ) {
 
         const valorAtual =
             pacienteSelect.value;
 
 
-        pacienteSelect.innerHTML =
-            `
-                <option value="">
-                    Selecione o paciente
-                </option>
-            `;
+        pacienteSelect.innerHTML = `
+
+            <option value="">
+                Selecione o Paciente
+            </option>
+
+        `;
 
 
         obterPacientes()
@@ -800,10 +1382,9 @@ export function preencherSelectsConsulta() {
                         p.nome;
 
 
-                    pacienteSelect
-                        .appendChild(
-                            option
-                        );
+                    pacienteSelect.appendChild(
+                        option
+                    );
 
                 }
             );
@@ -814,8 +1395,9 @@ export function preencherSelectsConsulta() {
                 ...pacienteSelect.options
             ]
             .some(
-                (option) =>
-                    option.value === valorAtual
+                (op) =>
+                    op.value ===
+                    valorAtual
             )
         ) {
 
@@ -828,21 +1410,24 @@ export function preencherSelectsConsulta() {
 
 
     /*************************************************
-                PROFISSIONAIS
+                    PROFISSIONAIS
     *************************************************/
 
-    if (profissionalSelect) {
+    if (
+        profissionalSelect
+    ) {
 
         const valorAtual =
             profissionalSelect.value;
 
 
-        profissionalSelect.innerHTML =
-            `
-                <option value="">
-                    Selecione o profissional
-                </option>
-            `;
+        profissionalSelect.innerHTML = `
+
+            <option value="">
+                Selecione o Profissional
+            </option>
+
+        `;
 
 
         obterProfissionais()
@@ -860,18 +1445,12 @@ export function preencherSelectsConsulta() {
 
 
                     option.textContent =
-
-                        p.funcao
-
-                        ? `${p.nome} — ${p.funcao}`
-
-                        : p.nome;
+                        p.nome;
 
 
-                    profissionalSelect
-                        .appendChild(
-                            option
-                        );
+                    profissionalSelect.appendChild(
+                        option
+                    );
 
                 }
             );
@@ -882,8 +1461,9 @@ export function preencherSelectsConsulta() {
                 ...profissionalSelect.options
             ]
             .some(
-                (option) =>
-                    option.value === valorAtual
+                (op) =>
+                    op.value ===
+                    valorAtual
             )
         ) {
 
@@ -898,9 +1478,134 @@ export function preencherSelectsConsulta() {
 
 
 /*************************************************
-                LOG DO SISTEMA
+            LIMPAR FORMULÁRIO CONSULTA
+*************************************************/
+
+function limparFormularioConsulta() {
+
+    limparCampos([
+
+        "consultaQueixa",
+
+        "consultaPA",
+
+        "consultaFC",
+
+        "consultaTemperatura",
+
+        "consultaDiagnostico",
+
+        "consultaExameFisico",
+
+        "consultaPrescricao",
+
+        "consultaObservacoes",
+
+        "consultaValor"
+
+    ]);
+
+
+    const paciente =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    const profissional =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    if (paciente) {
+
+        paciente.selectedIndex =
+            0;
+
+    }
+
+
+    if (profissional) {
+
+        profissional.selectedIndex =
+            0;
+
+    }
+
+
+    consultaEmEdicao =
+        null;
+
+
+    atualizarBotaoConsulta(
+        false
+    );
+
+}
+
+
+/*************************************************
+                DEFINIR VALOR
+*************************************************/
+
+function definirValor(
+    id,
+    valor
+) {
+
+    const elemento =
+        document.getElementById(
+            id
+        );
+
+
+    if (elemento) {
+
+        elemento.value =
+            valor ?? "";
+
+    }
+
+}
+
+
+/*************************************************
+            ALTERAR TEXTO DO BOTÃO
+*************************************************/
+
+function atualizarBotaoConsulta(
+    editando
+) {
+
+    const botao =
+        document.getElementById(
+            "btnRegistrarConsulta"
+        );
+
+
+    if (!botao) {
+
+        return;
+
+    }
+
+
+    botao.textContent =
+
+        editando
+
+        ? "💾 Salvar alterações"
+
+        : "Registrar consulta";
+
+}
+
+
+/*************************************************
+                    LOG
 *************************************************/
 
 console.log(
-    "✅ consultas.js carregado"
+    "✅ consultas.js V4.1 carregado"
 );
