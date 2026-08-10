@@ -1,173 +1,432 @@
 /*************************************************
-        PROFISSIONAIS.JS - SIRMED V4
+            PROFISSIONAIS.JS - SIRMED V4
 *************************************************/
 
-let profissionais = [];
+import {
+    db,
+    collection,
+    addDoc,
+    getDocs,
+    serverTimestamp
+} from "./firebase.js";
+
+import {
+    mensagem,
+    escaparHTML
+} from "./utils.js";
+
 
 /*************************************************
-        CARREGAR
+                VARIÁVEL PRINCIPAL
 *************************************************/
 
- export async function carregarProfissionais(){
+const profissionais = [];
 
-    profissionais = [];
 
-    const snap = await getDocs(
-        collection(db,"profissionais")
-    );
+/*************************************************
+                OBTER PROFISSIONAIS
+*************************************************/
 
-    snap.forEach(docSnap=>{
+export function obterProfissionais() {
 
-        profissionais.push({
-            id:docSnap.id,
-            ...docSnap.data()
-        });
-
-    });
+    return profissionais;
 
 }
 
+
 /*************************************************
-        CADASTRAR
+            TOTAL DE PROFISSIONAIS
 *************************************************/
 
-export async function cadastrarProfissional(){
+export function totalProfissionais() {
+
+    return profissionais.length;
+
+}
+
+
+/*************************************************
+            CARREGAR PROFISSIONAIS
+*************************************************/
+
+export async function carregarProfissionais() {
+
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "profissionais"
+            )
+        );
+
+
+    profissionais.length = 0;
+
+
+    snap.forEach(
+        (docSnap) => {
+
+            profissionais.push({
+
+                id:
+                    docSnap.id,
+
+                ...docSnap.data()
+
+            });
+
+        }
+    );
+
+
+    /*************************************************
+                ORDENAR POR NOME
+    *************************************************/
+
+    profissionais.sort(
+        (a, b) =>
+
+            String(
+                a.nome || ""
+            ).localeCompare(
+
+                String(
+                    b.nome || ""
+                ),
+
+                "pt-BR"
+
+            )
+    );
+
+}
+
+
+/*************************************************
+            CADASTRAR PROFISSIONAL
+*************************************************/
+
+export async function cadastrarProfissional() {
 
     const nome =
-        document.getElementById("profissionalNome").value.trim();
+        document
+            .getElementById(
+                "profissionalNome"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const funcao =
-        document.getElementById("profissionalFuncao").value;
+        document
+            .getElementById(
+                "profissionalFuncao"
+            )
+            ?.value
+        || "";
+
 
     const registro =
-        document.getElementById("profissionalRegistro").value.trim();
+        document
+            .getElementById(
+                "profissionalRegistro"
+            )
+            ?.value
+            .trim()
+        || "";
 
-    if(nome=="" || funcao==""){
 
-        alert("Preencha os campos obrigatórios.");
+    /*************************************************
+                    VALIDAÇÃO
+    *************************************************/
+
+    if (
+        !nome ||
+        !funcao
+    ) {
+
+        mensagem(
+            "Preencha o nome e a função do profissional."
+        );
 
         return;
 
     }
 
-    await addDoc(
 
-        collection(db,"profissionais"),
+    /*************************************************
+                SALVAR NO FIRESTORE
+    *************************************************/
 
-        {
+    try {
 
-            nome,
-            funcao,
-            registro,
+        await addDoc(
 
-            criadoEm:serverTimestamp()
+            collection(
+                db,
+                "profissionais"
+            ),
 
-        }
+            {
 
-    );
+                nome,
 
-    limparFormularioProfissional();
+                funcao,
 
-    await carregarProfissionais();
+                registro,
 
-    renderProfissionais();
+                criadoEm:
+                    serverTimestamp()
 
-    preencherSelectsConsulta();
+            }
 
-    atualizarDashboard();
+        );
+
+
+        /*************************************************
+                    LIMPAR FORMULÁRIO
+        *************************************************/
+
+        limparFormularioProfissional();
+
+
+        /*************************************************
+                    MENSAGEM
+        *************************************************/
+
+        mensagem(
+            "Profissional cadastrado com sucesso."
+        );
+
+
+        /*************************************************
+                AVISAR O SISTEMA
+        *************************************************/
+
+        document.dispatchEvent(
+
+            new CustomEvent(
+                "sirmed:dados-alterados"
+            )
+
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao cadastrar profissional:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível cadastrar o profissional."
+        );
+
+    }
 
 }
 
+
 /*************************************************
-        RENDER
+            RENDER PROFISSIONAIS
 *************************************************/
 
-export function renderProfissionais(){
+export function renderProfissionais() {
 
     const lista =
-        document.getElementById("listaProfissionais");
+        document.getElementById(
+            "listaProfissionais"
+        );
 
-    if(!lista) return;
 
-    lista.innerHTML = "";
+    if (!lista) {
 
-    profissionais.forEach(p=>{
+        return;
 
-        lista.innerHTML += `
+    }
 
-<li>
 
-<b>👨‍⚕️ ${p.nome}</b><br>
+    /*************************************************
+                LISTA VAZIA
+    *************************************************/
 
-Função: ${p.funcao}<br>
+    if (
+        profissionais.length === 0
+    ) {
 
-Registro: ${p.registro || "-"}
+        lista.innerHTML = `
 
-</li>
+            <li class="lista-vazia">
 
-`;
+                Nenhum profissional encontrado.
 
-    });
+            </li>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    /*************************************************
+                RENDERIZAR LISTA
+    *************************************************/
+
+    lista.innerHTML =
+
+        profissionais.map(
+            (p) => `
+
+                <li class="item-registro">
+
+                    <strong>
+
+                        👨‍⚕️ ${escaparHTML(
+                            p.nome
+                        )}
+
+                    </strong>
+
+
+                    <span>
+
+                        <b>Função:</b>
+
+                        ${
+                            escaparHTML(
+                                p.funcao || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Registro:</b>
+
+                        ${
+                            escaparHTML(
+                                p.registro || "-"
+                            )
+                        }
+
+                    </span>
+
+                </li>
+
+            `
+        ).join("");
 
 }
 
+
 /*************************************************
-        PESQUISA
+            FILTRAR PROFISSIONAIS
 *************************************************/
 
-export function filtrarProfissionais(){
+export function filtrarProfissionais() {
 
     const filtro =
-        document.getElementById("pesquisaProfissional")
-        .value
+        (
+            document
+                .getElementById(
+                    "pesquisaProfissional"
+                )
+                ?.value
+            || ""
+        )
         .toLowerCase();
 
+
     document
-    .querySelectorAll("#listaProfissionais li")
-    .forEach(li=>{
+        .querySelectorAll(
+            "#listaProfissionais li"
+        )
+        .forEach(
+            (li) => {
 
-        li.style.display =
+                li.style.display =
 
-        li.textContent
-        .toLowerCase()
-        .includes(filtro)
+                    li
+                        .textContent
+                        .toLowerCase()
+                        .includes(
+                            filtro
+                        )
 
-        ? ""
+                    ? ""
 
-        : "none";
+                    : "none";
 
-    });
-
-}
-
-/*************************************************
-        LIMPAR FORMULÁRIO
-*************************************************/
-
-export function limparFormularioProfissional(){
-
-    document.getElementById("profissionalNome").value="";
-
-    document.getElementById("profissionalFuncao").value="";
-
-    document.getElementById("profissionalRegistro").value="";
+            }
+        );
 
 }
 
+
 /*************************************************
-        EXPORTAÇÃO
+        LIMPAR FORMULÁRIO PROFISSIONAL
 *************************************************/
 
-window.carregarProfissionais =
-carregarProfissionais;
+export function limparFormularioProfissional() {
 
-window.cadastrarProfissional =
-cadastrarProfissional;
+    const campos = [
 
-window.renderProfissionais =
-renderProfissionais;
+        "profissionalNome",
 
-window.filtrarProfissionais =
-filtrarProfissionais;
+        "profissionalFuncao",
 
-console.log("✅ profissionais.js carregado");
+        "profissionalRegistro"
+
+    ];
+
+
+    campos.forEach(
+        (id) => {
+
+            const campo =
+                document.getElementById(
+                    id
+                );
+
+
+            if (!campo) {
+
+                return;
+
+            }
+
+
+            if (
+                campo.tagName ===
+                "SELECT"
+            ) {
+
+                campo.selectedIndex =
+                    0;
+
+            } else {
+
+                campo.value =
+                    "";
+
+            }
+
+        }
+    );
+
+}
+
+
+/*************************************************
+                LOG DO SISTEMA
+*************************************************/
+
+console.log(
+    "✅ profissionais.js carregado"
+);
