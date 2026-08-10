@@ -1,5 +1,10 @@
 /*************************************************
-                SCRIPT.JS - SIRMED V4.3
+              SCRIPT.JS - SIRMED V4.4
+*************************************************/
+
+
+/*************************************************
+                    LOGIN
 *************************************************/
 
 import {
@@ -10,6 +15,10 @@ import {
 } from "./login.js";
 
 
+/*************************************************
+                  PACIENTES
+*************************************************/
+
 import {
     cadastrarPaciente,
     carregarPacientes,
@@ -18,6 +27,10 @@ import {
 } from "./pacientes.js";
 
 
+/*************************************************
+                PROFISSIONAIS
+*************************************************/
+
 import {
     cadastrarProfissional,
     carregarProfissionais,
@@ -25,6 +38,10 @@ import {
     filtrarProfissionais
 } from "./profissionais.js";
 
+
+/*************************************************
+                  CONSULTAS
+*************************************************/
 
 import {
     registrarConsulta,
@@ -35,6 +52,10 @@ import {
 } from "./consultas.js";
 
 
+/*************************************************
+                PRONTUÁRIOS
+*************************************************/
+
 import {
     carregarProntuarios,
     renderProntuarios,
@@ -42,11 +63,31 @@ import {
 } from "./prontuarios.js";
 
 
+/*************************************************
+                  FINANCEIRO
+*************************************************/
+
 import {
     carregarGastos,
     renderGastos
 } from "./financeiro.js";
 
+
+/*************************************************
+                    TRIAGEM
+*************************************************/
+
+import {
+    carregarTriagens,
+    renderTriagens,
+    preencherPacientesTriagem,
+    configurarEventosTriagem
+} from "./triagem.js";
+
+
+/*************************************************
+                  RELATÓRIOS
+*************************************************/
 
 import {
     gerarPDF,
@@ -56,16 +97,28 @@ import {
 } from "./relatorios.js";
 
 
+/*************************************************
+                  DASHBOARD
+*************************************************/
+
 import {
     atualizarDashboard
 } from "./dashboard.js";
 
+
+/*************************************************
+                  PERMISSÕES
+*************************************************/
 
 import {
     aplicarPermissoes,
     temPermissao
 } from "./permissoes.js";
 
+
+/*************************************************
+                    UTILS
+*************************************************/
 
 import {
     mensagem,
@@ -75,24 +128,35 @@ import {
 
 
 /*************************************************
-            CONTROLE DE ATUALIZAÇÃO
+          CONTROLE DE ATUALIZAÇÃO
 *************************************************/
 
 let atualizacaoEmAndamento = null;
 
 
 /*************************************************
-            CARREGAR POR PERFIL
+              OBTER PERFIL
+*************************************************/
+
+function obterPerfil() {
+
+    return String(
+        perfilUsuarioAtual() || ""
+    )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+/*************************************************
+            CARREGAR TUDO
 *************************************************/
 
 export async function carregarTudo() {
 
     const perfil =
-        String(
-            perfilUsuarioAtual() || ""
-        )
-        .trim()
-        .toLowerCase();
+        obterPerfil();
 
 
     console.log(
@@ -105,9 +169,7 @@ export async function carregarTudo() {
                     GESTOR
     *************************************************/
 
-    if (
-        perfil === "gestor"
-    ) {
+    if (perfil === "gestor") {
 
         await Promise.all([
 
@@ -119,6 +181,8 @@ export async function carregarTudo() {
 
             carregarProntuarios(),
 
+            carregarTriagens(),
+
             carregarGastos()
 
         ]);
@@ -132,9 +196,7 @@ export async function carregarTudo() {
                     MÉDICO
     *************************************************/
 
-    if (
-        perfil === "medico"
-    ) {
+    if (perfil === "medico") {
 
         await Promise.all([
 
@@ -144,7 +206,9 @@ export async function carregarTudo() {
 
             carregarConsultas(),
 
-            carregarProntuarios()
+            carregarProntuarios(),
+
+            carregarTriagens()
 
         ]);
 
@@ -157,9 +221,7 @@ export async function carregarTudo() {
                     OPERADOR
     *************************************************/
 
-    if (
-        perfil === "operador"
-    ) {
+    if (perfil === "operador") {
 
         /*
             O operador visualiza:
@@ -169,8 +231,7 @@ export async function carregarTudo() {
             - Relatórios
 
             Os relatórios atuais utilizam
-            pacientes, profissionais e consultas
-            como fonte para filtros.
+            pacientes, profissionais e consultas.
         */
 
         await Promise.all([
@@ -191,11 +252,34 @@ export async function carregarTudo() {
 
 
     /*************************************************
-                PERFIL DESCONHECIDO
+                    TRIAGEM
     *************************************************/
 
+    if (perfil === "triagem") {
+
+        /*
+            O perfil Triagem acessa:
+
+            - Início
+            - Pacientes
+            - Triagem
+        */
+
+        await Promise.all([
+
+            carregarPacientes(),
+
+            carregarTriagens()
+
+        ]);
+
+        return;
+
+    }
+
+
     console.warn(
-        "Perfil desconhecido:",
+        "⚠️ Perfil não reconhecido:",
         perfil
     );
 
@@ -203,26 +287,20 @@ export async function carregarTudo() {
 
 
 /*************************************************
-                RENDERIZAR POR PERFIL
+            RENDERIZAR TUDO
 *************************************************/
 
 export function renderizarTudo() {
 
     const perfil =
-        String(
-            perfilUsuarioAtual() || ""
-        )
-        .trim()
-        .toLowerCase();
+        obterPerfil();
 
 
     /*************************************************
                     GESTOR
     *************************************************/
 
-    if (
-        perfil === "gestor"
-    ) {
+    if (perfil === "gestor") {
 
         renderPacientes();
 
@@ -232,10 +310,14 @@ export function renderizarTudo() {
 
         renderProntuarios();
 
+        renderTriagens();
+
         renderGastos();
 
 
         preencherSelectsConsulta();
+
+        preencherPacientesTriagem();
 
         preencherRelatorioPaciente();
 
@@ -253,9 +335,7 @@ export function renderizarTudo() {
                     MÉDICO
     *************************************************/
 
-    if (
-        perfil === "medico"
-    ) {
+    if (perfil === "medico") {
 
         renderPacientes();
 
@@ -265,6 +345,15 @@ export function renderizarTudo() {
 
         renderProntuarios();
 
+
+        /*
+            O médico não possui a tela
+            de Triagem no menu.
+
+            Porém os dados estão carregados
+            para posteriormente aparecerem
+            dentro da Consulta.
+        */
 
         preencherSelectsConsulta();
 
@@ -280,21 +369,7 @@ export function renderizarTudo() {
                     OPERADOR
     *************************************************/
 
-    if (
-        perfil === "operador"
-    ) {
-
-        /*
-            Renderizamos internamente
-            os dados necessários aos relatórios,
-            mesmo que os módulos fiquem ocultos.
-        */
-
-        renderPacientes();
-
-        renderProfissionais();
-
-        renderConsultas();
+    if (perfil === "operador") {
 
         renderGastos();
 
@@ -310,11 +385,32 @@ export function renderizarTudo() {
 
     }
 
+
+    /*************************************************
+                    TRIAGEM
+    *************************************************/
+
+    if (perfil === "triagem") {
+
+        renderPacientes();
+
+        renderTriagens();
+
+
+        preencherPacientesTriagem();
+
+
+        atualizarDashboard();
+
+        return;
+
+    }
+
 }
 
 
 /*************************************************
-                ABRIR UMA TELA
+                ABRIR SEÇÃO
 *************************************************/
 
 export function abrirSecao(
@@ -322,7 +418,7 @@ export function abrirSecao(
 ) {
 
     /*************************************************
-                VERIFICAR PERMISSÃO
+            VERIFICAR PERMISSÃO
     *************************************************/
 
     if (
@@ -378,8 +474,12 @@ export function abrirSecao(
 
 
     /*************************************************
-                MOSTRAR ESCOLHIDA
+                ABRIR ESCOLHIDA
     *************************************************/
+
+    secao.hidden =
+        false;
+
 
     secao.classList.add(
         "tela-ativa"
@@ -387,7 +487,7 @@ export function abrirSecao(
 
 
     /*************************************************
-                MARCAR MENU
+                MENU ATIVO
     *************************************************/
 
     document
@@ -402,12 +502,26 @@ export function abrirSecao(
                     "ativo",
 
                     botao.dataset.secao ===
-                    secaoId
+                        secaoId
 
                 );
 
             }
         );
+
+
+    /*************************************************
+            ATUALIZAÇÕES DA TRIAGEM
+    *************************************************/
+
+    if (
+        secaoId ===
+        "secaoTriagem"
+    ) {
+
+        preencherPacientesTriagem();
+
+    }
 
 
     window.scrollTo({
@@ -422,7 +536,7 @@ export function abrirSecao(
 
 
 /*************************************************
-            CONFIGURAR MENU
+              CONFIGURAR MENU
 *************************************************/
 
 function configurarMenu() {
@@ -435,7 +549,9 @@ function configurarMenu() {
             (botao) => {
 
                 botao.addEventListener(
+
                     "click",
+
                     () => {
 
                         const secaoId =
@@ -454,6 +570,7 @@ function configurarMenu() {
                         );
 
                     }
+
                 );
 
             }
@@ -463,7 +580,7 @@ function configurarMenu() {
 
 
 /*************************************************
-                ATUALIZAR SISTEMA
+              ATUALIZAR SISTEMA
 *************************************************/
 
 async function atualizarSistema() {
@@ -484,34 +601,18 @@ async function atualizarSistema() {
                 try {
 
                     console.log(
-                        "🔄 Atualizando dados do SIRMED..."
+                        "🔄 Atualizando SIRMED..."
                     );
 
-
-                    /*********************************
-                        PERMISSÕES PRIMEIRO
-                    *********************************/
 
                     aplicarPermissoes();
 
 
-                    /*********************************
-                        CARREGAR DADOS
-                    *********************************/
-
                     await carregarTudo();
 
 
-                    /*********************************
-                        RENDERIZAR
-                    *********************************/
-
                     renderizarTudo();
 
-
-                    /*********************************
-                        REAPLICAR PERMISSÕES
-                    *********************************/
 
                     aplicarPermissoes();
 
@@ -520,10 +621,12 @@ async function atualizarSistema() {
                         "✅ SIRMED atualizado."
                     );
 
-                } catch (erro) {
+                }
+
+                catch (erro) {
 
                     console.error(
-                        "Erro ao atualizar SIRMED:",
+                        "❌ Erro ao atualizar SIRMED:",
                         erro
                     );
 
@@ -532,7 +635,9 @@ async function atualizarSistema() {
                         "Erro ao carregar os dados permitidos para este usuário."
                     );
 
-                } finally {
+                }
+
+                finally {
 
                     atualizacaoEmAndamento =
                         null;
@@ -549,14 +654,14 @@ async function atualizarSistema() {
 
 
 /*************************************************
-                LIGAR EVENTOS
+              LIGAR EVENTOS
 *************************************************/
 
 function ligarEventos() {
 
 
     /*************************************************
-                        LOGIN
+                      LOGIN
     *************************************************/
 
     document
@@ -584,7 +689,9 @@ function ligarEventos() {
             "senha"
         )
         ?.addEventListener(
+
             "keydown",
+
             (evento) => {
 
                 if (
@@ -597,6 +704,7 @@ function ligarEventos() {
                 }
 
             }
+
         );
 
 
@@ -629,7 +737,9 @@ function ligarEventos() {
             "pacienteCpf"
         )
         ?.addEventListener(
+
             "input",
+
             (evento) => {
 
                 evento.target.value =
@@ -638,6 +748,7 @@ function ligarEventos() {
                     );
 
             }
+
         );
 
 
@@ -646,7 +757,9 @@ function ligarEventos() {
             "pacienteTelefone"
         )
         ?.addEventListener(
+
             "input",
+
             (evento) => {
 
                 evento.target.value =
@@ -655,11 +768,12 @@ function ligarEventos() {
                     );
 
             }
+
         );
 
 
     /*************************************************
-                PROFISSIONAIS
+                  PROFISSIONAIS
     *************************************************/
 
     document
@@ -707,7 +821,7 @@ function ligarEventos() {
 
 
     /*************************************************
-                    PRONTUÁRIOS
+                  PRONTUÁRIOS
     *************************************************/
 
     document
@@ -715,8 +829,29 @@ function ligarEventos() {
             "pesquisaProntuario"
         )
         ?.addEventListener(
+
             "input",
-            filtrarProntuarios
+
+            () => {
+
+                /*
+                    Mantém compatibilidade caso
+                    a função esteja exposta
+                    globalmente.
+                */
+
+                if (
+                    typeof window.filtrarProntuarios
+                    ===
+                    "function"
+                ) {
+
+                    window.filtrarProntuarios();
+
+                }
+
+            }
+
         );
 
 
@@ -749,12 +884,15 @@ function ligarEventos() {
             "btnImprimir"
         )
         ?.addEventListener(
+
             "click",
+
             () => {
 
                 window.print();
 
             }
+
         );
 
 
@@ -764,15 +902,18 @@ function ligarEventos() {
 
     document
         .addEventListener(
+
             "sirmed:dados-alterados",
+
             atualizarSistema
+
         );
 
 }
 
 
 /*************************************************
-                INICIAR SIRMED
+              INICIAR SIRMED
 *************************************************/
 
 document.addEventListener(
@@ -782,29 +923,39 @@ document.addEventListener(
     () => {
 
         console.log(
-            "🏥 SIRMED V4.3 carregado"
+            "🏥 SIRMED V4.4 iniciando..."
         );
 
+
+        /*************************************************
+                    EVENTOS GERAIS
+        *************************************************/
 
         ligarEventos();
 
 
+        /*************************************************
+                    EVENTOS TRIAGEM
+        *************************************************/
+
+        configurarEventosTriagem();
+
+
+        /*************************************************
+                        MENU
+        *************************************************/
+
         configurarMenu();
 
 
-        iniciarObservadorAuth({
+        /*************************************************
+                OBSERVADOR DE LOGIN
+        *************************************************/
 
-            /*********************************
-                    AO ENTRAR
-            *********************************/
+        iniciarObservadorAuth({
 
             aoEntrar:
                 async () => {
-
-                    /*
-                        Primeiro fecha qualquer
-                        tela indevida.
-                    */
 
                     aplicarPermissoes();
 
@@ -817,16 +968,12 @@ document.addEventListener(
                     );
 
 
-                    mensagem(
-                        "Bem-vindo ao SIRMED - BY CB WARTH"
+                    console.log(
+                        "🔓 Usuário autenticado."
                     );
 
                 },
 
-
-            /*********************************
-                    AO SAIR
-            *********************************/
 
             aoSair:
                 async () => {
@@ -846,13 +993,19 @@ document.addEventListener(
                         );
 
 
-                    document
-                        .getElementById(
+                    const inicio =
+                        document.getElementById(
                             "inicio"
-                        )
-                        ?.classList.add(
+                        );
+
+
+                    if (inicio) {
+
+                        inicio.classList.add(
                             "tela-ativa"
                         );
+
+                    }
 
 
                     console.log(
@@ -869,9 +1022,25 @@ document.addEventListener(
 
 
 /*************************************************
-                    LOG FINAL
+              EXPORTAÇÃO GLOBAL
+*************************************************/
+
+window.carregarTudo =
+    carregarTudo;
+
+
+window.renderizarTudo =
+    renderizarTudo;
+
+
+window.abrirSecao =
+    abrirSecao;
+
+
+/*************************************************
+                    LOG
 *************************************************/
 
 console.log(
-    "✅ script.js V4.3 carregado"
+    "✅ script.js V4.4 carregado"
 );
