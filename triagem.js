@@ -1,5 +1,5 @@
 /*************************************************
-            TRIAGEM.JS - SIRMED V4.4
+        TRIAGEM.JS - SIRMED V4.5
 *************************************************/
 
 import {
@@ -11,15 +11,8 @@ import {
 } from "./firebase.js";
 
 
-import {
-    dataAtual,
-    mensagem,
-    limparCampos
-} from "./utils.js";
-
-
 /*************************************************
-                BANCO LOCAL
+                DADOS LOCAIS
 *************************************************/
 
 let triagens = [];
@@ -31,69 +24,55 @@ let triagens = [];
 
 export async function carregarTriagens() {
 
+    triagens = [];
+
     try {
 
-        triagens = [];
-
         const snap = await getDocs(
-            collection(
-                db,
-                "triagens"
-            )
+            collection(db, "triagens")
         );
 
+        snap.forEach(docSnap => {
 
-        snap.forEach(
-            (docSnap) => {
+            triagens.push({
+                id: docSnap.id,
+                ...docSnap.data()
+            });
 
-                triagens.push({
+        });
 
-                    id: docSnap.id,
+        triagens.sort((a, b) => {
 
-                    ...docSnap.data()
+            const aData =
+                `${a.data || ""} ${a.hora || ""}`;
 
-                });
+            const bData =
+                `${b.data || ""} ${b.hora || ""}`;
 
-            }
-        );
+            return bData.localeCompare(aData);
 
-
-        /*
-            Mais recentes primeiro.
-        */
-
-        triagens.sort(
-            (a, b) => {
-
-                const dataA =
-                    `${a.data || ""} ${a.hora || ""}`;
-
-                const dataB =
-                    `${b.data || ""} ${b.hora || ""}`;
-
-
-                return dataB.localeCompare(
-                    dataA
-                );
-
-            }
-        );
-
+        });
 
         console.log(
-            `🩹 ${triagens.length} triagens carregadas`
+            "🩹 Triagens carregadas:",
+            triagens.length
         );
 
+    }
 
-    } catch (erro) {
+    catch (erro) {
 
         console.error(
-            "Erro ao carregar triagens:",
+            "❌ Erro ao carregar triagens:",
             erro
         );
 
+        /*
+            Não derrubamos o restante
+            do SIRMED se a triagem falhar.
+        */
 
-        throw erro;
+        triagens = [];
 
     }
 
@@ -101,7 +80,7 @@ export async function carregarTriagens() {
 
 
 /*************************************************
-        PREENCHER SELECT DE PACIENTES
+        PREENCHER PACIENTES
 *************************************************/
 
 export function preencherPacientesTriagem() {
@@ -111,20 +90,10 @@ export function preencherPacientesTriagem() {
             "triagemPaciente"
         );
 
-
-    if (!select) {
-
-        return;
-
-    }
+    if (!select) return;
 
 
-    /*
-        Mantém o paciente selecionado
-        caso a lista seja atualizada.
-    */
-
-    const selecionado =
+    const valorAtual =
         select.value;
 
 
@@ -135,67 +104,64 @@ export function preencherPacientesTriagem() {
     `;
 
 
-    const listaPacientes =
-        window.pacientes || [];
+    /*
+        Compatível com pacientes.js atual.
+    */
+
+    const lista =
+        Array.isArray(window.pacientes)
+            ? window.pacientes
+            : [];
 
 
-    listaPacientes
+    lista
         .slice()
-        .sort(
-            (a, b) =>
-                String(a.nome || "")
-                    .localeCompare(
-                        String(b.nome || ""),
-                        "pt-BR"
-                    )
+        .sort((a, b) =>
+
+            String(a.nome || "")
+                .localeCompare(
+                    String(b.nome || ""),
+                    "pt-BR"
+                )
+
         )
-        .forEach(
-            (paciente) => {
+        .forEach(paciente => {
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    paciente.nome || "";
-
-
-                option.textContent =
-                    paciente.nome || "Paciente";
-
-
-                /*
-                    Guardamos também o ID
-                    do paciente.
-                */
-
-                option.dataset.id =
-                    paciente.id || "";
-
-
-                select.appendChild(
-                    option
+            const option =
+                document.createElement(
+                    "option"
                 );
 
-            }
-        );
+            option.value =
+                paciente.nome || "";
 
+            option.textContent =
+                paciente.nome || "Paciente";
+
+            option.dataset.id =
+                paciente.id || "";
+
+            select.appendChild(option);
+
+        });
+
+
+    /*
+        Mantém a seleção caso
+        a lista seja recarregada.
+    */
 
     if (
-        selecionado
-        &&
-        [...select.options]
+        valorAtual &&
+        Array.from(select.options)
             .some(
                 option =>
-                    option.value ===
-                    selecionado
+                    option.value === valorAtual
             )
     ) {
 
         select.value =
-            selecionado;
+            valorAtual;
 
     }
 
@@ -203,7 +169,7 @@ export function preencherPacientesTriagem() {
 
 
 /*************************************************
-            DATA E HORA AUTOMÁTICAS
+            DATA E HORA
 *************************************************/
 
 export function preencherDataHoraTriagem() {
@@ -212,82 +178,55 @@ export function preencherDataHoraTriagem() {
         new Date();
 
 
-    const campoData =
+    const data =
         document.getElementById(
             "triagemData"
         );
 
 
-    const campoHora =
+    const hora =
         document.getElementById(
             "triagemHora"
         );
 
 
-    if (
-        campoData
-        &&
-        !campoData.value
-    ) {
+    if (data && !data.value) {
 
         const ano =
             agora.getFullYear();
 
-
         const mes =
             String(
                 agora.getMonth() + 1
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
+            ).padStart(2, "0");
 
         const dia =
             String(
                 agora.getDate()
-            )
-            .padStart(
-                2,
-                "0"
-            );
+            ).padStart(2, "0");
 
 
-        campoData.value =
+        data.value =
             `${ano}-${mes}-${dia}`;
 
     }
 
 
-    if (
-        campoHora
-        &&
-        !campoHora.value
-    ) {
+    if (hora && !hora.value) {
 
-        const horas =
+        const h =
             String(
                 agora.getHours()
-            )
-            .padStart(
-                2,
-                "0"
-            );
+            ).padStart(2, "0");
 
-
-        const minutos =
+        const m =
             String(
                 agora.getMinutes()
-            )
-            .padStart(
-                2,
-                "0"
-            );
+            ).padStart(2, "0");
 
 
-        campoHora.value =
-            `${horas}:${minutos}`;
+        hora.value =
+            `${h}:${m}`;
 
     }
 
@@ -304,8 +243,7 @@ export function calcularIMC() {
         Number(
             document.getElementById(
                 "triagemPeso"
-            )
-            ?.value || 0
+            )?.value || 0
         );
 
 
@@ -313,31 +251,25 @@ export function calcularIMC() {
         Number(
             document.getElementById(
                 "triagemAltura"
-            )
-            ?.value || 0
+            )?.value || 0
         );
 
 
-    const campoIMC =
+    const campo =
         document.getElementById(
             "triagemIMC"
         );
 
 
-    if (!campoIMC) {
-
-        return;
-
-    }
+    if (!campo) return;
 
 
     if (
-        peso <= 0
-        ||
+        peso <= 0 ||
         altura <= 0
     ) {
 
-        campoIMC.value = "";
+        campo.value = "";
 
         return;
 
@@ -345,84 +277,39 @@ export function calcularIMC() {
 
 
     const imc =
-        peso /
-        (
-            altura *
-            altura
-        );
+        peso / (altura * altura);
 
 
-    campoIMC.value =
+    campo.value =
         imc.toFixed(2);
 
 }
 
 
 /*************************************************
-            CLASSIFICAÇÃO DO IMC
+            OBTER VALOR
 *************************************************/
 
-export function classificarIMC(
-    valor
-) {
+function valor(id) {
 
-    const imc =
-        Number(valor);
+    const elemento =
+        document.getElementById(id);
 
+    if (!elemento) {
 
-    if (
-        !imc
-        ||
-        imc <= 0
-    ) {
-
-        return "-";
+        return "";
 
     }
 
-
-    if (imc < 18.5) {
-
-        return "Baixo peso";
-
-    }
-
-
-    if (imc < 25) {
-
-        return "Peso adequado";
-
-    }
-
-
-    if (imc < 30) {
-
-        return "Sobrepeso";
-
-    }
-
-
-    if (imc < 35) {
-
-        return "Obesidade grau I";
-
-    }
-
-
-    if (imc < 40) {
-
-        return "Obesidade grau II";
-
-    }
-
-
-    return "Obesidade grau III";
+    return String(
+        elemento.value || ""
+    ).trim();
 
 }
 
 
 /*************************************************
-        OBTER ID DO PACIENTE
+        OBTER PACIENTE SELECIONADO
 *************************************************/
 
 function obterPacienteSelecionado() {
@@ -452,14 +339,10 @@ function obterPacienteSelecionado() {
     return {
 
         id:
-            option?.dataset?.id
-            ||
-            "",
+            option?.dataset?.id || "",
 
         nome:
-            select.value
-            ||
-            ""
+            select.value || ""
 
     };
 
@@ -476,130 +359,9 @@ export async function registrarTriagem() {
         obterPacienteSelecionado();
 
 
-    const data =
-        document.getElementById(
-            "triagemData"
-        )
-        ?.value || "";
-
-
-    const hora =
-        document.getElementById(
-            "triagemHora"
-        )
-        ?.value || "";
-
-
-    const pa =
-        document.getElementById(
-            "triagemPA"
-        )
-        ?.value
-        .trim() || "";
-
-
-    const fc =
-        document.getElementById(
-            "triagemFC"
-        )
-        ?.value || "";
-
-
-    const fr =
-        document.getElementById(
-            "triagemFR"
-        )
-        ?.value || "";
-
-
-    const saturacao =
-        document.getElementById(
-            "triagemSaturacao"
-        )
-        ?.value || "";
-
-
-    const temperatura =
-        document.getElementById(
-            "triagemTemperatura"
-        )
-        ?.value || "";
-
-
-    const glicemia =
-        document.getElementById(
-            "triagemGlicemia"
-        )
-        ?.value || "";
-
-
-    const peso =
-        document.getElementById(
-            "triagemPeso"
-        )
-        ?.value || "";
-
-
-    const altura =
-        document.getElementById(
-            "triagemAltura"
-        )
-        ?.value || "";
-
-
-    const imc =
-        document.getElementById(
-            "triagemIMC"
-        )
-        ?.value || "";
-
-
-    const dor =
-        document.getElementById(
-            "triagemDor"
-        )
-        ?.value || "";
-
-
-    const queixa =
-        document.getElementById(
-            "triagemQueixa"
-        )
-        ?.value
-        .trim() || "";
-
-
-    const alergias =
-        document.getElementById(
-            "triagemAlergias"
-        )
-        ?.value
-        .trim() || "";
-
-
-    const medicamentos =
-        document.getElementById(
-            "triagemMedicamentos"
-        )
-        ?.value
-        .trim() || "";
-
-
-    const observacoes =
-        document.getElementById(
-            "triagemObservacoes"
-        )
-        ?.value
-        .trim() || "";
-
-
-    /*************************************************
-                    VALIDAÇÕES
-    *************************************************/
-
     if (!paciente.nome) {
 
-        mensagem(
+        alert(
             "Selecione o paciente."
         );
 
@@ -608,10 +370,18 @@ export async function registrarTriagem() {
     }
 
 
-    if (!data) {
+    const data =
+        valor("triagemData");
 
-        mensagem(
-            "Informe a data da triagem."
+
+    const hora =
+        valor("triagemHora");
+
+
+    if (!data || !hora) {
+
+        alert(
+            "Informe a data e a hora da triagem."
         );
 
         return;
@@ -619,120 +389,106 @@ export async function registrarTriagem() {
     }
 
 
-    if (!hora) {
+    const registro = {
 
-        mensagem(
-            "Informe a hora da triagem."
-        );
+        pacienteId:
+            paciente.id,
 
-        return;
+        pacienteNome:
+            paciente.nome,
 
-    }
+        data,
+
+        hora,
+
+        pa:
+            valor("triagemPA"),
+
+        fc:
+            converterNumero(
+                valor("triagemFC")
+            ),
+
+        fr:
+            converterNumero(
+                valor("triagemFR")
+            ),
+
+        saturacao:
+            converterNumero(
+                valor("triagemSaturacao")
+            ),
+
+        temperatura:
+            converterNumero(
+                valor("triagemTemperatura")
+            ),
+
+        glicemia:
+            converterNumero(
+                valor("triagemGlicemia")
+            ),
+
+        peso:
+            converterNumero(
+                valor("triagemPeso")
+            ),
+
+        altura:
+            converterNumero(
+                valor("triagemAltura")
+            ),
+
+        imc:
+            converterNumero(
+                valor("triagemIMC")
+            ),
+
+        dor:
+            converterNumero(
+                valor("triagemDor")
+            ),
+
+        queixa:
+            valor("triagemQueixa"),
+
+        alergias:
+            valor("triagemAlergias"),
+
+        medicamentos:
+            valor(
+                "triagemMedicamentos"
+            ),
+
+        observacoes:
+            valor(
+                "triagemObservacoes"
+            ),
+
+        criadoEm:
+            serverTimestamp()
+
+    };
 
 
     try {
 
-        /*************************************************
-                SALVAR NO FIRESTORE
-        *************************************************/
-
         await addDoc(
-
             collection(
                 db,
                 "triagens"
             ),
-
-            {
-
-                pacienteId:
-                    paciente.id,
-
-                pacienteNome:
-                    paciente.nome,
-
-                data,
-
-                hora,
-
-                pa,
-
-                fc:
-                    fc
-                        ? Number(fc)
-                        : null,
-
-                fr:
-                    fr
-                        ? Number(fr)
-                        : null,
-
-                saturacao:
-                    saturacao
-                        ? Number(saturacao)
-                        : null,
-
-                temperatura:
-                    temperatura
-                        ? Number(temperatura)
-                        : null,
-
-                glicemia:
-                    glicemia
-                        ? Number(glicemia)
-                        : null,
-
-                peso:
-                    peso
-                        ? Number(peso)
-                        : null,
-
-                altura:
-                    altura
-                        ? Number(altura)
-                        : null,
-
-                imc:
-                    imc
-                        ? Number(imc)
-                        : null,
-
-                dor:
-                    dor !== ""
-                        ? Number(dor)
-                        : null,
-
-                queixa,
-
-                alergias,
-
-                medicamentos,
-
-                observacoes,
-
-                criadoEm:
-                    serverTimestamp()
-
-            }
-
+            registro
         );
 
 
-        mensagem(
+        alert(
             "Triagem registrada com sucesso."
         );
 
 
-        /*************************************************
-                LIMPAR FORMULÁRIO
-        *************************************************/
-
         limparFormularioTriagem();
 
-
-        /*************************************************
-                ATUALIZAR LISTA
-        *************************************************/
 
         await carregarTriagens();
 
@@ -740,33 +496,56 @@ export async function registrarTriagem() {
         renderTriagens();
 
 
-        /*
-            Avisa o restante do SIRMED
-            que os dados mudaram.
-        */
-
-        document.dispatchEvent(
-
-            new CustomEvent(
-                "sirmed:dados-alterados"
-            )
-
+        console.log(
+            "✅ Triagem registrada"
         );
 
+    }
 
-    } catch (erro) {
+    catch (erro) {
 
         console.error(
-            "Erro ao registrar triagem:",
+            "❌ Erro ao registrar triagem:",
             erro
         );
 
 
-        mensagem(
+        alert(
             "Não foi possível registrar a triagem."
         );
 
     }
+
+}
+
+
+/*************************************************
+            CONVERTER NÚMERO
+*************************************************/
+
+function converterNumero(valorRecebido) {
+
+    if (
+        valorRecebido === "" ||
+        valorRecebido === null ||
+        valorRecebido === undefined
+    ) {
+
+        return null;
+
+    }
+
+
+    const numero =
+        Number(
+            String(valorRecebido)
+                .replace(",", ".")
+        );
+
+
+    return Number.isFinite(numero)
+        ? numero
+        : null;
 
 }
 
@@ -777,7 +556,7 @@ export async function registrarTriagem() {
 
 export function limparFormularioTriagem() {
 
-    limparCampos([
+    const campos = [
 
         "triagemPaciente",
 
@@ -813,15 +592,43 @@ export function limparFormularioTriagem() {
 
         "triagemObservacoes"
 
-    ]);
+    ];
 
 
-    /*
-        Após limpar, coloca novamente
-        data e hora atuais.
-    */
+    campos.forEach(id => {
+
+        const elemento =
+            document.getElementById(id);
+
+        if (elemento) {
+
+            elemento.value = "";
+
+        }
+
+    });
+
 
     preencherDataHoraTriagem();
+
+}
+
+
+/*************************************************
+            ESCAPAR HTML
+*************************************************/
+
+function escaparHTML(texto) {
+
+    return String(
+        texto ?? ""
+    )
+
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 }
 
@@ -830,9 +637,7 @@ export function limparFormularioTriagem() {
             FORMATAR DATA
 *************************************************/
 
-function formatarDataTriagem(
-    data
-) {
+function formatarData(data) {
 
     if (!data) {
 
@@ -845,9 +650,7 @@ function formatarDataTriagem(
         data.split("-");
 
 
-    if (
-        partes.length !== 3
-    ) {
+    if (partes.length !== 3) {
 
         return data;
 
@@ -855,42 +658,11 @@ function formatarDataTriagem(
 
 
     return (
-        `${partes[2]}/${partes[1]}/${partes[0]}`
-    );
-
-}
-
-
-/*************************************************
-        EVITAR HTML INJETADO
-*************************************************/
-
-function escaparHTML(
-    valor
-) {
-
-    return String(
-        valor ?? ""
-    )
-    .replaceAll(
-        "&",
-        "&amp;"
-    )
-    .replaceAll(
-        "<",
-        "&lt;"
-    )
-    .replaceAll(
-        ">",
-        "&gt;"
-    )
-    .replaceAll(
-        '"',
-        "&quot;"
-    )
-    .replaceAll(
-        "'",
-        "&#039;"
+        partes[2] +
+        "/" +
+        partes[1] +
+        "/" +
+        partes[0]
     );
 
 }
@@ -908,22 +680,16 @@ export function renderTriagens() {
         );
 
 
-    if (!lista) {
-
-        return;
-
-    }
+    if (!lista) return;
 
 
     lista.innerHTML = "";
 
 
-    if (
-        triagens.length === 0
-    ) {
+    if (triagens.length === 0) {
 
         lista.innerHTML = `
-            <li class="item-vazio">
+            <li>
                 Nenhuma triagem registrada.
             </li>
         `;
@@ -933,186 +699,138 @@ export function renderTriagens() {
     }
 
 
-    triagens.forEach(
-        (triagem) => {
+    triagens.forEach(t => {
 
-            const li =
-                document.createElement(
-                    "li"
-                );
+        const li =
+            document.createElement("li");
 
 
-            li.className =
-                "item-registro item-triagem";
+        li.innerHTML = `
+
+            <strong>
+                👤 ${escaparHTML(
+                    t.pacienteNome || "-"
+                )}
+            </strong>
+
+            <br><br>
+
+            📅
+            ${escaparHTML(
+                formatarData(t.data)
+            )}
+
+            &nbsp;
+
+            🕐
+            ${escaparHTML(
+                t.hora || "-"
+            )}
+
+            <br><br>
+
+            🩸 <strong>PA:</strong>
+            ${escaparHTML(
+                t.pa || "-"
+            )}
+
+            <br>
+
+            ❤️ <strong>FC:</strong>
+            ${escaparHTML(
+                t.fc ?? "-"
+            )} bpm
+
+            <br>
+
+            🫁 <strong>FR:</strong>
+            ${escaparHTML(
+                t.fr ?? "-"
+            )} irpm
+
+            <br>
+
+            🫁 <strong>SpO₂:</strong>
+            ${escaparHTML(
+                t.saturacao ?? "-"
+            )} %
+
+            <br>
+
+            🌡️ <strong>Temperatura:</strong>
+            ${escaparHTML(
+                t.temperatura ?? "-"
+            )} °C
+
+            <br>
+
+            🩸 <strong>Glicemia:</strong>
+            ${escaparHTML(
+                t.glicemia ?? "-"
+            )} mg/dL
+
+            <br>
+
+            ⚖️ <strong>Peso:</strong>
+            ${escaparHTML(
+                t.peso ?? "-"
+            )} kg
+
+            <br>
+
+            📏 <strong>Altura:</strong>
+            ${escaparHTML(
+                t.altura ?? "-"
+            )} m
+
+            <br>
+
+            📊 <strong>IMC:</strong>
+            ${escaparHTML(
+                t.imc ?? "-"
+            )}
+
+            <br>
+
+            😣 <strong>Dor:</strong>
+            ${escaparHTML(
+                t.dor ?? "-"
+            )}/10
+
+            <br><br>
+
+            🩺 <strong>Queixa:</strong>
+            ${escaparHTML(
+                t.queixa || "-"
+            )}
+
+            <br><br>
+
+            ⚠️ <strong>Alergias:</strong>
+            ${escaparHTML(
+                t.alergias || "-"
+            )}
+
+            <br><br>
+
+            💊 <strong>Medicamentos:</strong>
+            ${escaparHTML(
+                t.medicamentos || "-"
+            )}
+
+            <br><br>
+
+            📝 <strong>Observações:</strong>
+            ${escaparHTML(
+                t.observacoes || "-"
+            )}
+
+        `;
 
 
-            const classificacaoIMC =
-                classificarIMC(
-                    triagem.imc
-                );
+        lista.appendChild(li);
 
-
-            li.innerHTML = `
-
-                <div class="registro-cabecalho">
-
-                    <strong>
-                        👤 ${escaparHTML(
-                            triagem.pacienteNome
-                        )}
-                    </strong>
-
-                    <span>
-                        📅 ${escaparHTML(
-                            formatarDataTriagem(
-                                triagem.data
-                            )
-                        )}
-
-                        🕐 ${escaparHTML(
-                            triagem.hora || "-"
-                        )}
-                    </span>
-
-                </div>
-
-
-                <div class="registro-dados">
-
-                    <p>
-                        <strong>🩸 PA:</strong>
-                        ${escaparHTML(
-                            triagem.pa || "-"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>❤️ FC:</strong>
-                        ${escaparHTML(
-                            triagem.fc ?? "-"
-                        )} bpm
-                    </p>
-
-
-                    <p>
-                        <strong>🫁 FR:</strong>
-                        ${escaparHTML(
-                            triagem.fr ?? "-"
-                        )} irpm
-                    </p>
-
-
-                    <p>
-                        <strong>🫁 SpO₂:</strong>
-                        ${escaparHTML(
-                            triagem.saturacao ?? "-"
-                        )}%
-                    </p>
-
-
-                    <p>
-                        <strong>🌡️ Temperatura:</strong>
-                        ${escaparHTML(
-                            triagem.temperatura ?? "-"
-                        )} °C
-                    </p>
-
-
-                    <p>
-                        <strong>🩸 Glicemia:</strong>
-                        ${escaparHTML(
-                            triagem.glicemia ?? "-"
-                        )} mg/dL
-                    </p>
-
-
-                    <p>
-                        <strong>⚖️ Peso:</strong>
-                        ${escaparHTML(
-                            triagem.peso ?? "-"
-                        )} kg
-                    </p>
-
-
-                    <p>
-                        <strong>📏 Altura:</strong>
-                        ${escaparHTML(
-                            triagem.altura ?? "-"
-                        )} m
-                    </p>
-
-
-                    <p>
-                        <strong>📊 IMC:</strong>
-                        ${escaparHTML(
-                            triagem.imc ?? "-"
-                        )}
-
-                        ${
-                            triagem.imc
-                                ? `(${escaparHTML(
-                                    classificacaoIMC
-                                )})`
-                                : ""
-                        }
-                    </p>
-
-
-                    <p>
-                        <strong>😣 Dor:</strong>
-                        ${escaparHTML(
-                            triagem.dor ?? "-"
-                        )}/10
-                    </p>
-
-                </div>
-
-
-                <div class="registro-textos">
-
-                    <p>
-                        <strong>🩺 Queixa principal:</strong><br>
-                        ${escaparHTML(
-                            triagem.queixa || "-"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>⚠️ Alergias:</strong><br>
-                        ${escaparHTML(
-                            triagem.alergias || "-"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>💊 Medicamentos em uso:</strong><br>
-                        ${escaparHTML(
-                            triagem.medicamentos || "-"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>📝 Observações:</strong><br>
-                        ${escaparHTML(
-                            triagem.observacoes || "-"
-                        )}
-                    </p>
-
-                </div>
-
-            `;
-
-
-            lista.appendChild(
-                li
-            );
-
-        }
-    );
+    });
 
 }
 
@@ -1123,46 +841,38 @@ export function renderTriagens() {
 
 export function filtrarTriagens() {
 
-    const campo =
+    const pesquisa =
         document.getElementById(
             "pesquisaTriagem"
         );
 
 
-    if (!campo) {
-
-        return;
-
-    }
+    if (!pesquisa) return;
 
 
     const filtro =
-        campo.value
-            .trim()
-            .toLowerCase();
+        pesquisa.value
+            .toLowerCase()
+            .trim();
 
 
     document
         .querySelectorAll(
             "#listaTriagens li"
         )
-        .forEach(
-            (li) => {
+        .forEach(li => {
 
-                const texto =
-                    li.textContent
-                        .toLowerCase();
+            li.style.display =
 
+                li.textContent
+                    .toLowerCase()
+                    .includes(filtro)
 
-                li.style.display =
-                    texto.includes(
-                        filtro
-                    )
-                        ? ""
-                        : "none";
+                    ? ""
 
-            }
-        );
+                    : "none";
+
+        });
 
 }
 
@@ -1183,39 +893,35 @@ export function buscarTriagensPaciente(
         .toLowerCase();
 
 
-    return triagens.filter(
-        (triagem) => {
+    return triagens.filter(t => {
 
-            return (
+        return (
 
-                String(
-                    triagem.pacienteNome || ""
-                )
-                .trim()
-                .toLowerCase()
-                ===
-                termo
+            String(
+                t.pacienteNome || ""
+            )
+            .trim()
+            .toLowerCase()
+            === termo
 
-                ||
+            ||
 
-                String(
-                    triagem.pacienteId || ""
-                )
-                ===
-                String(
-                    paciente || ""
-                )
+            String(
+                t.pacienteId || ""
+            )
+            === String(
+                paciente || ""
+            )
 
-            );
+        );
 
-        }
-    );
+    });
 
 }
 
 
 /*************************************************
-        ÚLTIMA TRIAGEM DO PACIENTE
+        ÚLTIMA TRIAGEM
 *************************************************/
 
 export function ultimaTriagemPaciente(
@@ -1228,43 +934,57 @@ export function ultimaTriagemPaciente(
         );
 
 
-    return (
-        resultado[0]
-        ||
-        null
-    );
+    return resultado.length
+        ? resultado[0]
+        : null;
 
 }
 
 
 /*************************************************
-        CONFIGURAR EVENTOS DA TRIAGEM
+        CONFIGURAR EVENTOS
 *************************************************/
+
+let eventosConfigurados =
+    false;
+
 
 export function configurarEventosTriagem() {
 
-    const peso =
-        document.getElementById(
+    /*
+        Evita adicionar os mesmos
+        eventos duas vezes.
+    */
+
+    if (eventosConfigurados) {
+
+        return;
+
+    }
+
+
+    eventosConfigurados =
+        true;
+
+
+    document
+        .getElementById(
             "triagemPeso"
+        )
+        ?.addEventListener(
+            "input",
+            calcularIMC
         );
 
 
-    const altura =
-        document.getElementById(
+    document
+        .getElementById(
             "triagemAltura"
+        )
+        ?.addEventListener(
+            "input",
+            calcularIMC
         );
-
-
-    peso?.addEventListener(
-        "input",
-        calcularIMC
-    );
-
-
-    altura?.addEventListener(
-        "input",
-        calcularIMC
-    );
 
 
     document
@@ -1289,11 +1009,16 @@ export function configurarEventosTriagem() {
 
     preencherDataHoraTriagem();
 
+
+    console.log(
+        "🩹 Eventos da triagem configurados"
+    );
+
 }
 
 
 /*************************************************
-            EXPORTAÇÃO GLOBAL
+            EXPORTAÇÕES GLOBAIS
 *************************************************/
 
 window.carregarTriagens =
@@ -1304,20 +1029,24 @@ window.renderTriagens =
     renderTriagens;
 
 
+window.preencherPacientesTriagem =
+    preencherPacientesTriagem;
+
+
 window.registrarTriagem =
     registrarTriagem;
-
-
-window.filtrarTriagens =
-    filtrarTriagens;
 
 
 window.calcularIMC =
     calcularIMC;
 
 
-window.preencherPacientesTriagem =
-    preencherPacientesTriagem;
+window.filtrarTriagens =
+    filtrarTriagens;
+
+
+window.buscarTriagensPaciente =
+    buscarTriagensPaciente;
 
 
 window.ultimaTriagemPaciente =
@@ -1329,5 +1058,5 @@ window.ultimaTriagemPaciente =
 *************************************************/
 
 console.log(
-    "✅ triagem.js V4.4 carregado"
+    "✅ triagem.js V4.5 carregado"
 );
