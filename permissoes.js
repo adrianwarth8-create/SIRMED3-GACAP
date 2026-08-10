@@ -1,81 +1,250 @@
 /*************************************************
-            PERMISSOES.JS - SIRMED V4
+              PERMISSOES.JS - SIRMED V4
+*************************************************/
+
+import {
+    perfilUsuarioAtual
+} from "./login.js";
+
+
+/*************************************************
+                    MOSTRAR
 *************************************************/
 
 export function mostrar(id) {
 
-    const elemento = document.getElementById(id);
+    const elemento =
+        document.getElementById(id);
 
     if (elemento) {
-        elemento.style.display = "";
+
+        elemento.hidden = false;
+
     }
 
 }
+
+
+/*************************************************
+                    ESCONDER
+*************************************************/
 
 export function esconder(id) {
 
-    const elemento = document.getElementById(id);
+    const elemento =
+        document.getElementById(id);
 
     if (elemento) {
-        elemento.style.display = "none";
+
+        elemento.hidden = true;
+
     }
 
 }
+
+
+/*************************************************
+              APLICAR PERMISSÕES
+*************************************************/
 
 export function aplicarPermissoes() {
 
-    // Primeiro mostra tudo
-    mostrar("secaoPacientes");
-    mostrar("secaoProfissionais");
-    mostrar("secaoConsultas");
-    mostrar("secaoHistorico");
-    mostrar("secaoProntuarios");
-    mostrar("secaoRelatorios");
-    mostrar("financeiro");
+    const secoes = [
 
-    const perfil = window.perfilUsuario();
+        "secaoPacientes",
 
-    console.log("Perfil:", perfil);
+        "secaoProfissionais",
+
+        "secaoConsultas",
+
+        "secaoHistorico",
+
+        "secaoProntuarios",
+
+        "secaoRelatorios",
+
+        "financeiro"
+
+    ];
+
+
+    /*************************************************
+                MOSTRAR TUDO PRIMEIRO
+    *************************************************/
+
+    secoes.forEach(
+        mostrar
+    );
+
+
+    /*************************************************
+                IDENTIFICAR PERFIL
+    *************************************************/
+
+    const perfil =
+        perfilUsuarioAtual();
+
+
+    console.log(
+        "🔐 Perfil atual:",
+        perfil
+    );
+
+
+    /*************************************************
+                    PERMISSÕES
+    *************************************************/
 
     switch (perfil) {
 
+
+        /*********************************************
+                        GESTOR
+        *********************************************/
+
         case "gestor":
 
-            // Gestor vê tudo
+            /*
+                GESTOR:
+                - Pacientes
+                - Profissionais
+                - Consultas
+                - Histórico
+                - Prontuários
+                - Relatórios
+                - Financeiro
+            */
+
             break;
+
+
+        /*********************************************
+                        MÉDICO
+        *********************************************/
 
         case "medico":
 
-            esconder("secaoProfissionais");
-            esconder("financeiro");
-            esconder("secaoProntuarios");
+            /*
+                MÉDICO:
+                - Pacientes
+                - Consultas
+                - Histórico
+                - Prontuários
+                - Relatórios
+
+                NÃO ACESSA:
+                - Cadastro de profissionais
+                - Financeiro
+            */
+
+            esconder(
+                "secaoProfissionais"
+            );
+
+
+            esconder(
+                "financeiro"
+            );
+
 
             break;
+
+
+        /*********************************************
+                        OPERADOR
+        *********************************************/
 
         case "operador":
 
-            esconder("secaoPacientes");
-            esconder("secaoProfissionais");
-            esconder("secaoConsultas");
+            /*
+                OPERADOR:
+                - Cadastro de pacientes
+                - Consultas
+                - Histórico
 
-            // Operador continua vendo:
-            // Histórico
-            // Relatórios
-            // Prontuários
-            // Financeiro
+                NÃO ACESSA:
+                - Profissionais
+                - Prontuários
+                - Relatórios
+                - Financeiro
+            */
+
+            esconder(
+                "secaoProfissionais"
+            );
+
+
+            esconder(
+                "secaoProntuarios"
+            );
+
+
+            esconder(
+                "secaoRelatorios"
+            );
+
+
+            esconder(
+                "financeiro"
+            );
+
 
             break;
 
+
+        /*********************************************
+                    PERFIL DESCONHECIDO
+        *********************************************/
+
         default:
 
-            console.warn("Perfil não reconhecido:", perfil);
+            console.warn(
+                "⚠️ Perfil não reconhecido:",
+                perfil
+            );
+
+
+            /*
+                Por segurança, perfil desconhecido
+                recebe o menor nível visual de acesso.
+            */
+
+            esconder(
+                "secaoProfissionais"
+            );
+
+
+            esconder(
+                "secaoProntuarios"
+            );
+
+
+            esconder(
+                "secaoRelatorios"
+            );
+
+
+            esconder(
+                "financeiro"
+            );
+
 
             break;
 
     }
 
+
+    console.log(
+        "✅ Permissões aplicadas."
+    );
+
 }
 
-window.aplicarPermissoes = aplicarPermissoes;
 
-console.log("✅ permissoes.js carregado");
+/*************************************************
+                LOG DO SISTEMA
+*************************************************/
+
+console.log(
+    "✅ permissoes.js carregado"
+);
