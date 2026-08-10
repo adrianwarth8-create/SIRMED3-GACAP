@@ -1,117 +1,176 @@
 /*************************************************
-            DASHBOARD.JS - SIRMED V4
+              DASHBOARD.JS - SIRMED V4
 *************************************************/
 
+import {
+    totalPacientes
+} from "./pacientes.js";
+
+import {
+    totalProfissionais
+} from "./profissionais.js";
+
+import {
+    totalConsultas
+} from "./consultas.js";
+
+import {
+    totalFinanceiro
+} from "./financeiro.js";
+
+import {
+    formatarMoeda
+} from "./utils.js";
+
+
 /*************************************************
-            ATUALIZAR DASHBOARD
+              ATUALIZAR DASHBOARD
 *************************************************/
 
 export function atualizarDashboard() {
 
     atualizarTotalPacientes();
+
     atualizarTotalProfissionais();
+
     atualizarTotalConsultas();
+
     atualizarTotalFinanceiro();
 
 }
 
+
 /*************************************************
-            PACIENTES
+                TOTAL PACIENTES
 *************************************************/
 
 export function atualizarTotalPacientes() {
 
     const elemento =
-        document.getElementById("totalPacientes");
+        document.getElementById(
+            "totalPacientes"
+        );
 
-    if (!elemento) return;
 
-    elemento.textContent = pacientes.length;
+    if (!elemento) {
+
+        return;
+
+    }
+
+
+    elemento.textContent =
+        totalPacientes();
 
 }
 
+
 /*************************************************
-            PROFISSIONAIS
+              TOTAL PROFISSIONAIS
 *************************************************/
 
 export function atualizarTotalProfissionais() {
 
     const elemento =
-        document.getElementById("totalProfissionais");
+        document.getElementById(
+            "totalProfissionais"
+        );
 
-    if (!elemento) return;
 
-    elemento.textContent = profissionais.length;
+    if (!elemento) {
+
+        return;
+
+    }
+
+
+    elemento.textContent =
+        totalProfissionais();
 
 }
 
+
 /*************************************************
-            CONSULTAS
+                TOTAL CONSULTAS
 *************************************************/
 
 export function atualizarTotalConsultas() {
 
     const elemento =
-        document.getElementById("totalConsultas");
+        document.getElementById(
+            "totalConsultas"
+        );
 
-    if (!elemento) return;
 
-    elemento.textContent = consultas.length;
+    if (!elemento) {
+
+        return;
+
+    }
+
+
+    elemento.textContent =
+        totalConsultas();
 
 }
 
+
 /*************************************************
-            FINANCEIRO
+                TOTAL FINANCEIRO
 *************************************************/
 
 export function atualizarTotalFinanceiro() {
 
     const elemento =
-        document.getElementById("totalGastos");
+        document.getElementById(
+            "totalGastos"
+        );
 
-    if (!elemento) return;
 
-    let total = 0;
+    if (!elemento) {
 
-    gastos.forEach(gasto => {
+        return;
 
-        total += Number(gasto.valor || 0);
+    }
 
-    });
 
-    elemento.textContent = formatarMoeda(total);
+    elemento.textContent =
+        formatarMoeda(
+            totalFinanceiro()
+        );
 
 }
 
+
 /*************************************************
-            ESTATÍSTICAS
+              ESTATÍSTICAS DO SISTEMA
 *************************************************/
 
 export function estatisticasSistema() {
 
     return {
 
-        pacientes: pacientes.length,
+        pacientes:
+            totalPacientes(),
 
-        profissionais: profissionais.length,
+        profissionais:
+            totalProfissionais(),
 
-        consultas: consultas.length,
+        consultas:
+            totalConsultas(),
 
-        financeiro: gastos.reduce((total, gasto) => {
-
-            return total + Number(gasto.valor || 0);
-
-        }, 0)
+        financeiro:
+            totalFinanceiro()
 
     };
 
 }
 
+
 /*************************************************
-            EXPORTAÇÃO
+                LOG DO SISTEMA
 *************************************************/
 
-window.atualizarDashboard = atualizarDashboard;
-window.estatisticasSistema = estatisticasSistema;
-
-console.log("✅ dashboard.js carregado");
+console.log(
+    "✅ dashboard.js carregado"
+);
