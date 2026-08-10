@@ -1,323 +1,589 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRMED - Sistema Integrado de Registros Médicos</title>
 
-<title>SIRMED - Sistema Integrado de Registros Médicos</title>
+    <link rel="stylesheet" href="./style.css">
 
-<link rel="stylesheet" href="style.css">
-
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+    <!-- ==========================================
+                    LOGIN
+    =========================================== -->
 
-<div id="login" class="login-box">
+    <main id="login" class="login-box">
 
-    <h2>🏥 SIRMED</h2>
+        <h2>🏥 SIRMED</h2>
 
-    <p>Sistema Integrado de Registros Médicos</p>
+        <p>
+            Sistema Integrado de Registros Médicos
+        </p>
 
-    <input id="email" type="email" placeholder="E-mail">
+        <input
+            id="email"
+            type="email"
+            autocomplete="username"
+            placeholder="E-mail"
+        >
 
-    <input id="senha" type="password" placeholder="Senha">
+        <input
+            id="senha"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Senha"
+        >
 
-   <button id="btnEntrar">
-Entrar
-</button>
+        <button
+            id="btnEntrar"
+            class="btn-principal"
+            type="button"
+        >
+            Entrar
+        </button>
 
-</div>
+    </main>
 
-<!-- SISTEMA -->
 
-<div id="sistema" style="display:none;">
+    <!-- ==========================================
+                    SISTEMA
+    =========================================== -->
 
-<header class="cabecalho">
+    <main
+        id="sistema"
+        style="display:none;"
+    >
 
-    <div>
+        <!-- CABEÇALHO -->
 
-        <h1>🏥 SIRMED</h1>
+        <header class="cabecalho">
 
-        <p>Sistema Integrado de Registros Médicos</p>
+            <h1>🏥 SIRMED</h1>
 
-    </div>
+            <p>
+                Sistema Integrado de Registros Médicos
+            </p>
 
-</header>
+        </header>
 
-<div class="usuario-logado">
 
-    <span id="usuarioLogado"></span>
+        <!-- USUÁRIO LOGADO -->
 
-</div>
+        <div class="usuario-barra">
 
-<button id="btnSair">
-🚪 Sair
-</button>
+            <span
+                id="usuarioLogado"
+                class="usuario-logado"
+            ></span>
 
-<!-- DASHBOARD -->
+            <button
+                id="btnSair"
+                class="btn-sair"
+                type="button"
+            >
+                Sair
+            </button>
 
-<div class="dashboard">
+        </div>
 
-    <div class="card-dashboard">
-        <h3>👤 Pacientes</h3>
-        <span id="totalPacientes">0</span>
-    </div>
 
-    <div class="card-dashboard">
-        <h3>👨‍⚕️ Profissionais</h3>
-        <span id="totalProfissionais">0</span>
-    </div>
+        <!-- ======================================
+                        DASHBOARD
+        ======================================= -->
 
-    <div class="card-dashboard">
-        <h3>🏥 Consultas</h3>
-        <span id="totalConsultas">0</span>
-    </div>
+        <div class="dashboard">
 
-    <div class="card-dashboard">
-        <h3>💰 Financeiro</h3>
-        <span id="totalGastos">R$ 0,00</span>
-    </div>
+            <div class="card-dashboard">
 
-</div>
+                <h3>👤 Pacientes</h3>
 
-<hr>
+                <span id="totalPacientes">
+                    0
+                </span>
 
-<!-- PACIENTES -->
+            </div>
 
-<section id="secaoPacientes">
 
-<h2>👤 Cadastro de Pacientes</h2>
+            <div class="card-dashboard">
 
-<input id="pacienteNome" placeholder="Nome Completo">
+                <h3>👨‍⚕️ Profissionais</h3>
 
-<input id="pacienteCpf" placeholder="CPF">
+                <span id="totalProfissionais">
+                    0
+                </span>
 
-<input id="pacienteNascimento" type="date">
+            </div>
 
-<input id="pacienteTelefone" placeholder="Telefone">
 
-<select id="pacienteSexo">
+            <div class="card-dashboard">
 
-<option value="">Sexo</option>
+                <h3>🏥 Consultas</h3>
 
-<option>Masculino</option>
+                <span id="totalConsultas">
+                    0
+                </span>
 
-<option>Feminino</option>
+            </div>
 
-</select>
 
-<input id="pacienteCidade" placeholder="Cidade">
+            <div class="card-dashboard">
 
-<button id="btnCadastrarPaciente">
-➕ Cadastrar Paciente
-</button>
+                <h3>💰 Financeiro</h3>
 
-<input
-id="pesquisaPaciente"
-placeholder="Pesquisar Paciente"
-onkeyup="filtrarPacientes()">
+                <span id="totalGastos">
+                    R$ 0,00
+                </span>
 
-<ul id="listaPacientes"></ul>
+            </div>
 
-</section>
+        </div>
 
-<hr>
 
-<!-- PROFISSIONAIS -->
+        <!-- ======================================
+                    PACIENTES
+        ======================================= -->
 
-<section id="secaoProfissionais">
+        <section id="secaoPacientes">
 
-<h2>👨‍⚕️ Cadastro de Profissionais</h2>
+            <h2>👤 Cadastro de Pacientes</h2>
 
-<input
-id="profissionalNome"
-placeholder="Nome do Profissional">
 
-<select id="profissionalFuncao">
+            <div class="grid-form">
 
-<option value="">Função</option>
+                <input
+                    id="pacienteNome"
+                    class="campo-largo"
+                    placeholder="Nome completo *"
+                >
 
-<option>Médico</option>
 
-<option>Enfermeiro</option>
+                <input
+                    id="pacienteCpf"
+                    inputmode="numeric"
+                    maxlength="14"
+                    placeholder="CPF"
+                >
 
-<option>Dentista</option>
 
-<option>Técnico de Enfermagem</option>
+                <input
+                    id="pacienteNascimento"
+                    type="date"
+                >
 
-</select>
 
-<input
-id="profissionalRegistro"
-placeholder="CRM / COREN / CRO">
+                <input
+                    id="pacienteTelefone"
+                    inputmode="tel"
+                    maxlength="15"
+                    placeholder="Telefone"
+                >
 
-<button id="btnCadastrarProfissional">
-➕ Cadastrar Profissional
-</button>
 
-<input
-id="pesquisaProfissional"
-placeholder="Pesquisar Profissional"
-onkeyup="filtrarProfissionais()">
+                <select id="pacienteSexo">
 
-<ul id="listaProfissionais"></ul>
+                    <option value="">
+                        Sexo
+                    </option>
 
-</section>
+                    <option value="Masculino">
+                        Masculino
+                    </option>
 
-<hr>
+                    <option value="Feminino">
+                        Feminino
+                    </option>
 
-<!-- CONSULTAS -->
+                    <option value="Outro">
+                        Outro
+                    </option>
 
-<section id="secaoConsultas">
+                    <option value="Não informado">
+                        Não informado
+                    </option>
 
-<h2>🏥 Registro de Consulta</h2>
+                </select>
 
-<select id="consultaPaciente"></select>
 
-<select id="consultaProfissional"></select>
+                <input
+                    id="pacienteCidade"
+                    class="campo-largo"
+                    placeholder="Cidade"
+                >
 
-<input
-id="consultaQueixa"
-placeholder="Queixa Principal">
+            </div>
 
-<input
-id="consultaPA"
-placeholder="Pressão Arterial">
 
-<input
-id="consultaFC"
-placeholder="Frequência Cardíaca">
+            <button
+                id="btnCadastrarPaciente"
+                type="button"
+            >
+                Cadastrar paciente
+            </button>
 
-<input
-id="consultaTemperatura"
-placeholder="Temperatura">
 
-<input
-id="consultaDiagnostico"
-placeholder="Diagnóstico">
+            <hr>
 
-<h3>📋 Prontuário Clínico</h3>
 
-<textarea
-id="consultaExameFisico"
-placeholder="Exame Físico"></textarea>
+            <input
+                id="pesquisaPaciente"
+                placeholder="Pesquisar paciente"
+            >
 
-<input
-id="consultaPrescricao"
-placeholder="Prescrição">
 
-<textarea
-id="consultaObservacoes"
-placeholder="Observações"></textarea>
+            <ul id="listaPacientes"></ul>
 
-<input
-id="consultaValor"
-type="number"
-step="0.01"
-placeholder="Valor da Consulta">
+        </section>
 
-<button id="btnRegistrarConsulta">
-💾 Registrar Consulta
-</button>
 
-</section>
+        <!-- ======================================
+                    PROFISSIONAIS
+        ======================================= -->
 
-<hr>
+        <section id="secaoProfissionais">
 
-<!-- HISTÓRICO -->
+            <h2>👨‍⚕️ Profissionais</h2>
 
-<section id="secaoHistorico">
 
-    <h2>📋 Histórico de Consultas</h2>
+            <div class="grid-form">
 
-    <input
-        id="pesquisaConsulta"
-        placeholder="Pesquisar Consulta"
-        onkeyup="filtrarConsultas()">
+                <input
+                    id="profissionalNome"
+                    placeholder="Nome do profissional *"
+                >
 
-    <ul id="listaConsultas"></ul>
 
-</section>
+                <select id="profissionalFuncao">
 
-<hr>
+                    <option value="">
+                        Selecione a função *
+                    </option>
 
-<!-- PRONTUÁRIOS -->
+                    <option value="Médico">
+                        Médico
+                    </option>
 
-<section id="secaoProntuarios">
+                    <option value="Enfermeiro">
+                        Enfermeiro
+                    </option>
 
-    <h2>📁 Prontuários Clínicos</h2>
+                    <option value="Técnico em Enfermagem">
+                        Técnico em Enfermagem
+                    </option>
 
-    <ul id="listaProntuarios"></ul>
+                    <option value="Dentista">
+                        Dentista
+                    </option>
 
-</section>
+                    <option value="Fisioterapeuta">
+                        Fisioterapeuta
+                    </option>
 
-<hr>
+                    <option value="Psicólogo">
+                        Psicólogo
+                    </option>
 
-<section id="secaoRelatorios">
+                    <option value="Outro">
+                        Outro
+                    </option>
 
-<h2>📄 Central de Relatórios</h2>
+                </select>
 
-<select id="relatorioPaciente">
-<option value="">Selecione um paciente</option>
-</select>
 
-<select id="relatorioProfissional">
-<option value="">Todos os profissionais</option>
-</select>
+                <input
+                    id="profissionalRegistro"
+                    class="campo-largo"
+                    placeholder="Registro profissional"
+                >
 
-<input type="date" id="dataInicial">
+            </div>
 
-<input type="date" id="dataFinal">
 
-<div class="botoesRelatorio">
+            <button
+                id="btnCadastrarProfissional"
+                type="button"
+            >
+                Cadastrar profissional
+            </button>
 
-<button id="btnPDF">
-📕 Gerar PDF
-</button>
 
-<button id="btnWord">
-📄 Gerar Word
-</button>
+            <hr>
 
-<button id="btnImprimir">
-🖨️ Imprimir
-</button>
 
-</div>
+            <input
+                id="pesquisaProfissional"
+                placeholder="Pesquisar profissional"
+            >
 
-</section>
-    
-<!-- FINANCEIRO -->
 
-<section id="financeiro">
+            <ul id="listaProfissionais"></ul>
 
-    <h2>💰 Controle Financeiro</h2>
+        </section>
 
-    <ul id="listaGastos"></ul>
 
-</section>
+        <!-- ======================================
+                    CONSULTAS
+        ======================================= -->
 
-</div>
+        <section id="secaoConsultas">
 
+            <h2>🩺 Registrar Consulta</h2>
 
-<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="utils.js"></script>
-<script type="module" src="login.js"></script>
-<script type="module" src="permissoes.js"></script>
-<script type="module" src="pacientes.js"></script>
-<script type="module" src="profissionais.js"></script>
-<script type="module" src="dashboard.js"></script>
-<script type="module" src="consultas.js"></script>
-<script type="module" src="prontuarios.js"></script>
-<script type="module" src="financeiro.js"></script>
-<script type="module" src="relatorios.js"></script>
-<script type="module" src="script.js"></script>
+            <div class="grid-form">
+
+                <select id="consultaPaciente">
+
+                    <option value="">
+                        Selecione o paciente
+                    </option>
+
+                </select>
+
+
+                <select id="consultaProfissional">
+
+                    <option value="">
+                        Selecione o profissional
+                    </option>
+
+                </select>
+
+
+                <textarea
+                    id="consultaQueixa"
+                    class="campo-largo"
+                    placeholder="Queixa principal"
+                ></textarea>
+
+
+                <input
+                    id="consultaPA"
+                    placeholder="Pressão arterial (ex.: 120/80)"
+                >
+
+
+                <input
+                    id="consultaFC"
+                    inputmode="numeric"
+                    placeholder="Frequência cardíaca"
+                >
+
+
+                <input
+                    id="consultaTemperatura"
+                    inputmode="decimal"
+                    placeholder="Temperatura"
+                >
+
+
+                <input
+                    id="consultaValor"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Valor da consulta"
+                >
+
+
+                <textarea
+                    id="consultaExameFisico"
+                    class="campo-largo"
+                    placeholder="Exame físico"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaDiagnostico"
+                    class="campo-largo"
+                    placeholder="Diagnóstico"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaPrescricao"
+                    class="campo-largo"
+                    placeholder="Prescrição"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaObservacoes"
+                    class="campo-largo"
+                    placeholder="Observações"
+                ></textarea>
+
+            </div>
+
+
+            <button
+                id="btnRegistrarConsulta"
+                type="button"
+            >
+                Registrar consulta
+            </button>
+
+        </section>
+
+
+        <!-- ======================================
+                HISTÓRICO DE CONSULTAS
+        ======================================= -->
+
+        <section id="secaoHistorico">
+
+            <h2>📋 Histórico de Consultas</h2>
+
+
+            <input
+                id="pesquisaConsulta"
+                placeholder="Pesquisar consulta"
+            >
+
+
+            <ul id="listaConsultas"></ul>
+
+        </section>
+
+
+        <!-- ======================================
+                    PRONTUÁRIOS
+        ======================================= -->
+
+        <section id="secaoProntuarios">
+
+            <h2>📁 Prontuários Clínicos</h2>
+
+            <ul id="listaProntuarios"></ul>
+
+        </section>
+
+
+        <!-- ======================================
+                    FINANCEIRO
+        ======================================= -->
+
+        <section id="financeiro">
+
+            <h2>💰 Controle Financeiro</h2>
+
+            <ul id="listaGastos"></ul>
+
+        </section>
+
+
+        <!-- ======================================
+                    RELATÓRIOS
+        ======================================= -->
+
+        <section id="secaoRelatorios">
+
+            <h2>📊 Relatórios</h2>
+
+
+            <div class="grid-form">
+
+                <select id="relatorioPaciente">
+
+                    <option value="">
+                        Todos os pacientes
+                    </option>
+
+                </select>
+
+
+                <select id="relatorioProfissional">
+
+                    <option value="">
+                        Todos os profissionais
+                    </option>
+
+                </select>
+
+
+                <label>
+
+                    Data inicial
+
+                    <input
+                        id="dataInicial"
+                        type="date"
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Data final
+
+                    <input
+                        id="dataFinal"
+                        type="date"
+                    >
+
+                </label>
+
+            </div>
+
+
+            <div class="acoes">
+
+                <button
+                    id="btnPDF"
+                    type="button"
+                >
+                    Gerar PDF
+                </button>
+
+
+                <button
+                    id="btnWord"
+                    type="button"
+                >
+                    Gerar Word
+                </button>
+
+
+                <button
+                    id="btnImprimir"
+                    type="button"
+                >
+                    Imprimir
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==========================================
+                MENSAGENS DO SISTEMA
+    =========================================== -->
+
+    <div
+        id="mensagemSistema"
+        class="mensagem-sistema"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+
+    <!-- ==========================================
+                JAVASCRIPT PRINCIPAL
+    =========================================== -->
+
+    <script
+        type="module"
+        src="./script.js"
+    ></script>
+
 </body>
-
 </html>
