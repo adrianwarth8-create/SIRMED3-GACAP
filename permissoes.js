@@ -1,5 +1,5 @@
 /*************************************************
-           PERMISSOES.JS - SIRMED V4.2
+          PERMISSOES.JS - SIRMED V4.3
 *************************************************/
 
 import {
@@ -14,7 +14,6 @@ import {
 const permissoes = {
 
     gestor: [
-
         "inicio",
         "secaoPacientes",
         "secaoProfissionais",
@@ -23,32 +22,59 @@ const permissoes = {
         "secaoProntuarios",
         "financeiro",
         "secaoRelatorios"
-
     ],
 
-
     medico: [
-
         "inicio",
         "secaoPacientes",
         "secaoConsultas",
         "secaoHistorico",
-        "secaoProntuarios",
-        "secaoRelatorios"
-
+        "secaoProntuarios"
     ],
 
-
     operador: [
-
         "inicio",
-        "secaoPacientes",
-        "secaoConsultas",
-        "secaoHistorico"
-
+        "financeiro",
+        "secaoRelatorios"
     ]
 
 };
+
+
+/*************************************************
+             OBTER PERMISSÕES
+*************************************************/
+
+export function obterPermissoesPerfil() {
+
+    const perfil =
+        String(
+            perfilUsuarioAtual() || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    return permissoes[perfil]
+        || ["inicio"];
+
+}
+
+
+/*************************************************
+            VERIFICAR PERMISSÃO
+*************************************************/
+
+export function temPermissao(
+    secaoId
+) {
+
+    return obterPermissoesPerfil()
+        .includes(
+            secaoId
+        );
+
+}
 
 
 /*************************************************
@@ -65,25 +91,24 @@ export function aplicarPermissoes() {
         .toLowerCase();
 
 
+    const permitidas =
+        obterPermissoesPerfil();
+
+
     console.log(
-        "🔐 Aplicando permissões:",
+        "🔐 Perfil:",
         perfil
     );
 
 
-    /*
-        Se o perfil não existir,
-        usa acesso mínimo.
-    */
-
-    const permitidas =
-        permissoes[perfil]
-        ||
-        ["inicio"];
+    console.log(
+        "🔑 Seções permitidas:",
+        permitidas
+    );
 
 
     /*************************************************
-            CONTROLAR AS SEÇÕES
+                SEÇÕES DO SISTEMA
     *************************************************/
 
     document
@@ -103,11 +128,6 @@ export function aplicarPermissoes() {
                     !permitido;
 
 
-                /*
-                    Se não tem permissão,
-                    garante que não fique ativa.
-                */
-
                 if (!permitido) {
 
                     secao.classList.remove(
@@ -121,7 +141,7 @@ export function aplicarPermissoes() {
 
 
     /*************************************************
-            CONTROLAR BOTÕES DO MENU
+                MENU PRINCIPAL
     *************************************************/
 
     document
@@ -144,25 +164,30 @@ export function aplicarPermissoes() {
                 botao.hidden =
                     !permitido;
 
+
+                if (!permitido) {
+
+                    botao.classList.remove(
+                        "ativo"
+                    );
+
+                }
+
             }
         );
 
 
     /*************************************************
-        GARANTIR UMA TELA AUTORIZADA ABERTA
+            GARANTIR TELA INICIAL
     *************************************************/
 
-    const telaAtiva =
+    const ativa =
         document.querySelector(
-            ".tela-sistema.tela-ativa"
+            ".tela-sistema.tela-ativa:not([hidden])"
         );
 
 
-    if (
-        !telaAtiva
-        ||
-        telaAtiva.hidden
-    ) {
+    if (!ativa) {
 
         document
             .querySelectorAll(
@@ -190,7 +215,6 @@ export function aplicarPermissoes() {
             inicio.hidden =
                 false;
 
-
             inicio.classList.add(
                 "tela-ativa"
             );
@@ -206,12 +230,9 @@ export function aplicarPermissoes() {
                 (botao) => {
 
                     botao.classList.toggle(
-
                         "ativo",
-
                         botao.dataset.secao ===
-                        "inicio"
-
+                            "inicio"
                     );
 
                 }
@@ -221,36 +242,7 @@ export function aplicarPermissoes() {
 
 
     console.log(
-        "✅ Permissões aplicadas para:",
-        perfil
-    );
-
-}
-
-
-/*************************************************
-          VERIFICAR PERMISSÃO
-*************************************************/
-
-export function temPermissao(
-    secaoId
-) {
-
-    const perfil =
-        String(
-            perfilUsuarioAtual() || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    return (
-        permissoes[perfil]
-        ||
-        ["inicio"]
-    )
-    .includes(
-        secaoId
+        "✅ Permissões aplicadas."
     );
 
 }
@@ -261,5 +253,5 @@ export function temPermissao(
 *************************************************/
 
 console.log(
-    "✅ permissoes.js V4.2 carregado"
+    "✅ permissoes.js V4.3 carregado"
 );
