@@ -1,237 +1,878 @@
 /*************************************************
-            RELATORIOS.JS - SIRMED V4
+              RELATORIOS.JS - SIRMED V4
 *************************************************/
 
+import {
+    obterPacientes
+} from "./pacientes.js";
+
+import {
+    obterProfissionais
+} from "./profissionais.js";
+
+import {
+    obterConsultas
+} from "./consultas.js";
+
+import {
+    formatarData
+} from "./utils.js";
+
+
 /*************************************************
-        PREENCHER PACIENTES
+        PREENCHER RELATÓRIO DE PACIENTE
 *************************************************/
 
 export function preencherRelatorioPaciente() {
 
     const select =
-        document.getElementById("relatorioPaciente");
+        document.getElementById(
+            "relatorioPaciente"
+        );
 
-    if (!select) return;
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const valorAtual =
+        select.value;
+
 
     select.innerHTML =
-        "<option value=''>Todos os pacientes</option>";
+        `
+            <option value="">
+                Todos os pacientes
+            </option>
+        `;
 
-    pacientes.forEach(p => {
 
-        select.innerHTML +=
-            `<option value="${p.nome}">${p.nome}</option>`;
+    obterPacientes()
+        .forEach(
+            (p) => {
 
-    });
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    p.id;
+
+
+                option.textContent =
+                    p.nome;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    if (
+        [
+            ...select.options
+        ]
+        .some(
+            (option) =>
+                option.value === valorAtual
+        )
+    ) {
+
+        select.value =
+            valorAtual;
+
+    }
 
 }
 
+
 /*************************************************
-        PREENCHER PROFISSIONAIS
+      PREENCHER RELATÓRIO PROFISSIONAL
 *************************************************/
 
 export function preencherRelatorioProfissional() {
 
     const select =
-        document.getElementById("relatorioProfissional");
+        document.getElementById(
+            "relatorioProfissional"
+        );
 
-    if (!select) return;
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const valorAtual =
+        select.value;
+
 
     select.innerHTML =
-        "<option value=''>Todos os profissionais</option>";
+        `
+            <option value="">
+                Todos os profissionais
+            </option>
+        `;
 
-    profissionais.forEach(p => {
 
-        select.innerHTML +=
-            `<option value="${p.nome}">${p.nome}</option>`;
+    obterProfissionais()
+        .forEach(
+            (p) => {
 
-    });
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    p.id;
+
+
+                option.textContent =
+                    p.nome;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    if (
+        [
+            ...select.options
+        ]
+        .some(
+            (option) =>
+                option.value === valorAtual
+        )
+    ) {
+
+        select.value =
+            valorAtual;
+
+    }
 
 }
 
+
 /*************************************************
-            FILTRAR CONSULTAS
+                CONSULTAS FILTRADAS
 *************************************************/
 
 export function consultasFiltradas() {
 
-    const paciente =
-        document.getElementById("relatorioPaciente").value;
+    const pacienteId =
+        document
+            .getElementById(
+                "relatorioPaciente"
+            )
+            ?.value
+        || "";
 
-    const profissional =
-        document.getElementById("relatorioProfissional").value;
+
+    const profissionalId =
+        document
+            .getElementById(
+                "relatorioProfissional"
+            )
+            ?.value
+        || "";
+
 
     const dataInicial =
-        document.getElementById("dataInicial").value;
+        document
+            .getElementById(
+                "dataInicial"
+            )
+            ?.value
+        || "";
+
 
     const dataFinal =
-        document.getElementById("dataFinal").value;
+        document
+            .getElementById(
+                "dataFinal"
+            )
+            ?.value
+        || "";
 
-    return consultas.filter(c => {
 
-        const pacienteOK =
-            !paciente || c.paciente === paciente;
+    const pacienteSelecionado =
+        obterPacientes()
+            .find(
+                (p) =>
+                    p.id === pacienteId
+            );
 
-        const profissionalOK =
-            !profissional || c.profissional === profissional;
 
-        let dataOK = true;
+    const profissionalSelecionado =
+        obterProfissionais()
+            .find(
+                (p) =>
+                    p.id === profissionalId
+            );
 
-        if (dataInicial)
-            dataOK = c.data >= dataInicial;
 
-        if (dataFinal)
-            dataOK = dataOK && c.data <= dataFinal;
+    return obterConsultas()
+        .filter(
+            (c) => {
 
-        return pacienteOK && profissionalOK && dataOK;
+                /*************************************
+                        PACIENTE
+                *************************************/
 
-    });
+                const pacienteOK =
+
+                    !pacienteId
+
+                    ||
+
+                    c.pacienteId === pacienteId
+
+                    ||
+
+                    (
+                        !c.pacienteId
+                        &&
+                        pacienteSelecionado
+                        &&
+                        c.paciente ===
+                            pacienteSelecionado.nome
+                    );
+
+
+                /*************************************
+                        PROFISSIONAL
+                *************************************/
+
+                const profissionalOK =
+
+                    !profissionalId
+
+                    ||
+
+                    c.profissionalId ===
+                        profissionalId
+
+                    ||
+
+                    (
+                        !c.profissionalId
+                        &&
+                        profissionalSelecionado
+                        &&
+                        c.profissional ===
+                            profissionalSelecionado.nome
+                    );
+
+
+                /*************************************
+                            DATA
+                *************************************/
+
+                const dataConsulta =
+                    normalizarDataFiltro(
+                        c.data
+                    );
+
+
+                const inicialOK =
+
+                    !dataInicial
+
+                    ||
+
+                    (
+                        dataConsulta
+                        &&
+                        dataConsulta >=
+                            dataInicial
+                    );
+
+
+                const finalOK =
+
+                    !dataFinal
+
+                    ||
+
+                    (
+                        dataConsulta
+                        &&
+                        dataConsulta <=
+                            dataFinal
+                    );
+
+
+                return (
+
+                    pacienteOK
+                    &&
+                    profissionalOK
+                    &&
+                    inicialOK
+                    &&
+                    finalOK
+
+                );
+
+            }
+        );
 
 }
 
+
 /*************************************************
-                PDF
+            NORMALIZAR DATA DO FILTRO
+*************************************************/
+
+function normalizarDataFiltro(
+    data
+) {
+
+    if (!data) {
+
+        return "";
+
+    }
+
+
+    const texto =
+        String(data);
+
+
+    /*************************************************
+                    YYYY-MM-DD
+    *************************************************/
+
+    if (
+        /^\d{4}-\d{2}-\d{2}$/
+        .test(texto)
+    ) {
+
+        return texto;
+
+    }
+
+
+    /*************************************************
+                    DD/MM/YYYY
+    *************************************************/
+
+    const dataBR =
+        texto.match(
+            /^(\d{2})\/(\d{2})\/(\d{4})$/
+        );
+
+
+    if (dataBR) {
+
+        return `${dataBR[3]}-${dataBR[2]}-${dataBR[1]}`;
+
+    }
+
+
+    return "";
+
+}
+
+
+/*************************************************
+                    GERAR PDF
 *************************************************/
 
 export async function gerarPDF() {
 
-    const { jsPDF } = window.jspdf;
+    /*************************************************
+                VERIFICAR jsPDF
+    *************************************************/
 
-    const pdf = new jsPDF();
+    if (
+        !window.jspdf
+        ||
+        !window.jspdf.jsPDF
+    ) {
 
-    const lista = consultasFiltradas();
+        alert(
+            "Biblioteca de PDF não carregada."
+        );
 
-    pdf.setFontSize(18);
+        return;
 
-    pdf.text("SIRMED", 15, 20);
+    }
 
-    pdf.setFontSize(12);
+
+    const {
+        jsPDF
+    } = window.jspdf;
+
+
+    const pdf =
+        new jsPDF();
+
+
+    const lista =
+        consultasFiltradas();
+
+
+    /*************************************************
+                    CABEÇALHO
+    *************************************************/
+
+    pdf.setFontSize(
+        18
+    );
+
+
+    pdf.text(
+        "SIRMED",
+        15,
+        18
+    );
+
+
+    pdf.setFontSize(
+        11
+    );
+
+
+    pdf.text(
+        "Sistema Integrado de Registros Médicos",
+        15,
+        25
+    );
+
+
+    pdf.setFontSize(
+        14
+    );
+
 
     pdf.text(
         "Relatório de Consultas",
         15,
-        30
+        35
     );
 
-    let y = 45;
 
-    lista.forEach(c => {
+    let y =
+        48;
 
-        pdf.text(
-            `Paciente: ${c.paciente}`,
-            15,
-            y
+
+    /*************************************************
+                    SEM RESULTADOS
+    *************************************************/
+
+    if (
+        lista.length === 0
+    ) {
+
+        pdf.setFontSize(
+            11
         );
 
-        y += 7;
 
         pdf.text(
-            `Profissional: ${c.profissional}`,
+
+            "Nenhuma consulta encontrada para os filtros selecionados.",
+
             15,
+
             y
+
         );
 
-        y += 7;
+    }
 
-        pdf.text(
-            `Data: ${c.data}`,
-            15,
-            y
-        );
 
-        y += 7;
+    /*************************************************
+                REGISTROS DO PDF
+    *************************************************/
 
-        pdf.text(
-            `Diagnóstico: ${c.diagnostico || "-"}`,
-            15,
-            y
-        );
+    lista.forEach(
+        (c, indice) => {
 
-        y += 10;
+            const linhas = [
 
-        if (y > 270) {
+                `Paciente: ${c.paciente || "-"}`,
 
-            pdf.addPage();
+                `Profissional: ${c.profissional || "-"}`,
 
-            y = 20;
+                `Data: ${formatarData(c.data)}`,
+
+                `Queixa: ${c.queixa || "-"}`,
+
+                `Diagnóstico: ${c.diagnostico || "-"}`,
+
+                `Prescrição: ${c.prescricao || "-"}`
+
+            ];
+
+
+            linhas.forEach(
+                (texto) => {
+
+                    const quebradas =
+                        pdf.splitTextToSize(
+                            texto,
+                            180
+                        );
+
+
+                    /*********************************
+                        NOVA PÁGINA
+                    *********************************/
+
+                    if (
+                        y +
+                        quebradas.length * 6
+                        >
+                        280
+                    ) {
+
+                        pdf.addPage();
+
+                        y =
+                            20;
+
+                    }
+
+
+                    pdf.text(
+                        quebradas,
+                        15,
+                        y
+                    );
+
+
+                    y +=
+                        quebradas.length * 6;
+
+                }
+            );
+
+
+            y +=
+                5;
+
+
+            /*************************************
+                    LINHA SEPARADORA
+            *************************************/
+
+            if (
+                indice <
+                lista.length - 1
+            ) {
+
+                pdf.line(
+                    15,
+                    y - 2,
+                    195,
+                    y - 2
+                );
+
+
+                y +=
+                    4;
+
+            }
 
         }
+    );
 
-    });
 
-    pdf.save("Relatorio_SIRMED.pdf");
+    /*************************************************
+                    SALVAR PDF
+    *************************************************/
+
+    pdf.save(
+        "Relatorio_SIRMED.pdf"
+    );
 
 }
 
+
 /*************************************************
-                WORD
+                    GERAR WORD
 *************************************************/
 
 export function gerarWord() {
 
-    const lista = consultasFiltradas();
+    const lista =
+        consultasFiltradas();
 
-    let texto = `
-SIRMED
 
-RELATÓRIO DE CONSULTAS
+    /*************************************************
+                CONTEÚDO DOS REGISTROS
+    *************************************************/
 
-`;
+    const registros =
+        lista.map(
+            (c) => `
 
-    lista.forEach(c => {
+                <div class="registro">
 
-        texto += `
+                    <p>
+                        <strong>Paciente:</strong>
+                        ${escaparWord(
+                            c.paciente || "-"
+                        )}
+                    </p>
 
-Paciente: ${c.paciente}
+                    <p>
+                        <strong>Profissional:</strong>
+                        ${escaparWord(
+                            c.profissional || "-"
+                        )}
+                    </p>
 
-Profissional: ${c.profissional}
+                    <p>
+                        <strong>Data:</strong>
+                        ${escaparWord(
+                            formatarData(
+                                c.data
+                            )
+                        )}
+                    </p>
 
-Data: ${c.data}
+                    <p>
+                        <strong>Queixa:</strong>
+                        ${escaparWord(
+                            c.queixa || "-"
+                        )}
+                    </p>
 
-Diagnóstico: ${c.diagnostico || "-"}
+                    <p>
+                        <strong>Diagnóstico:</strong>
+                        ${escaparWord(
+                            c.diagnostico || "-"
+                        )}
+                    </p>
 
-Prescrição: ${c.prescricao || "-"}
+                    <p>
+                        <strong>Prescrição:</strong>
+                        ${escaparWord(
+                            c.prescricao || "-"
+                        )}
+                    </p>
 
------------------------------------
+                </div>
 
-`;
+            `
+        )
+        .join("");
 
-    });
 
-    const blob = new Blob(
-        [texto],
-        {
-            type:
-            "application/msword"
-        }
-    );
+    /*************************************************
+                DOCUMENTO WORD
+    *************************************************/
+
+    const html = `
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    color:
+                        #222;
+
+                }
+
+
+                h1 {
+
+                    color:
+                        #1565C0;
+
+                    margin-bottom:
+                        0;
+
+                }
+
+
+                h2 {
+
+                    margin-top:
+                        4px;
+
+                }
+
+
+                .registro {
+
+                    margin:
+                        18px 0;
+
+                    padding-bottom:
+                        12px;
+
+                    border-bottom:
+                        1px solid #aaa;
+
+                }
+
+
+                p {
+
+                    margin:
+                        5px 0;
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <h1>
+                SIRMED
+            </h1>
+
+
+            <h2>
+                Relatório de Consultas
+            </h2>
+
+
+            ${
+                registros
+                ||
+                `
+                    <p>
+                        Nenhuma consulta encontrada
+                        para os filtros selecionados.
+                    </p>
+                `
+            }
+
+        </body>
+
+        </html>
+
+    `;
+
+
+    /*************************************************
+                    CRIAR ARQUIVO
+    *************************************************/
+
+    const blob =
+        new Blob(
+
+            [
+                "\ufeff",
+                html
+            ],
+
+            {
+                type:
+                    "application/msword;charset=utf-8"
+            }
+
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
 
     const link =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
+
 
     link.href =
-        URL.createObjectURL(blob);
+        url;
+
 
     link.download =
         "Relatorio_SIRMED.doc";
 
+
+    document.body.appendChild(
+        link
+    );
+
+
     link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
 
 }
 
+
 /*************************************************
-            EXPORTAÇÃO
+                ESCAPAR TEXTO WORD
 *************************************************/
 
-window.preencherRelatorioPaciente =
-preencherRelatorioPaciente;
+function escaparWord(
+    valor
+) {
 
-window.preencherRelatorioProfissional =
-preencherRelatorioProfissional;
+    return String(
+        valor ?? ""
+    )
 
-window.gerarPDF =
-gerarPDF;
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
 
-window.gerarWord =
-gerarWord;
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
 
-console.log("✅ relatorios.js carregado");
+        .replaceAll(
+            ">",
+            "&gt;"
+        );
+
+}
+
+
+/*************************************************
+                LOG DO SISTEMA
+*************************************************/
+
+console.log(
+    "✅ relatorios.js carregado"
+);
