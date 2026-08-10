@@ -147,15 +147,16 @@ export async function carregarPerfil() {
             docUser.exists()
         ) {
 
-            perfil =
-                String(
-                    docUser
-                        .data()
-                        .perfil
-                    ||
-                    "operador"
-                )
-                .toLowerCase();
+perfil =
+    String(
+        docUser
+            .data()
+            .perfil
+        ||
+        "operador"
+    )
+    .trim()
+    .toLowerCase();
 
         } else {
 
