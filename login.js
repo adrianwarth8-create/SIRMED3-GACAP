@@ -1,27 +1,27 @@
 /*************************************************
-                 LOGIN.JS - SIRMED V4
+              LOGIN.JS - SIRMED V4.4
 *************************************************/
 
 import {
+
     auth,
     db,
+
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
+
     doc,
     getDoc
-} from "./firebase.js";
 
-import {
-    mensagem
-} from "./utils.js";
+} from "./firebase.js";
 
 
 /*************************************************
-                VARIÁVEIS
+              VARIÁVEIS DO USUÁRIO
 *************************************************/
 
-let perfil = "";
+let perfilUsuario = "";
 
 let usuarioAtual = null;
 
@@ -32,26 +32,23 @@ let usuarioAtual = null;
 
 export async function entrar() {
 
+    const campoEmail =
+        document.getElementById("email");
+
+    const campoSenha =
+        document.getElementById("senha");
+
+
     const email =
-        document
-            .getElementById("email")
-            ?.value
-            .trim()
-        || "";
+        campoEmail?.value.trim() || "";
 
     const senha =
-        document
-            .getElementById("senha")
-            ?.value
-        || "";
+        campoSenha?.value || "";
 
 
-    if (
-        !email ||
-        !senha
-    ) {
+    if (!email || !senha) {
 
-        mensagem(
+        alert(
             "Informe o e-mail e a senha."
         );
 
@@ -68,7 +65,9 @@ export async function entrar() {
             senha
         );
 
-    } catch (erro) {
+    }
+
+    catch (erro) {
 
         console.error(
             "Erro no login:",
@@ -76,7 +75,7 @@ export async function entrar() {
         );
 
 
-        mensagem(
+        alert(
             "Usuário ou senha inválidos."
         );
 
@@ -93,20 +92,15 @@ export async function sair() {
 
     try {
 
-        await signOut(
-            auth
-        );
+        await signOut(auth);
 
-    } catch (erro) {
+    }
+
+    catch (erro) {
 
         console.error(
             "Erro ao sair:",
             erro
-        );
-
-
-        mensagem(
-            "Não foi possível encerrar a sessão."
         );
 
     }
@@ -120,52 +114,77 @@ export async function sair() {
 
 export async function carregarPerfil() {
 
+    /*
+        Sem usuário autenticado,
+        não existe perfil para carregar.
+    */
+
     if (!usuarioAtual) {
 
-        perfil = "";
+        perfilUsuario = "";
 
-        return perfil;
+        return "";
 
     }
 
 
     try {
 
-        const docUser =
-            await getDoc(
-
-                doc(
-                    db,
-                    "usuarios",
-                    usuarioAtual.uid
-                )
-
+        const referencia =
+            doc(
+                db,
+                "usuarios",
+                usuarioAtual.uid
             );
 
 
-        if (
-            docUser.exists()
-        ) {
+        const documento =
+            await getDoc(
+                referencia
+            );
 
-perfil =
-    String(
-        docUser
-            .data()
-            .perfil
-        ||
-        "operador"
-    )
-    .trim()
-    .toLowerCase();
 
-        } else {
+        if (documento.exists()) {
 
-            perfil =
-                "operador";
+            perfilUsuario =
+                String(
+                    documento.data().perfil || ""
+                )
+                .trim()
+                .toLowerCase();
 
         }
 
-    } catch (erro) {
+        else {
+
+            /*
+                Segurança:
+
+                usuário autenticado sem documento
+                na coleção usuarios não recebe
+                automaticamente acesso de operador.
+            */
+
+            perfilUsuario = "";
+
+            console.warn(
+                "Usuário sem perfil cadastrado no Firestore."
+            );
+
+        }
+
+
+        console.log(
+            "👤 Perfil carregado:",
+            perfilUsuario
+        );
+
+
+        return perfilUsuario;
+
+    }
+
+    catch (erro) {
 
         console.error(
             "Erro ao carregar perfil:",
@@ -173,47 +192,138 @@ perfil =
         );
 
 
-        perfil =
-            "operador";
+        perfilUsuario = "";
+
+        return "";
+
+    }
+
+}
+
+
+/*************************************************
+          ATUALIZAR INTERFACE DO LOGIN
+*************************************************/
+
+function mostrarSistema(user) {
+
+    const login =
+        document.getElementById(
+            "login"
+        );
+
+
+    const sistema =
+        document.getElementById(
+            "sistema"
+        );
+
+
+    const usuarioLogado =
+        document.getElementById(
+            "usuarioLogado"
+        );
+
+
+    if (login) {
+
+        login.style.display =
+            "none";
 
     }
 
 
-    return perfil;
+    if (sistema) {
+
+        sistema.style.display =
+            "block";
+
+    }
+
+
+    if (usuarioLogado) {
+
+        usuarioLogado.textContent =
+            `👤 ${user.email} (${perfilUsuario || "sem perfil"})`;
+
+    }
 
 }
 
 
 /*************************************************
-            PERFIL DO USUÁRIO ATUAL
+              MOSTRAR LOGIN
 *************************************************/
 
-export function perfilUsuarioAtual() {
+function mostrarLogin() {
 
-    return perfil;
+    const login =
+        document.getElementById(
+            "login"
+        );
+
+
+    const sistema =
+        document.getElementById(
+            "sistema"
+        );
+
+
+    const usuarioLogado =
+        document.getElementById(
+            "usuarioLogado"
+        );
+
+
+    if (login) {
+
+        login.style.display =
+            "block";
+
+    }
+
+
+    if (sistema) {
+
+        sistema.style.display =
+            "none";
+
+    }
+
+
+    if (usuarioLogado) {
+
+        usuarioLogado.textContent =
+            "";
+
+    }
 
 }
 
 
 /*************************************************
-            USUÁRIO ATUAL LOGADO
+          OBSERVADOR DE AUTENTICAÇÃO
 *************************************************/
 
-export function usuarioAtualLogado() {
+/*
+    Esta função é chamada pelo script.js V4.4.
 
-    return usuarioAtual;
+    Ela substitui o antigo:
 
-}
+    onAuthStateChanged(auth, async (user) => {...})
 
-
-/*************************************************
-            OBSERVADOR DE AUTENTICAÇÃO
-*************************************************/
+    que ficava executando diretamente
+    dentro do login.js.
+*/
 
 export function iniciarObservadorAuth({
-    aoEntrar,
-    aoSair
+
+    aoEntrar = null,
+
+    aoSair = null
+
 } = {}) {
+
 
     return onAuthStateChanged(
 
@@ -221,27 +331,10 @@ export function iniciarObservadorAuth({
 
         async (user) => {
 
-            const login =
-                document.getElementById(
-                    "login"
-                );
 
-
-            const sistema =
-                document.getElementById(
-                    "sistema"
-                );
-
-
-            const usuarioLogado =
-                document.getElementById(
-                    "usuarioLogado"
-                );
-
-
-            /*************************************
-                        SEM LOGIN
-            *************************************/
+            /*************************************************
+                        USUÁRIO SAIU
+            *************************************************/
 
             if (!user) {
 
@@ -249,32 +342,16 @@ export function iniciarObservadorAuth({
                     null;
 
 
-                perfil =
+                perfilUsuario =
                     "";
 
 
-                if (login) {
-
-                    login.style.display =
-                        "block";
-
-                }
+                mostrarLogin();
 
 
-                if (sistema) {
-
-                    sistema.style.display =
-                        "none";
-
-                }
-
-
-                if (usuarioLogado) {
-
-                    usuarioLogado.textContent =
-                        "";
-
-                }
+                console.log(
+                    "🔒 Nenhum usuário autenticado."
+                );
 
 
                 if (
@@ -282,7 +359,20 @@ export function iniciarObservadorAuth({
                     "function"
                 ) {
 
-                    await aoSair();
+                    try {
+
+                        await aoSair();
+
+                    }
+
+                    catch (erro) {
+
+                        console.error(
+                            "Erro ao executar aoSair:",
+                            erro
+                        );
+
+                    }
 
                 }
 
@@ -292,50 +382,79 @@ export function iniciarObservadorAuth({
             }
 
 
-            /*************************************
-                        COM LOGIN
-            *************************************/
+            /*************************************************
+                    USUÁRIO AUTENTICADO
+            *************************************************/
 
             usuarioAtual =
                 user;
 
 
+            /*
+                Primeiro carregamos o perfil.
+
+                Isso é importante porque
+                permissões.js depende dele.
+            */
+
             await carregarPerfil();
 
 
-            if (login) {
+            mostrarSistema(
+                user
+            );
 
-                login.style.display =
-                    "none";
+
+            console.log(
+                "🔓 Usuário autenticado:",
+                user.email
+            );
+
+
+            console.log(
+                "🔐 Perfil:",
+                perfilUsuario
+            );
+
+
+            /*************************************************
+                    PERFIL NÃO CADASTRADO
+            *************************************************/
+
+            if (!perfilUsuario) {
+
+                console.warn(
+                    "⚠️ Usuário autenticado sem perfil válido."
+                );
 
             }
 
 
-            if (sistema) {
-
-                sistema.style.display =
-                    "block";
-
-            }
-
-
-            if (usuarioLogado) {
-
-                usuarioLogado.textContent =
-                    `👤 ${user.email} (${perfil})`;
-
-            }
-
+            /*************************************************
+                AVISAR SCRIPT.JS
+            *************************************************/
 
             if (
                 typeof aoEntrar ===
                 "function"
             ) {
 
-                await aoEntrar(
-                    user,
-                    perfil
-                );
+                try {
+
+                    await aoEntrar(
+                        user
+                    );
+
+                }
+
+                catch (erro) {
+
+                    console.error(
+                        "Erro durante inicialização do usuário:",
+                        erro
+                    );
+
+                }
 
             }
 
@@ -347,9 +466,105 @@ export function iniciarObservadorAuth({
 
 
 /*************************************************
-                LOG DO SISTEMA
+              PERFIL ATUAL
+*************************************************/
+
+export const perfilUsuarioAtual =
+    () => perfilUsuario;
+
+
+/*************************************************
+              USUÁRIO ATUAL
+*************************************************/
+
+export const usuarioAtualLogado =
+    () => usuarioAtual;
+
+
+/*************************************************
+          VERIFICAÇÕES DE PERFIL
+*************************************************/
+
+export function ehGestor() {
+
+    return (
+        perfilUsuario ===
+        "gestor"
+    );
+
+}
+
+
+export function ehMedico() {
+
+    return (
+        perfilUsuario ===
+        "medico"
+    );
+
+}
+
+
+export function ehOperador() {
+
+    return (
+        perfilUsuario ===
+        "operador"
+    );
+
+}
+
+
+export function ehTriagem() {
+
+    return (
+        perfilUsuario ===
+        "triagem"
+    );
+
+}
+
+
+/*************************************************
+              EXPORTAÇÃO GLOBAL
+*************************************************/
+
+window.entrar =
+    entrar;
+
+
+window.sair =
+    sair;
+
+
+window.perfilUsuario =
+    perfilUsuarioAtual;
+
+
+window.usuarioAtualLogado =
+    usuarioAtualLogado;
+
+
+window.ehGestor =
+    ehGestor;
+
+
+window.ehMedico =
+    ehMedico;
+
+
+window.ehOperador =
+    ehOperador;
+
+
+window.ehTriagem =
+    ehTriagem;
+
+
+/*************************************************
+                    LOG
 *************************************************/
 
 console.log(
-    "✅ login.js carregado"
+    "✅ login.js V4.4 carregado"
 );
