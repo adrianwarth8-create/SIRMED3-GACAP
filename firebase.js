@@ -1,10 +1,20 @@
 /*************************************************
-                FIREBASE.JS - SIRMED V4
+          FIREBASE.JS - SIRMED V4.5
+*************************************************/
+
+
+/*************************************************
+              FIREBASE APP
 *************************************************/
 
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+
+
+/*************************************************
+              AUTHENTICATION
+*************************************************/
 
 import {
     getAuth,
@@ -12,6 +22,11 @@ import {
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+
+/*************************************************
+                  FIRESTORE
+*************************************************/
 
 import {
     getFirestore,
@@ -31,7 +46,7 @@ import {
 
 
 /*************************************************
-            CONFIGURAÇÃO FIREBASE
+              CONFIGURAÇÃO FIREBASE
 *************************************************/
 
 const firebaseConfig = {
@@ -58,28 +73,45 @@ const firebaseConfig = {
 
 
 /*************************************************
-                INICIALIZAÇÃO
+              INICIALIZAR FIREBASE
 *************************************************/
 
 const app =
-    initializeApp(firebaseConfig);
-
-
-const auth =
-    getAuth(app);
-
-
-const db =
-    getFirestore(app);
+    initializeApp(
+        firebaseConfig
+    );
 
 
 /*************************************************
-                EXPORTAÇÕES
+              AUTHENTICATION
+*************************************************/
+
+const auth =
+    getAuth(
+        app
+    );
+
+
+/*************************************************
+                  FIRESTORE
+*************************************************/
+
+const db =
+    getFirestore(
+        app
+    );
+
+
+/*************************************************
+                  EXPORTAÇÕES
 *************************************************/
 
 export {
 
-    // FIREBASE
+    /*************************************************
+                    FIREBASE
+    *************************************************/
+
     app,
 
     auth,
@@ -87,7 +119,10 @@ export {
     db,
 
 
-    // AUTHENTICATION
+    /*************************************************
+                  AUTHENTICATION
+    *************************************************/
+
     signInWithEmailAndPassword,
 
     signOut,
@@ -95,7 +130,10 @@ export {
     onAuthStateChanged,
 
 
-    // FIRESTORE
+    /*************************************************
+                    FIRESTORE
+    *************************************************/
+
     collection,
 
     addDoc,
@@ -124,7 +162,7 @@ export {
 
 
 /*************************************************
-                LOG DO SISTEMA
+                    LOGS
 *************************************************/
 
 console.log(
