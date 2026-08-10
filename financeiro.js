@@ -1,97 +1,234 @@
 /*************************************************
-            FINANCEIRO.JS - SIRMED V4
+             FINANCEIRO.JS - SIRMED V4
 *************************************************/
 
-let gastos = [];
+import {
+    db,
+    collection,
+    getDocs
+} from "./firebase.js";
+
+import {
+    formatarMoeda,
+    formatarData,
+    escaparHTML
+} from "./utils.js";
+
 
 /*************************************************
-            CARREGAR FINANCEIRO
+                VARIÁVEL PRINCIPAL
+*************************************************/
+
+const gastos = [];
+
+
+/*************************************************
+                OBTER GASTOS
+*************************************************/
+
+export function obterGastos() {
+
+    return gastos;
+
+}
+
+
+/*************************************************
+                CARREGAR GASTOS
 *************************************************/
 
 export async function carregarGastos() {
 
-    gastos = [];
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "gastos"
+            )
+        );
 
-    const snap = await getDocs(
-        collection(db, "gastos")
+
+    gastos.length = 0;
+
+
+    snap.forEach(
+        (docSnap) => {
+
+            gastos.push({
+
+                id:
+                    docSnap.id,
+
+                ...docSnap.data()
+
+            });
+
+        }
     );
 
-    snap.forEach(docSnap => {
 
-        gastos.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
+    /*************************************************
+                ORDENAR POR DATA
+    *************************************************/
 
-    });
+    gastos.sort(
+        (a, b) =>
+
+            String(
+                b.data || ""
+            ).localeCompare(
+
+                String(
+                    a.data || ""
+                )
+
+            )
+    );
 
 }
 
+
 /*************************************************
-            RENDER FINANCEIRO
+                RENDER FINANCEIRO
 *************************************************/
 
 export function renderGastos() {
 
     const lista =
-        document.getElementById("listaGastos");
+        document.getElementById(
+            "listaGastos"
+        );
 
-    if (!lista) return;
 
-    lista.innerHTML = "";
-
-    if (gastos.length === 0) {
-
-        lista.innerHTML =
-            "<li>Nenhuma movimentação financeira encontrada.</li>";
+    if (!lista) {
 
         return;
 
     }
 
-    gastos.forEach(gasto => {
 
-        lista.innerHTML += `
+    /*************************************************
+                LISTA VAZIA
+    *************************************************/
 
-<li>
+    if (
+        gastos.length === 0
+    ) {
 
-<b>💰 ${gasto.tipo || "Movimentação"}</b><br>
+        lista.innerHTML = `
 
-👤 ${gasto.paciente || "-"}<br>
+            <li class="lista-vazia">
 
-📅 ${gasto.data || "-"}<br>
+                Nenhuma movimentação financeira encontrada.
 
-Valor:
-<b>${formatarMoeda(gasto.valor)}</b>
+            </li>
 
-</li>
+        `;
 
-`;
 
-    });
+        return;
+
+    }
+
+
+    /*************************************************
+                RENDERIZAR LISTA
+    *************************************************/
+
+    lista.innerHTML =
+
+        gastos.map(
+            (gasto) => `
+
+                <li class="item-registro">
+
+                    <strong>
+
+                        💰 ${
+                            escaparHTML(
+                                gasto.tipo ||
+                                "Movimentação"
+                            )
+                        }
+
+                    </strong>
+
+
+                    <span>
+
+                        <b>Paciente:</b>
+
+                        ${
+                            escaparHTML(
+                                gasto.paciente || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Data:</b>
+
+                        ${
+                            escaparHTML(
+                                formatarData(
+                                    gasto.data
+                                )
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Valor:</b>
+
+                        ${
+                            escaparHTML(
+                                formatarMoeda(
+                                    gasto.valor
+                                )
+                            )
+                        }
+
+                    </span>
+
+                </li>
+
+            `
+        ).join("");
 
 }
 
+
 /*************************************************
-            TOTAL ARRECADADO
+                TOTAL FINANCEIRO
 *************************************************/
 
 export function totalFinanceiro() {
 
-    let total = 0;
+    return gastos.reduce(
+        (total, gasto) => {
 
-    gastos.forEach(gasto => {
+            return (
+                total +
+                Number(
+                    gasto.valor || 0
+                )
+            );
 
-        total += Number(gasto.valor || 0);
-
-    });
-
-    return total;
+        },
+        0
+    );
 
 }
 
+
 /*************************************************
-            QUANTIDADE
+            QUANTIDADE DE MOVIMENTAÇÕES
 *************************************************/
 
 export function quantidadeMovimentacoes() {
@@ -100,49 +237,51 @@ export function quantidadeMovimentacoes() {
 
 }
 
+
 /*************************************************
-            FILTRAR
+                FILTRAR FINANCEIRO
 *************************************************/
 
-export function filtrarFinanceiro(texto) {
+export function filtrarFinanceiro(
+    texto = ""
+) {
 
-    texto = texto.toLowerCase();
+    const filtro =
+        String(
+            texto
+        ).toLowerCase();
 
-    return gastos.filter(gasto =>
 
-        (gasto.paciente || "")
-        .toLowerCase()
-        .includes(texto)
+    return gastos.filter(
+        (gasto) =>
 
-        ||
+            String(
+                gasto.paciente || ""
+            )
+            .toLowerCase()
+            .includes(
+                filtro
+            )
 
-        (gasto.tipo || "")
-        .toLowerCase()
-        .includes(texto)
+            ||
+
+            String(
+                gasto.tipo || ""
+            )
+            .toLowerCase()
+            .includes(
+                filtro
+            )
 
     );
 
 }
 
+
 /*************************************************
-            EXPORTAÇÃO
+                LOG DO SISTEMA
 *************************************************/
 
-window.gastos = gastos;
-
-window.carregarGastos =
-carregarGastos;
-
-window.renderGastos =
-renderGastos;
-
-window.totalFinanceiro =
-totalFinanceiro;
-
-window.quantidadeMovimentacoes =
-quantidadeMovimentacoes;
-
-window.filtrarFinanceiro =
-filtrarFinanceiro;
-
-console.log("✅ financeiro.js carregado");
+console.log(
+    "✅ financeiro.js carregado"
+);
