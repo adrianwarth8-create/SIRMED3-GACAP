@@ -1,5 +1,5 @@
 /*************************************************
-              PERMISSOES.JS - SIRMED V4
+           PERMISSOES.JS - SIRMED V4.2
 *************************************************/
 
 import {
@@ -8,243 +8,258 @@ import {
 
 
 /*************************************************
-                    MOSTRAR
+              MAPA DE PERMISSÕES
 *************************************************/
 
-export function mostrar(id) {
+const permissoes = {
 
-    const elemento =
-        document.getElementById(id);
+    gestor: [
 
-    if (elemento) {
+        "inicio",
+        "secaoPacientes",
+        "secaoProfissionais",
+        "secaoConsultas",
+        "secaoHistorico",
+        "secaoProntuarios",
+        "financeiro",
+        "secaoRelatorios"
 
-        elemento.hidden = false;
+    ],
 
-    }
 
-}
+    medico: [
+
+        "inicio",
+        "secaoPacientes",
+        "secaoConsultas",
+        "secaoHistorico",
+        "secaoProntuarios",
+        "secaoRelatorios"
+
+    ],
+
+
+    operador: [
+
+        "inicio",
+        "secaoPacientes",
+        "secaoConsultas",
+        "secaoHistorico"
+
+    ]
+
+};
 
 
 /*************************************************
-                    ESCONDER
-*************************************************/
-
-export function esconder(id) {
-
-    const elemento =
-        document.getElementById(id);
-
-    if (elemento) {
-
-        elemento.hidden = true;
-
-    }
-
-}
-
-
-/*************************************************
-              APLICAR PERMISSÕES
+            APLICAR PERMISSÕES
 *************************************************/
 
 export function aplicarPermissoes() {
 
-    const secoes = [
-
-        "secaoPacientes",
-
-        "secaoProfissionais",
-
-        "secaoConsultas",
-
-        "secaoHistorico",
-
-        "secaoProntuarios",
-
-        "secaoRelatorios",
-
-        "financeiro"
-
-    ];
-
-
-    /*************************************************
-                MOSTRAR TUDO PRIMEIRO
-    *************************************************/
-
-    secoes.forEach(
-        mostrar
-    );
-
-
-    /*************************************************
-                IDENTIFICAR PERFIL
-    *************************************************/
-
     const perfil =
-        perfilUsuarioAtual();
+        String(
+            perfilUsuarioAtual() || ""
+        )
+        .trim()
+        .toLowerCase();
 
 
     console.log(
-        "🔐 Perfil atual:",
+        "🔐 Aplicando permissões:",
         perfil
     );
 
 
+    /*
+        Se o perfil não existir,
+        usa acesso mínimo.
+    */
+
+    const permitidas =
+        permissoes[perfil]
+        ||
+        ["inicio"];
+
+
     /*************************************************
-                    PERMISSÕES
+            CONTROLAR AS SEÇÕES
     *************************************************/
 
-    switch (perfil) {
+    document
+        .querySelectorAll(
+            ".tela-sistema"
+        )
+        .forEach(
+            (secao) => {
+
+                const permitido =
+                    permitidas.includes(
+                        secao.id
+                    );
 
 
-        /*********************************************
-                        GESTOR
-        *********************************************/
-
-        case "gestor":
-
-            /*
-                GESTOR:
-                - Pacientes
-                - Profissionais
-                - Consultas
-                - Histórico
-                - Prontuários
-                - Relatórios
-                - Financeiro
-            */
-
-            break;
+                secao.hidden =
+                    !permitido;
 
 
-        /*********************************************
-                        MÉDICO
-        *********************************************/
+                /*
+                    Se não tem permissão,
+                    garante que não fique ativa.
+                */
 
-        case "medico":
+                if (!permitido) {
 
-            /*
-                MÉDICO:
-                - Pacientes
-                - Consultas
-                - Histórico
-                - Prontuários
-                - Relatórios
+                    secao.classList.remove(
+                        "tela-ativa"
+                    );
 
-                NÃO ACESSA:
-                - Cadastro de profissionais
-                - Financeiro
-            */
+                }
 
-            esconder(
-                "secaoProfissionais"
+            }
+        );
+
+
+    /*************************************************
+            CONTROLAR BOTÕES DO MENU
+    *************************************************/
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
+
+                const destino =
+                    botao.dataset.secao;
+
+
+                const permitido =
+                    permitidas.includes(
+                        destino
+                    );
+
+
+                botao.hidden =
+                    !permitido;
+
+            }
+        );
+
+
+    /*************************************************
+        GARANTIR UMA TELA AUTORIZADA ABERTA
+    *************************************************/
+
+    const telaAtiva =
+        document.querySelector(
+            ".tela-sistema.tela-ativa"
+        );
+
+
+    if (
+        !telaAtiva
+        ||
+        telaAtiva.hidden
+    ) {
+
+        document
+            .querySelectorAll(
+                ".tela-sistema"
+            )
+            .forEach(
+                (secao) => {
+
+                    secao.classList.remove(
+                        "tela-ativa"
+                    );
+
+                }
             );
 
 
-            esconder(
-                "financeiro"
+        const inicio =
+            document.getElementById(
+                "inicio"
             );
 
 
-            break;
+        if (inicio) {
+
+            inicio.hidden =
+                false;
 
 
-        /*********************************************
-                        OPERADOR
-        *********************************************/
-
-        case "operador":
-
-            /*
-                OPERADOR:
-                - Cadastro de pacientes
-                - Consultas
-                - Histórico
-
-                NÃO ACESSA:
-                - Profissionais
-                - Prontuários
-                - Relatórios
-                - Financeiro
-            */
-
-            esconder(
-                "secaoProfissionais"
+            inicio.classList.add(
+                "tela-ativa"
             );
 
+        }
 
-            esconder(
-                "secaoProntuarios"
+
+        document
+            .querySelectorAll(
+                ".menu-item"
+            )
+            .forEach(
+                (botao) => {
+
+                    botao.classList.toggle(
+
+                        "ativo",
+
+                        botao.dataset.secao ===
+                        "inicio"
+
+                    );
+
+                }
             );
-
-
-            esconder(
-                "secaoRelatorios"
-            );
-
-
-            esconder(
-                "financeiro"
-            );
-
-
-            break;
-
-
-        /*********************************************
-                    PERFIL DESCONHECIDO
-        *********************************************/
-
-        default:
-
-            console.warn(
-                "⚠️ Perfil não reconhecido:",
-                perfil
-            );
-
-
-            /*
-                Por segurança, perfil desconhecido
-                recebe o menor nível visual de acesso.
-            */
-
-            esconder(
-                "secaoProfissionais"
-            );
-
-
-            esconder(
-                "secaoProntuarios"
-            );
-
-
-            esconder(
-                "secaoRelatorios"
-            );
-
-
-            esconder(
-                "financeiro"
-            );
-
-
-            break;
 
     }
 
 
     console.log(
-        "✅ Permissões aplicadas."
+        "✅ Permissões aplicadas para:",
+        perfil
     );
 
 }
 
 
 /*************************************************
-                LOG DO SISTEMA
+          VERIFICAR PERMISSÃO
+*************************************************/
+
+export function temPermissao(
+    secaoId
+) {
+
+    const perfil =
+        String(
+            perfilUsuarioAtual() || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    return (
+        permissoes[perfil]
+        ||
+        ["inicio"]
+    )
+    .includes(
+        secaoId
+    );
+
+}
+
+
+/*************************************************
+                    LOG
 *************************************************/
 
 console.log(
-    "✅ permissoes.js carregado"
+    "✅ permissoes.js V4.2 carregado"
 );
