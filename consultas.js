@@ -1,315 +1,906 @@
 /*************************************************
-            CONSULTAS.JS - SIRMED V4
+              CONSULTAS.JS - SIRMED V4
 *************************************************/
 
-let consultas = [];
+import {
+    db,
+    collection,
+    getDocs,
+    doc,
+    serverTimestamp,
+    writeBatch
+} from "./firebase.js";
+
+import {
+    mensagem,
+    limparCampos,
+    formatarMoeda,
+    formatarData,
+    dataAtualISO,
+    escaparHTML
+} from "./utils.js";
+
+import {
+    obterPacientes
+} from "./pacientes.js";
+
+import {
+    obterProfissionais
+} from "./profissionais.js";
+
 
 /*************************************************
-            CARREGAR CONSULTAS
+                VARIÁVEL PRINCIPAL
+*************************************************/
+
+const consultas = [];
+
+
+/*************************************************
+                OBTER CONSULTAS
+*************************************************/
+
+export function obterConsultas() {
+
+    return consultas;
+
+}
+
+
+/*************************************************
+                TOTAL CONSULTAS
+*************************************************/
+
+export function totalConsultas() {
+
+    return consultas.length;
+
+}
+
+
+/*************************************************
+                CARREGAR CONSULTAS
 *************************************************/
 
 export async function carregarConsultas() {
 
-    consultas = [];
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "consultas"
+            )
+        );
 
-    const snap = await getDocs(
-        collection(db, "consultas")
+
+    consultas.length = 0;
+
+
+    snap.forEach(
+        (docSnap) => {
+
+            consultas.push({
+
+                id:
+                    docSnap.id,
+
+                ...docSnap.data()
+
+            });
+
+        }
     );
 
-    snap.forEach(docSnap => {
 
-        consultas.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
+    /*************************************************
+                ORDENAR POR DATA
+    *************************************************/
 
-    });
+    consultas.sort(
+        (a, b) =>
+
+            String(
+                b.data || ""
+            ).localeCompare(
+
+                String(
+                    a.data || ""
+                )
+
+            )
+    );
 
 }
 
+
 /*************************************************
-            REGISTRAR CONSULTA
+                REGISTRAR CONSULTA
 *************************************************/
 
 export async function registrarConsulta() {
 
+    const pacienteId =
+        document
+            .getElementById(
+                "consultaPaciente"
+            )
+            ?.value
+        || "";
+
+
+    const profissionalId =
+        document
+            .getElementById(
+                "consultaProfissional"
+            )
+            ?.value
+        || "";
+
+
+    /*************************************************
+            LOCALIZAR PACIENTE
+    *************************************************/
+
     const paciente =
-        document.getElementById("consultaPaciente").value;
+        obterPacientes()
+            .find(
+                (p) =>
+                    p.id === pacienteId
+            );
+
+
+    /*************************************************
+            LOCALIZAR PROFISSIONAL
+    *************************************************/
 
     const profissional =
-        document.getElementById("consultaProfissional").value;
+        obterProfissionais()
+            .find(
+                (p) =>
+                    p.id === profissionalId
+            );
+
+
+    /*************************************************
+                    CAMPOS
+    *************************************************/
 
     const queixa =
-        document.getElementById("consultaQueixa").value.trim();
+        document
+            .getElementById(
+                "consultaQueixa"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const pa =
-        document.getElementById("consultaPA").value.trim();
+        document
+            .getElementById(
+                "consultaPA"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const fc =
-        document.getElementById("consultaFC").value.trim();
+        document
+            .getElementById(
+                "consultaFC"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const temperatura =
-        document.getElementById("consultaTemperatura").value.trim();
+        document
+            .getElementById(
+                "consultaTemperatura"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const diagnostico =
-        document.getElementById("consultaDiagnostico").value.trim();
+        document
+            .getElementById(
+                "consultaDiagnostico"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const exameFisico =
-        document.getElementById("consultaExameFisico").value.trim();
+        document
+            .getElementById(
+                "consultaExameFisico"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const prescricao =
-        document.getElementById("consultaPrescricao").value.trim();
+        document
+            .getElementById(
+                "consultaPrescricao"
+            )
+            ?.value
+            .trim()
+        || "";
+
 
     const observacoes =
-        document.getElementById("consultaObservacoes").value.trim();
+        document
+            .getElementById(
+                "consultaObservacoes"
+            )
+            ?.value
+            .trim()
+        || "";
+
+
+    /*************************************************
+                    VALOR
+    *************************************************/
+
+    const valorTexto =
+        document
+            .getElementById(
+                "consultaValor"
+            )
+            ?.value
+        || "0";
+
 
     const valor =
         Number(
-            document.getElementById("consultaValor").value || 0
+            String(
+                valorTexto
+            ).replace(
+                ",",
+                "."
+            )
         );
 
-    if (!paciente || !profissional) {
 
-        mensagem("Selecione o paciente e o profissional.");
+    /*************************************************
+                    VALIDAÇÃO
+    *************************************************/
+
+    if (
+        !paciente ||
+        !profissional
+    ) {
+
+        mensagem(
+            "Selecione o paciente e o profissional."
+        );
 
         return;
 
     }
 
-    await addDoc(
 
-        collection(db, "consultas"),
+    if (
+        !Number.isFinite(valor) ||
+        valor < 0
+    ) {
 
-        {
+        mensagem(
+            "Informe um valor válido para a consulta."
+        );
 
-            paciente,
-            profissional,
-            queixa,
-            pa,
-            fc,
-            temperatura,
-            diagnostico,
-            exameFisico,
-            prescricao,
-            observacoes,
-            valor,
+        return;
 
-            data: dataAtual(),
+    }
 
-            criadoEm: serverTimestamp()
 
-        }
+    const data =
+        dataAtualISO();
 
-    );
 
-    await addDoc(
+    /*************************************************
+            GRAVAÇÃO EM LOTE
+    *************************************************/
 
-        collection(db, "gastos"),
+    try {
 
-        {
+        const batch =
+            writeBatch(db);
 
-            tipo: "Consulta Médica",
 
-            paciente,
+        /*************************************************
+                    CONSULTA
+        *************************************************/
 
-            valor,
+        const consultaRef =
+            doc(
+                collection(
+                    db,
+                    "consultas"
+                )
+            );
 
-            data: dataAtual(),
 
-            criadoEm: serverTimestamp()
+        batch.set(
 
-        }
+            consultaRef,
 
-    );
+            {
 
-    await addDoc(
+                pacienteId:
+                    paciente.id,
 
-        collection(db, "prontuarios"),
+                paciente:
+                    paciente.nome,
 
-        {
+                profissionalId:
+                    profissional.id,
 
-            pacienteNome: paciente,
+                profissional:
+                    profissional.nome,
 
-            profissional,
+                queixa,
 
-            data: dataAtual(),
+                pa,
 
-            queixa,
+                fc,
 
-            exameFisico,
+                temperatura,
 
-            diagnostico,
+                diagnostico,
 
-            prescricao,
+                exameFisico,
 
-            observacoes,
+                prescricao,
 
-            criadoEm: serverTimestamp()
+                observacoes,
 
-        }
+                valor,
 
-    );
+                data,
 
-    limparCampos([
+                criadoEm:
+                    serverTimestamp()
 
-        "consultaQueixa",
+            }
 
-        "consultaPA",
+        );
 
-        "consultaFC",
 
-        "consultaTemperatura",
+        /*************************************************
+                    FINANCEIRO
+        *************************************************/
 
-        "consultaDiagnostico",
+        const gastoRef =
+            doc(
+                collection(
+                    db,
+                    "gastos"
+                )
+            );
 
-        "consultaExameFisico",
 
-        "consultaPrescricao",
+        batch.set(
 
-        "consultaObservacoes",
+            gastoRef,
 
-        "consultaValor"
+            {
 
-    ]);
+                consultaId:
+                    consultaRef.id,
 
-    mensagem("Consulta registrada com sucesso.");
+                tipo:
+                    "Consulta Médica",
 
-    await carregarConsultas();
+                pacienteId:
+                    paciente.id,
 
-    await carregarGastos();
+                paciente:
+                    paciente.nome,
 
-    await carregarProntuarios();
+                valor,
 
-    renderConsultas();
+                data,
 
-    renderGastos();
+                criadoEm:
+                    serverTimestamp()
 
-    renderProntuarios();
+            }
 
-    atualizarDashboard();
+        );
+
+
+        /*************************************************
+                    PRONTUÁRIO
+        *************************************************/
+
+        const prontuarioRef =
+            doc(
+                collection(
+                    db,
+                    "prontuarios"
+                )
+            );
+
+
+        batch.set(
+
+            prontuarioRef,
+
+            {
+
+                consultaId:
+                    consultaRef.id,
+
+                pacienteId:
+                    paciente.id,
+
+                pacienteNome:
+                    paciente.nome,
+
+                profissionalId:
+                    profissional.id,
+
+                profissional:
+                    profissional.nome,
+
+                profissionalNome:
+                    profissional.nome,
+
+                data,
+
+                queixa,
+
+                pa,
+
+                fc,
+
+                temperatura,
+
+                exameFisico,
+
+                diagnostico,
+
+                prescricao,
+
+                observacoes,
+
+                criadoEm:
+                    serverTimestamp()
+
+            }
+
+        );
+
+
+        /*************************************************
+                CONFIRMAR GRAVAÇÃO
+        *************************************************/
+
+        await batch.commit();
+
+
+        /*************************************************
+                LIMPAR FORMULÁRIO
+        *************************************************/
+
+        limparCampos([
+
+            "consultaQueixa",
+
+            "consultaPA",
+
+            "consultaFC",
+
+            "consultaTemperatura",
+
+            "consultaDiagnostico",
+
+            "consultaExameFisico",
+
+            "consultaPrescricao",
+
+            "consultaObservacoes",
+
+            "consultaValor"
+
+        ]);
+
+
+        mensagem(
+            "Consulta registrada com sucesso."
+        );
+
+
+        /*************************************************
+                ATUALIZAR SISTEMA
+        *************************************************/
+
+        document.dispatchEvent(
+
+            new CustomEvent(
+                "sirmed:dados-alterados"
+            )
+
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao registrar consulta:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível registrar a consulta."
+        );
+
+    }
 
 }
 
+
 /*************************************************
-            RENDER CONSULTAS
+                RENDER CONSULTAS
 *************************************************/
 
 export function renderConsultas() {
 
     const lista =
-        document.getElementById("listaConsultas");
+        document.getElementById(
+            "listaConsultas"
+        );
 
-    if (!lista) return;
 
-    lista.innerHTML = "";
+    if (!lista) {
 
-    consultas.forEach(c => {
+        return;
 
-        lista.innerHTML += `
+    }
 
-<li>
 
-<b>👤 ${c.paciente}</b><br>
+    /*************************************************
+                LISTA VAZIA
+    *************************************************/
 
-👨‍⚕️ ${c.profissional}<br>
+    if (
+        consultas.length === 0
+    ) {
 
-📅 ${c.data}<br>
+        lista.innerHTML = `
 
-🩺 ${c.queixa || "-"}<br>
+            <li class="lista-vazia">
 
-📋 ${c.diagnostico || "-"}<br>
+                Nenhuma consulta encontrada.
 
-💊 ${c.prescricao || "-"}<br>
+            </li>
 
-💰 ${formatarMoeda(c.valor)}
+        `;
 
-</li>
 
-`;
+        return;
 
-    });
+    }
+
+
+    /*************************************************
+                RENDERIZAR
+    *************************************************/
+
+    lista.innerHTML =
+
+        consultas.map(
+            (c) => `
+
+                <li class="item-registro">
+
+                    <strong>
+
+                        🏥 ${
+                            escaparHTML(
+                                c.paciente || "-"
+                            )
+                        }
+
+                    </strong>
+
+
+                    <span>
+
+                        <b>Profissional:</b>
+
+                        ${
+                            escaparHTML(
+                                c.profissional || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Data:</b>
+
+                        ${
+                            escaparHTML(
+                                formatarData(
+                                    c.data
+                                )
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Queixa:</b>
+
+                        ${
+                            escaparHTML(
+                                c.queixa || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Diagnóstico:</b>
+
+                        ${
+                            escaparHTML(
+                                c.diagnostico || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Prescrição:</b>
+
+                        ${
+                            escaparHTML(
+                                c.prescricao || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Valor:</b>
+
+                        ${
+                            escaparHTML(
+                                formatarMoeda(
+                                    c.valor
+                                )
+                            )
+                        }
+
+                    </span>
+
+                </li>
+
+            `
+        ).join("");
 
 }
 
+
 /*************************************************
-            FILTRAR CONSULTAS
+                FILTRAR CONSULTAS
 *************************************************/
 
 export function filtrarConsultas() {
 
     const filtro =
-        document.getElementById("pesquisaConsulta")
-        .value
+        (
+            document
+                .getElementById(
+                    "pesquisaConsulta"
+                )
+                ?.value
+            || ""
+        )
         .toLowerCase();
 
+
     document
-        .querySelectorAll("#listaConsultas li")
-        .forEach(li => {
+        .querySelectorAll(
+            "#listaConsultas li"
+        )
+        .forEach(
+            (li) => {
 
-            li.style.display =
+                li.style.display =
 
-                li.textContent
-                .toLowerCase()
-                .includes(filtro)
+                    li
+                        .textContent
+                        .toLowerCase()
+                        .includes(
+                            filtro
+                        )
 
-                ? ""
+                    ? ""
 
-                : "none";
+                    : "none";
 
-        });
+            }
+        );
 
 }
 
+
 /*************************************************
-        PREENCHER SELECTS
+            PREENCHER SELECTS
 *************************************************/
 
 export function preencherSelectsConsulta() {
 
     const pacienteSelect =
-        document.getElementById("consultaPaciente");
+        document.getElementById(
+            "consultaPaciente"
+        );
+
 
     const profissionalSelect =
-        document.getElementById("consultaProfissional");
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    /*************************************************
+                    PACIENTES
+    *************************************************/
 
     if (pacienteSelect) {
 
+        const valorAtual =
+            pacienteSelect.value;
+
+
         pacienteSelect.innerHTML =
-            "<option value=''>Selecione o Paciente</option>";
+            `
+                <option value="">
+                    Selecione o paciente
+                </option>
+            `;
 
-        pacientes.forEach(p => {
 
-            pacienteSelect.innerHTML +=
-                `<option>${p.nome}</option>`;
+        obterPacientes()
+            .forEach(
+                (p) => {
 
-        });
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        p.id;
+
+
+                    option.textContent =
+                        p.nome;
+
+
+                    pacienteSelect
+                        .appendChild(
+                            option
+                        );
+
+                }
+            );
+
+
+        if (
+            [
+                ...pacienteSelect.options
+            ]
+            .some(
+                (option) =>
+                    option.value === valorAtual
+            )
+        ) {
+
+            pacienteSelect.value =
+                valorAtual;
+
+        }
 
     }
 
+
+    /*************************************************
+                PROFISSIONAIS
+    *************************************************/
+
     if (profissionalSelect) {
 
+        const valorAtual =
+            profissionalSelect.value;
+
+
         profissionalSelect.innerHTML =
-            "<option value=''>Selecione o Profissional</option>";
+            `
+                <option value="">
+                    Selecione o profissional
+                </option>
+            `;
 
-        profissionais.forEach(p => {
 
-            profissionalSelect.innerHTML +=
-                `<option>${p.nome}</option>`;
+        obterProfissionais()
+            .forEach(
+                (p) => {
 
-        });
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        p.id;
+
+
+                    option.textContent =
+
+                        p.funcao
+
+                        ? `${p.nome} — ${p.funcao}`
+
+                        : p.nome;
+
+
+                    profissionalSelect
+                        .appendChild(
+                            option
+                        );
+
+                }
+            );
+
+
+        if (
+            [
+                ...profissionalSelect.options
+            ]
+            .some(
+                (option) =>
+                    option.value === valorAtual
+            )
+        ) {
+
+            profissionalSelect.value =
+                valorAtual;
+
+        }
 
     }
 
 }
 
+
 /*************************************************
-                EXPORTAÇÃO
+                LOG DO SISTEMA
 *************************************************/
 
-window.carregarConsultas = carregarConsultas;
-window.registrarConsulta = registrarConsulta;
-window.renderConsultas = renderConsultas;
-window.filtrarConsultas = filtrarConsultas;
-window.preencherSelectsConsulta = preencherSelectsConsulta;
-
-console.log("✅ consultas.js carregado");
+console.log(
+    "✅ consultas.js carregado"
+);
