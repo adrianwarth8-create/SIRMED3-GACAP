@@ -1,187 +1,945 @@
 /*==================================================
- SIRMED V3 - UI MELHORADA
- Sistema Integrado de Registros Médicos
+        STYLE.CSS - SIRMED V4
+        Sistema Integrado de Registros Médicos
 ==================================================*/
 
-/* RESET */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-    transition: all 0.2s ease;
+
+/*==================================================
+                    VARIÁVEIS
+==================================================*/
+
+:root {
+
+    --azul: #1565c0;
+
+    --azul-claro: #1976d2;
+
+    --azul-escuro: #0d47a1;
+
+    --verde: #2e7d32;
+
+    --vermelho: #d32f2f;
+
+    --fundo: #eef3f8;
+
+    --texto: #263238;
+
+    --borda: #d9e2ec;
+
+    --branco: #ffffff;
+
+    --sombra:
+        0 8px 24px
+        rgba(31, 56, 88, 0.10);
+
 }
 
-body{
-    background:#eef3f8;
-    color:#333;
-    padding:25px;
+
+/*==================================================
+                    RESET
+==================================================*/
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
 }
 
-/* LOGIN */
-.login-box{
-    width:420px;
-    max-width:95%;
-    margin:60px auto;
-    background:#fff;
-    border-radius:18px;
-    padding:35px;
-    text-align:center;
-    box-shadow:0 15px 35px rgba(0,0,0,.15);
+
+html {
+
+    scroll-behavior: smooth;
+
 }
 
-.login-box h2{
-    color:#1565C0;
-    font-size:34px;
-    margin-bottom:8px;
+
+body {
+
+    background: var(--fundo);
+
+    color: var(--texto);
+
+    font-family:
+        "Segoe UI",
+        Tahoma,
+        Geneva,
+        Verdana,
+        sans-serif;
+
+    padding: 25px;
+
+    line-height: 1.5;
+
 }
 
-.login-box p{
-    color:#777;
-    margin-bottom:25px;
+
+/*==================================================
+                ELEMENTOS ESCONDIDOS
+==================================================*/
+
+[hidden] {
+
+    display: none !important;
+
 }
 
-/* CABEÇALHO */
-.cabecalho{
-    background:linear-gradient(90deg,#1565C0,#1976D2);
-    color:#fff;
-    padding:25px;
-    border-radius:18px;
-    margin-bottom:25px;
-    box-shadow:0 6px 15px rgba(0,0,0,.15);
+
+/*==================================================
+                    LOGIN
+==================================================*/
+
+.login-box {
+
+    width: 420px;
+
+    max-width: 95%;
+
+    margin: 60px auto;
+
+    background: var(--branco);
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    text-align: center;
+
+    box-shadow:
+        0 15px 35px
+        rgba(0, 0, 0, 0.15);
+
 }
 
-.cabecalho h1{
-    font-size:34px;
+
+.login-box h2 {
+
+    color: var(--azul);
+
+    font-size: 34px;
+
+    margin-bottom: 8px;
+
 }
 
-.usuario-logado{
-    margin:15px 0;
-    font-weight:bold;
-    color:#1565C0;
-    font-size:18px;
+
+.login-box p {
+
+    color: #667085;
+
+    margin-bottom: 25px;
+
 }
 
-/* BOTÕES */
-button{
-    padding:14px;
-    border:none;
-    border-radius:10px;
-    background:#1976D2;
-    color:#fff;
-    font-size:16px;
-    cursor:pointer;
-    margin-top:8px;
-    width:100%;
-    transition: all 0.25s ease;
+
+/*==================================================
+                    CABEÇALHO
+==================================================*/
+
+.cabecalho {
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--azul),
+            var(--azul-claro)
+        );
+
+    color: #ffffff;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    margin-bottom: 18px;
+
+    box-shadow: var(--sombra);
+
 }
 
-button:hover{
-    background:#1259a7;
-    transform:translateY(-2px);
-    box-shadow:0 6px 15px rgba(0,0,0,.15);
+
+.cabecalho h1 {
+
+    font-size: 34px;
+
 }
 
-/* BOTÃO SAIR */
-.btn-sair{
-    max-width:180px;
-    width:auto;
-    display:inline-block;
-    background:#D32F2F;
-    margin-bottom:25px;
+
+/*==================================================
+                USUÁRIO LOGADO
+==================================================*/
+
+.usuario-barra {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+
 }
 
-.btn-sair:hover{
-    background:#b71c1c;
+
+.usuario-logado {
+
+    font-weight: 700;
+
+    color: var(--azul);
+
+    font-size: 17px;
+
 }
 
-/* CAMPOS */
+
+/*==================================================
+                    CAMPOS
+==================================================*/
+
 input,
 select,
-textarea{
-    width:100%;
-    padding:13px;
-    margin-bottom:15px;
-    border:1px solid #d7d7d7;
-    border-radius:10px;
-    font-size:15px;
-    transition:.25s;
+textarea {
+
+    width: 100%;
+
+    padding: 13px;
+
+    margin-bottom: 15px;
+
+    border:
+        1px solid
+        var(--borda);
+
+    border-radius: 10px;
+
+    font-size: 15px;
+
+    background: #ffffff;
+
+    color: var(--texto);
+
 }
+
+
+textarea {
+
+    min-height: 92px;
+
+    resize: vertical;
+
+}
+
+
+/*==================================================
+                CAMPOS EM FOCO
+==================================================*/
 
 input:focus,
 select:focus,
-textarea:focus{
-    outline:none;
-    border-color:#1976D2;
-    box-shadow:0 0 8px rgba(25,118,210,.25);
+textarea:focus {
+
+    outline: none;
+
+    border-color:
+        var(--azul-claro);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(25, 118, 210, 0.14);
+
 }
 
-/* DASHBOARD */
-.dashboard{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:35px;
+
+/*==================================================
+                FORMULÁRIOS GRID
+==================================================*/
+
+.grid-form {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        0
+        14px;
+
 }
 
-.card-dashboard{
-    background:#fff;
-    border-radius:15px;
-    padding:25px;
-    text-align:center;
-    box-shadow:0 6px 15px rgba(0,0,0,.08);
-    transition:.3s;
+
+.grid-form .campo-largo {
+
+    grid-column:
+        1 / -1;
+
 }
 
-.card-dashboard:hover{
-    transform:translateY(-5px);
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
+
+/*==================================================
+                    BOTÕES
+==================================================*/
+
+button {
+
+    padding:
+        13px
+        16px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background:
+        var(--azul-claro);
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-top: 4px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
 }
 
-.card-dashboard h3{
-    color:#1565C0;
-    margin-bottom:15px;
+
+button:hover {
+
+    background: #1259a7;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 6px 15px
+        rgba(0, 0, 0, 0.14);
+
 }
 
-.card-dashboard span{
-    font-size:34px;
-    font-weight:bold;
-    color:#2E7D32;
+
+button:active {
+
+    transform:
+        translateY(0);
+
 }
 
-/* SEÇÕES */
-section{
-    background:#fff;
-    padding:25px;
-    border-radius:15px;
-    margin-bottom:25px;
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+/*==================================================
+                BOTÃO PRINCIPAL
+==================================================*/
+
+.btn-principal {
+
+    width: 100%;
+
 }
 
-section h2{
-    color:#1565C0;
-    margin-bottom:20px;
+
+/*==================================================
+                    BOTÃO SAIR
+==================================================*/
+
+.btn-sair {
+
+    background:
+        var(--vermelho);
+
+    min-width: 110px;
+
 }
 
-/* HR */
-hr{
-    border:none;
-    height:1px;
-    background:#ddd;
-    margin:30px 0;
+
+.btn-sair:hover {
+
+    background: #b71c1c;
+
 }
 
-/* RESPONSIVO EXTRA */
-@media (max-width: 600px){
-    body{
-        padding:15px;
+
+/*==================================================
+                GRUPO DE BOTÕES
+==================================================*/
+
+.acoes {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+}
+
+
+.acoes button {
+
+    flex:
+        1 1 150px;
+
+}
+
+
+/*==================================================
+                    DASHBOARD
+==================================================*/
+
+.dashboard {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(210px, 1fr)
+        );
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+
+}
+
+
+/*==================================================
+                CARDS DASHBOARD
+==================================================*/
+
+.card-dashboard {
+
+    background: #ffffff;
+
+    border-radius: 15px;
+
+    padding: 24px;
+
+    text-align: center;
+
+    box-shadow:
+        var(--sombra);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+}
+
+
+.card-dashboard:hover {
+
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 12px 28px
+        rgba(31, 56, 88, 0.15);
+
+}
+
+
+.card-dashboard h3 {
+
+    color: var(--azul);
+
+    margin-bottom: 12px;
+
+}
+
+
+.card-dashboard span {
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    color: var(--verde);
+
+}
+
+
+/*==================================================
+                    SEÇÕES
+==================================================*/
+
+section {
+
+    background: #ffffff;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        var(--sombra);
+
+}
+
+
+section h2 {
+
+    color: var(--azul);
+
+    margin-bottom: 20px;
+
+}
+
+
+/*==================================================
+                LINHA DIVISÓRIA
+==================================================*/
+
+hr {
+
+    border: none;
+
+    height: 1px;
+
+    background: #e2e8f0;
+
+    margin:
+        25px
+        0;
+
+}
+
+
+/*==================================================
+                    LISTAS
+==================================================*/
+
+ul {
+
+    list-style: none;
+
+}
+
+
+/*==================================================
+                ITEM DE REGISTRO
+==================================================*/
+
+.item-registro,
+.lista-vazia {
+
+    padding: 16px;
+
+    border:
+        1px solid
+        #e5eaf0;
+
+    border-radius: 12px;
+
+    margin-bottom: 12px;
+
+    background: #fbfdff;
+
+}
+
+
+/*==================================================
+                REGISTROS
+==================================================*/
+
+.item-registro {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+}
+
+
+.item-registro strong {
+
+    color:
+        var(--azul-escuro);
+
+    margin-bottom: 5px;
+
+}
+
+
+.item-registro span {
+
+    overflow-wrap: anywhere;
+
+}
+
+
+/*==================================================
+                LISTA VAZIA
+==================================================*/
+
+.lista-vazia {
+
+    color: #667085;
+
+    text-align: center;
+
+}
+
+
+/*==================================================
+                    PRONTUÁRIO
+==================================================*/
+
+.prontuario {
+
+    border-left:
+        5px solid
+        var(--azul-claro);
+
+}
+
+
+/*==================================================
+                MENSAGEM / TOAST
+==================================================*/
+
+.mensagem-sistema {
+
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 25px;
+
+    transform:
+        translate(
+            -50%,
+            20px
+        );
+
+    background: #263238;
+
+    color: #ffffff;
+
+    padding:
+        12px
+        18px;
+
+    border-radius: 10px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        0.25s ease;
+
+    z-index: 9999;
+
+    max-width:
+        min(
+            90vw,
+            520px
+        );
+
+    text-align: center;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 0, 0, 0.25);
+
+}
+
+
+.mensagem-sistema.mostrar {
+
+    opacity: 1;
+
+    transform:
+        translate(
+            -50%,
+            0
+        );
+
+}
+
+
+/*==================================================
+                LABELS RELATÓRIOS
+==================================================*/
+
+label {
+
+    color: #475467;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+/*==================================================
+                SCROLLBAR
+==================================================*/
+
+::-webkit-scrollbar {
+
+    width: 9px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+    background: #e8eef5;
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+    background: #9eb7d1;
+
+    border-radius: 10px;
+
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+
+    background:
+        var(--azul-claro);
+
+}
+
+
+/*==================================================
+                    IMPRESSÃO
+==================================================*/
+
+@media print {
+
+    body {
+
+        background: #ffffff;
+
+        padding: 0;
+
     }
 
-    .login-box{
-        padding:25px;
+
+    #login,
+    #btnSair,
+    .acoes,
+    button,
+    input,
+    select,
+    textarea {
+
+        display: none !important;
+
     }
 
-    .cabecalho h1{
-        font-size:26px;
+
+    section,
+    .cabecalho,
+    .card-dashboard {
+
+        box-shadow: none;
+
+        break-inside: avoid;
+
     }
+
+}
+
+
+/*==================================================
+                    TABLET
+==================================================*/
+
+@media
+(max-width: 900px) {
+
+    .dashboard {
+
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+
+    }
+
+}
+
+
+/*==================================================
+                    CELULAR
+==================================================*/
+
+@media
+(max-width: 700px) {
+
+    body {
+
+        padding: 14px;
+
+    }
+
+
+    .login-box {
+
+        margin:
+            30px
+            auto;
+
+        padding:
+            25px
+            20px;
+
+    }
+
+
+    .login-box h2 {
+
+        font-size: 29px;
+
+    }
+
+
+    .cabecalho {
+
+        padding: 20px;
+
+    }
+
+
+    .cabecalho h1 {
+
+        font-size: 27px;
+
+    }
+
+
+    .usuario-barra {
+
+        align-items: stretch;
+
+        flex-direction: column;
+
+    }
+
+
+    .btn-sair {
+
+        width: 100%;
+
+    }
+
+
+    .grid-form {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .grid-form .campo-largo {
+
+        grid-column: auto;
+
+    }
+
+
+    .dashboard {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    section {
+
+        padding: 18px;
+
+    }
+
+
+    .card-dashboard {
+
+        padding: 20px;
+
+    }
+
+
+    .card-dashboard span {
+
+        font-size: 28px;
+
+    }
+
+}
+
+
+/*==================================================
+                CELULARES PEQUENOS
+==================================================*/
+
+@media
+(max-width: 400px) {
+
+    body {
+
+        padding: 9px;
+
+    }
+
+
+    section {
+
+        padding: 15px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .cabecalho {
+
+        border-radius: 12px;
+
+    }
+
+
+    .cabecalho h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    button {
+
+        font-size: 14px;
+
+    }
+
 }
