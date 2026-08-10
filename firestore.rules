@@ -1,0 +1,317 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+
+    /*************************************************
+                    FUNÇÕES AUXILIARES
+    *************************************************/
+
+    function autenticado() {
+
+      return request.auth != null;
+
+    }
+
+
+    function perfil() {
+
+      return get(
+        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+      ).data.perfil;
+
+    }
+
+
+    function gestor() {
+
+      return autenticado()
+        && perfil() == "gestor";
+
+    }
+
+
+    function medico() {
+
+      return autenticado()
+        && perfil() == "medico";
+
+    }
+
+
+    function operador() {
+
+      return autenticado()
+        && perfil() == "operador";
+
+    }
+
+
+    /*************************************************
+                        USUÁRIOS
+    *************************************************/
+
+    match /usuarios/{userId} {
+
+      /*
+        O próprio usuário pode consultar
+        seu perfil.
+
+        O gestor também pode consultar.
+      */
+
+      allow read:
+        if autenticado()
+        &&
+        (
+          request.auth.uid == userId
+          ||
+          gestor()
+        );
+
+
+      /*
+        Apenas gestor pode criar,
+        alterar ou excluir perfis.
+      */
+
+      allow write:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                        PACIENTES
+    *************************************************/
+
+    match /pacientes/{documento} {
+
+      /*
+        Qualquer usuário autenticado
+        pode consultar pacientes.
+      */
+
+      allow read:
+        if autenticado();
+
+
+      /*
+        Gestor, médico e operador
+        podem cadastrar pacientes.
+      */
+
+      allow create:
+        if gestor()
+        ||
+        medico()
+        ||
+        operador();
+
+
+      /*
+        Gestor e médico podem alterar.
+      */
+
+      allow update:
+        if gestor()
+        ||
+        medico();
+
+
+      /*
+        Exclusão somente pelo gestor.
+      */
+
+      allow delete:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                    PROFISSIONAIS
+    *************************************************/
+
+    match /profissionais/{documento} {
+
+      /*
+        Usuários autenticados podem
+        consultar profissionais.
+      */
+
+      allow read:
+        if autenticado();
+
+
+      /*
+        Somente gestor pode cadastrar,
+        alterar ou excluir profissionais.
+      */
+
+      allow create, update, delete:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                        CONSULTAS
+    *************************************************/
+
+    match /consultas/{documento} {
+
+      /*
+        Usuários autenticados podem
+        consultar o histórico.
+      */
+
+      allow read:
+        if autenticado();
+
+
+      /*
+        Gestor, médico e operador
+        podem registrar consultas.
+      */
+
+      allow create:
+        if gestor()
+        ||
+        medico()
+        ||
+        operador();
+
+
+      /*
+        Alterações permitidas para
+        gestor e médico.
+      */
+
+      allow update:
+        if gestor()
+        ||
+        medico();
+
+
+      /*
+        Exclusão apenas pelo gestor.
+      */
+
+      allow delete:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                    PRONTUÁRIOS
+    *************************************************/
+
+    match /prontuarios/{documento} {
+
+      /*
+        Prontuário é informação clínica.
+
+        Somente gestor e médico
+        podem visualizar.
+      */
+
+      allow read:
+        if gestor()
+        ||
+        medico();
+
+
+      /*
+        A consulta pode gerar o prontuário
+        automaticamente.
+
+        Por isso operador também pode
+        realizar a criação.
+      */
+
+      allow create:
+        if gestor()
+        ||
+        medico()
+        ||
+        operador();
+
+
+      /*
+        Alterações somente por
+        gestor ou médico.
+      */
+
+      allow update:
+        if gestor()
+        ||
+        medico();
+
+
+      /*
+        Exclusão somente gestor.
+      */
+
+      allow delete:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                        FINANCEIRO
+    *************************************************/
+
+    match /gastos/{documento} {
+
+      /*
+        Somente gestor visualiza
+        informações financeiras.
+      */
+
+      allow read:
+        if gestor();
+
+
+      /*
+        Consulta pode gerar uma
+        movimentação automaticamente.
+      */
+
+      allow create:
+        if gestor()
+        ||
+        medico()
+        ||
+        operador();
+
+
+      /*
+        Alteração e exclusão somente
+        pelo gestor.
+      */
+
+      allow update, delete:
+        if gestor();
+
+    }
+
+
+    /*************************************************
+                BLOQUEIO PADRÃO
+    *************************************************/
+
+    match /{document=**} {
+
+      allow read, write:
+        if false;
+
+    }
+
+  }
+
+}
