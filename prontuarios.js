@@ -2,104 +2,327 @@
             PRONTUARIOS.JS - SIRMED V4
 *************************************************/
 
-let prontuarios = [];
+import {
+    db,
+    collection,
+    getDocs
+} from "./firebase.js";
+
+import {
+    formatarData,
+    escaparHTML
+} from "./utils.js";
+
 
 /*************************************************
-            CARREGAR PRONTUÁRIOS
+                VARIÁVEL PRINCIPAL
+*************************************************/
+
+const prontuarios = [];
+
+
+/*************************************************
+                OBTER PRONTUÁRIOS
+*************************************************/
+
+export function obterProntuarios() {
+
+    return prontuarios;
+
+}
+
+
+/*************************************************
+                CARREGAR PRONTUÁRIOS
 *************************************************/
 
 export async function carregarProntuarios() {
 
-    prontuarios = [];
+    const snap =
+        await getDocs(
+            collection(
+                db,
+                "prontuarios"
+            )
+        );
 
-    const snap = await getDocs(
-        collection(db, "prontuarios")
+
+    prontuarios.length = 0;
+
+
+    snap.forEach(
+        (docSnap) => {
+
+            prontuarios.push({
+
+                id:
+                    docSnap.id,
+
+                ...docSnap.data()
+
+            });
+
+        }
     );
 
-    snap.forEach(docSnap => {
 
-        prontuarios.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
+    /*************************************************
+                ORDENAR POR DATA
+    *************************************************/
 
-    });
+    prontuarios.sort(
+        (a, b) =>
+
+            String(
+                b.data || ""
+            ).localeCompare(
+
+                String(
+                    a.data || ""
+                )
+
+            )
+    );
 
 }
 
+
 /*************************************************
-            RENDER PRONTUÁRIOS
+                RENDER PRONTUÁRIOS
 *************************************************/
 
 export function renderProntuarios() {
 
     const lista =
-        document.getElementById("listaProntuarios");
+        document.getElementById(
+            "listaProntuarios"
+        );
 
-    if (!lista) return;
 
-    lista.innerHTML = "";
-
-    if (prontuarios.length === 0) {
-
-        lista.innerHTML =
-            "<li>Nenhum prontuário encontrado.</li>";
+    if (!lista) {
 
         return;
 
     }
 
-    prontuarios.forEach(p => {
 
-        lista.innerHTML += `
+    /*************************************************
+                LISTA VAZIA
+    *************************************************/
 
-<li>
+    if (
+        prontuarios.length === 0
+    ) {
 
-<b>👤 ${p.pacienteNome}</b><br>
+        lista.innerHTML = `
 
-👨‍⚕️ ${p.profissional}<br>
+            <li class="lista-vazia">
 
-📅 ${p.data}<br><br>
+                Nenhum prontuário encontrado.
 
-<b>🩺 Queixa:</b><br>
-${p.queixa || "-"}<br><br>
+            </li>
 
-<b>🔎 Exame Físico:</b><br>
-${p.exameFisico || "-"}<br><br>
+        `;
 
-<b>📋 Diagnóstico:</b><br>
-${p.diagnostico || "-"}<br><br>
 
-<b>💊 Prescrição:</b><br>
-${p.prescricao || "-"}<br><br>
+        return;
 
-<b>📝 Observações:</b><br>
-${p.observacoes || "-"}
+    }
 
-</li>
 
-`;
+    /*************************************************
+                RENDERIZAR LISTA
+    *************************************************/
 
-    });
+    lista.innerHTML =
+
+        prontuarios.map(
+            (p) => `
+
+                <li class="item-registro prontuario">
+
+                    <strong>
+
+                        👤 ${
+                            escaparHTML(
+                                p.pacienteNome ||
+                                p.paciente ||
+                                "-"
+                            )
+                        }
+
+                    </strong>
+
+
+                    <span>
+
+                        <b>Profissional:</b>
+
+                        ${
+                            escaparHTML(
+                                p.profissionalNome ||
+                                p.profissional ||
+                                "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Data:</b>
+
+                        ${
+                            escaparHTML(
+                                formatarData(
+                                    p.data
+                                )
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Queixa:</b>
+
+                        ${
+                            escaparHTML(
+                                p.queixa || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Pressão arterial:</b>
+
+                        ${
+                            escaparHTML(
+                                p.pa || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Frequência cardíaca:</b>
+
+                        ${
+                            escaparHTML(
+                                p.fc || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Temperatura:</b>
+
+                        ${
+                            escaparHTML(
+                                p.temperatura || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Exame físico:</b>
+
+                        ${
+                            escaparHTML(
+                                p.exameFisico || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Diagnóstico:</b>
+
+                        ${
+                            escaparHTML(
+                                p.diagnostico || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Prescrição:</b>
+
+                        ${
+                            escaparHTML(
+                                p.prescricao || "-"
+                            )
+                        }
+
+                    </span>
+
+
+                    <span>
+
+                        <b>Observações:</b>
+
+                        ${
+                            escaparHTML(
+                                p.observacoes || "-"
+                            )
+                        }
+
+                    </span>
+
+                </li>
+
+            `
+        ).join("");
 
 }
 
+
 /*************************************************
-        PRONTUÁRIO POR PACIENTE
+            BUSCAR PRONTUÁRIO POR PACIENTE
 *************************************************/
 
-export function buscarProntuariosPaciente(nomePaciente) {
+export function buscarProntuariosPaciente(
+    identificador
+) {
 
-    return prontuarios.filter(prontuario =>
+    return prontuarios.filter(
+        (p) =>
 
-        prontuario.pacienteNome === nomePaciente
+            p.pacienteId === identificador
+
+            ||
+
+            p.pacienteNome === identificador
+
+            ||
+
+            p.paciente === identificador
 
     );
 
 }
 
+
 /*************************************************
-        QUANTIDADE DE PRONTUÁRIOS
+            TOTAL DE PRONTUÁRIOS
 *************************************************/
 
 export function totalProntuarios() {
@@ -108,20 +331,11 @@ export function totalProntuarios() {
 
 }
 
+
 /*************************************************
-            EXPORTAÇÃO
+                LOG DO SISTEMA
 *************************************************/
 
-window.carregarProntuarios =
-carregarProntuarios;
-
-window.renderProntuarios =
-renderProntuarios;
-
-window.buscarProntuariosPaciente =
-buscarProntuariosPaciente;
-
-window.totalProntuarios =
-totalProntuarios;
-
-console.log("✅ prontuarios.js carregado");
+console.log(
+    "✅ prontuarios.js carregado"
+);
