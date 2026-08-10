@@ -1,17 +1,17 @@
-/*************************
- * FIREBASE - SIRMED
- *************************/
+/*************************************************
+                FIREBASE.JS - SIRMED V4
+*************************************************/
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 
 import {
     getAuth,
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
 import {
     getFirestore,
@@ -25,110 +25,116 @@ import {
     query,
     where,
     orderBy,
-    serverTimestamp
-}
-from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    serverTimestamp,
+    writeBatch
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-/*************************
- * CONFIGURAÇÃO FIREBASE
- *************************/
+
+/*************************************************
+            CONFIGURAÇÃO FIREBASE
+*************************************************/
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyCIZ5nDYZWOabPWsikUJm06qk0hg_uObE8",
+    apiKey:
+        "AIzaSyCIZ5nDYZWOabPWsikUJm06qk0hg_uObE8",
 
-    authDomain: "sirmed3gacap.firebaseapp.com",
+    authDomain:
+        "sirmed3gacap.firebaseapp.com",
 
-    projectId: "sirmed3gacap",
+    projectId:
+        "sirmed3gacap",
 
-    storageBucket: "sirmed3gacap.firebasestorage.app",
+    storageBucket:
+        "sirmed3gacap.firebasestorage.app",
 
-    messagingSenderId: "529913526905",
+    messagingSenderId:
+        "529913526905",
 
-    appId: "1:529913526905:web:6edbec562fa8324f11f2a8"
+    appId:
+        "1:529913526905:web:6edbec562fa8324f11f2a8"
 
 };
 
-/*************************
- * INICIALIZAÇÃO
- *************************/
 
-const app = initializeApp(firebaseConfig);
+/*************************************************
+                INICIALIZAÇÃO
+*************************************************/
 
-const auth = getAuth(app);
+const app =
+    initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
 
-console.log("🏥 SIRMED conectado ao Firebase");
+const auth =
+    getAuth(app);
 
-/*************************
- * AUTH
- *************************/
 
-export { auth, db };
+const db =
+    getFirestore(app);
+
+
+/*************************************************
+                EXPORTAÇÕES
+*************************************************/
 
 export {
+
+    // FIREBASE
+    app,
+
+    auth,
+
+    db,
+
+
+    // AUTHENTICATION
     signInWithEmailAndPassword,
+
     signOut,
+
     onAuthStateChanged,
+
+
+    // FIRESTORE
     collection,
+
     addDoc,
+
     getDocs,
+
     deleteDoc,
+
     updateDoc,
+
     doc,
+
     getDoc,
+
     query,
+
     where,
+
     orderBy,
-    serverTimestamp
+
+    serverTimestamp,
+
+    writeBatch
+
 };
 
-/*************************
- * FIRESTORE
- *************************/
 
-window.db = db;
+/*************************************************
+                LOG DO SISTEMA
+*************************************************/
 
-window.collection =
-    collection;
+console.log(
+    "🔥 Firebase do SIRMED inicializado."
+);
 
-window.addDoc =
-    addDoc;
+console.log(
+    "🔐 Authentication pronto."
+);
 
-window.getDocs =
-    getDocs;
-
-window.deleteDoc =
-    deleteDoc;
-
-window.updateDoc =
-    updateDoc;
-
-window.doc =
-    doc;
-
-window.getDoc =
-    getDoc;
-
-window.query =
-    query;
-
-window.where =
-    where;
-
-window.orderBy =
-    orderBy;
-
-window.serverTimestamp =
-    serverTimestamp;
-
-/*************************
- * TESTE
- *************************/
-
-console.log("🔥 Firestore pronto");
-console.log("🔐 Authentication pronto");
-console.log("🔥 Firebase carregado");
-console.log(auth);
-console.log(db);
+console.log(
+    "🗄️ Firestore pronto."
+);
