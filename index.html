@@ -1,26 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SIRMED - Sistema Integrado de Registros Médicos</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="./style.css">
+    <title>
+        SIRMED - Sistema Integrado de Registros Médicos
+    </title>
 
-    <!-- Biblioteca para gerar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"
+    ></script>
+
 </head>
 
+
 <body>
+
 
     <!-- ==========================================
                     LOGIN
     =========================================== -->
 
-    <main id="login" class="login-box">
+    <main
+        id="login"
+        class="login-box"
+    >
 
-        <h2>🏥 SIRMED</h2>
+        <h2>
+            🏥 SIRMED
+        </h2>
 
         <p>
             Sistema Integrado de Registros Médicos
@@ -60,20 +80,31 @@
         style="display:none;"
     >
 
-        <!-- CABEÇALHO -->
+
+        <!-- ======================================
+                    CABEÇALHO
+        ======================================= -->
 
         <header class="cabecalho">
 
-            <h1>🏥 SIRMED</h1>
+            <div>
 
-            <p>
-                Sistema Integrado de Registros Médicos
-            </p>
+                <h1>
+                    🏥 SIRMED
+                </h1>
+
+                <p>
+                    Sistema Integrado de Registros Médicos
+                </p>
+
+            </div>
 
         </header>
 
 
-        <!-- USUÁRIO LOGADO -->
+        <!-- ======================================
+                USUÁRIO LOGADO
+        ======================================= -->
 
         <div class="usuario-barra">
 
@@ -81,6 +112,7 @@
                 id="usuarioLogado"
                 class="usuario-logado"
             ></span>
+
 
             <button
                 id="btnSair"
@@ -94,64 +126,172 @@
 
 
         <!-- ======================================
-                        DASHBOARD
+                    MENU PRINCIPAL
         ======================================= -->
 
-        <div class="dashboard">
+        <nav
+            id="menuPrincipal"
+            class="menu-principal"
+        >
 
-            <div class="card-dashboard">
+            <button
+                type="button"
+                class="menu-item ativo"
+                data-secao="inicio"
+            >
+                🏠 Início
+            </button>
 
-                <h3>👤 Pacientes</h3>
 
-                <span id="totalPacientes">
-                    0
-                </span>
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoPacientes"
+            >
+                👤 Pacientes
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoProfissionais"
+            >
+                👨‍⚕️ Profissionais
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoConsultas"
+            >
+                🩺 Consultas
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoHistorico"
+            >
+                📋 Histórico
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoProntuarios"
+            >
+                📁 Prontuários
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="financeiro"
+            >
+                💰 Financeiro
+            </button>
+
+
+            <button
+                type="button"
+                class="menu-item"
+                data-secao="secaoRelatorios"
+            >
+                📊 Relatórios
+            </button>
+
+        </nav>
+
+
+        <!-- ======================================
+                    INÍCIO
+        ======================================= -->
+
+        <section
+            id="inicio"
+            class="tela-sistema tela-ativa"
+        >
+
+            <h2>
+                🏠 Painel Inicial
+            </h2>
+
+
+            <div class="dashboard">
+
+                <div class="card-dashboard">
+
+                    <h3>
+                        👤 Pacientes
+                    </h3>
+
+                    <span id="totalPacientes">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="card-dashboard">
+
+                    <h3>
+                        👨‍⚕️ Profissionais
+                    </h3>
+
+                    <span id="totalProfissionais">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="card-dashboard">
+
+                    <h3>
+                        🏥 Consultas
+                    </h3>
+
+                    <span id="totalConsultas">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="card-dashboard">
+
+                    <h3>
+                        💰 Financeiro
+                    </h3>
+
+                    <span id="totalGastos">
+                        R$ 0,00
+                    </span>
+
+                </div>
 
             </div>
 
-
-            <div class="card-dashboard">
-
-                <h3>👨‍⚕️ Profissionais</h3>
-
-                <span id="totalProfissionais">
-                    0
-                </span>
-
-            </div>
-
-
-            <div class="card-dashboard">
-
-                <h3>🏥 Consultas</h3>
-
-                <span id="totalConsultas">
-                    0
-                </span>
-
-            </div>
-
-
-            <div class="card-dashboard">
-
-                <h3>💰 Financeiro</h3>
-
-                <span id="totalGastos">
-                    R$ 0,00
-                </span>
-
-            </div>
-
-        </div>
+        </section>
 
 
         <!-- ======================================
                     PACIENTES
         ======================================= -->
 
-        <section id="secaoPacientes">
+        <section
+            id="secaoPacientes"
+            class="tela-sistema"
+        >
 
-            <h2>👤 Cadastro de Pacientes</h2>
+            <h2>
+                👤 Cadastro de Pacientes
+            </h2>
 
 
             <div class="grid-form">
@@ -232,7 +372,8 @@
 
             <input
                 id="pesquisaPaciente"
-                placeholder="Pesquisar paciente"
+                type="search"
+                placeholder="🔎 Pesquisar paciente"
             >
 
 
@@ -245,9 +386,14 @@
                     PROFISSIONAIS
         ======================================= -->
 
-        <section id="secaoProfissionais">
+        <section
+            id="secaoProfissionais"
+            class="tela-sistema"
+        >
 
-            <h2>👨‍⚕️ Profissionais</h2>
+            <h2>
+                👨‍⚕️ Profissionais
+            </h2>
 
 
             <div class="grid-form">
@@ -317,7 +463,8 @@
 
             <input
                 id="pesquisaProfissional"
-                placeholder="Pesquisar profissional"
+                type="search"
+                placeholder="🔎 Pesquisar profissional"
             >
 
 
@@ -330,9 +477,14 @@
                     CONSULTAS
         ======================================= -->
 
-        <section id="secaoConsultas">
+        <section
+            id="secaoConsultas"
+            class="tela-sistema"
+        >
 
-            <h2>🩺 Registrar Consulta</h2>
+            <h2>
+                🩺 Registrar Consulta
+            </h2>
 
 
             <div class="grid-form">
@@ -432,17 +584,23 @@
 
 
         <!-- ======================================
-                HISTÓRICO DE CONSULTAS
+                    HISTÓRICO
         ======================================= -->
 
-        <section id="secaoHistorico">
+        <section
+            id="secaoHistorico"
+            class="tela-sistema"
+        >
 
-            <h2>📋 Histórico de Consultas</h2>
+            <h2>
+                📋 Histórico de Consultas
+            </h2>
 
 
             <input
                 id="pesquisaConsulta"
-                placeholder="Pesquisar consulta"
+                type="search"
+                placeholder="🔎 Pesquisar consulta"
             >
 
 
@@ -455,17 +613,24 @@
                     PRONTUÁRIOS
         ======================================= -->
 
-        <section id="secaoProntuarios">
+        <section
+            id="secaoProntuarios"
+            class="tela-sistema"
+        >
 
-            <h2>📁 Prontuários Clínicos</h2>
+            <h2>
+                📁 Prontuários Clínicos
+            </h2>
 
-<input
-    id="pesquisaProntuario"
-    type="search"
-    placeholder="🔎 Pesquisar prontuário por paciente, profissional ou diagnóstico"
->
 
-<ul id="listaProntuarios"></ul>
+            <input
+                id="pesquisaProntuario"
+                type="search"
+                placeholder="🔎 Pesquisar prontuário por paciente, profissional ou diagnóstico"
+            >
+
+
+            <ul id="listaProntuarios"></ul>
 
         </section>
 
@@ -474,9 +639,15 @@
                     FINANCEIRO
         ======================================= -->
 
-        <section id="financeiro">
+        <section
+            id="financeiro"
+            class="tela-sistema"
+        >
 
-            <h2>💰 Controle Financeiro</h2>
+            <h2>
+                💰 Controle Financeiro
+            </h2>
+
 
             <ul id="listaGastos"></ul>
 
@@ -487,9 +658,14 @@
                     RELATÓRIOS
         ======================================= -->
 
-        <section id="secaoRelatorios">
+        <section
+            id="secaoRelatorios"
+            class="tela-sistema"
+        >
 
-            <h2>📊 Relatórios</h2>
+            <h2>
+                📊 Relatórios
+            </h2>
 
 
             <div class="grid-form">
@@ -544,7 +720,7 @@
                     id="btnPDF"
                     type="button"
                 >
-                    Gerar PDF
+                    📄 Gerar PDF
                 </button>
 
 
@@ -552,7 +728,7 @@
                     id="btnWord"
                     type="button"
                 >
-                    Gerar Word
+                    📝 Gerar Word
                 </button>
 
 
@@ -560,7 +736,7 @@
                     id="btnImprimir"
                     type="button"
                 >
-                    Imprimir
+                    🖨️ Imprimir
                 </button>
 
             </div>
@@ -571,7 +747,7 @@
 
 
     <!-- ==========================================
-                MENSAGENS DO SISTEMA
+                MENSAGENS
     =========================================== -->
 
     <div
@@ -583,7 +759,7 @@
 
 
     <!-- ==========================================
-                JAVASCRIPT PRINCIPAL
+                JAVASCRIPT
     =========================================== -->
 
     <script
@@ -592,4 +768,5 @@
     ></script>
 
 </body>
+
 </html>
