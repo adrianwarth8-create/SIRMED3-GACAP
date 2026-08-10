@@ -1,5 +1,5 @@
 /*************************************************
-              PACIENTES.JS - SIRMED V4
+              PACIENTES.JS - SIRMED V4.1
 *************************************************/
 
 import {
@@ -7,11 +7,15 @@ import {
     collection,
     addDoc,
     getDocs,
+    updateDoc,
+    deleteDoc,
+    doc,
     serverTimestamp
 } from "./firebase.js";
 
 import {
     mensagem,
+    confirmar,
     formatarData,
     formatarCPF,
     formatarTelefone,
@@ -20,10 +24,12 @@ import {
 
 
 /*************************************************
-                VARIÁVEL PRINCIPAL
+                VARIÁVEIS
 *************************************************/
 
 const pacientes = [];
+
+let pacienteEmEdicao = null;
 
 
 /*************************************************
@@ -38,7 +44,7 @@ export function obterPacientes() {
 
 
 /*************************************************
-                TOTAL DE PACIENTES
+                TOTAL PACIENTES
 *************************************************/
 
 export function totalPacientes() {
@@ -82,10 +88,6 @@ export async function carregarPacientes() {
     );
 
 
-    /*************************************************
-                ORDENAR POR NOME
-    *************************************************/
-
     pacientes.sort(
         (a, b) =>
 
@@ -106,7 +108,7 @@ export async function carregarPacientes() {
 
 
 /*************************************************
-                CADASTRAR PACIENTE
+                CADASTRAR / SALVAR
 *************************************************/
 
 export async function cadastrarPaciente() {
@@ -169,10 +171,6 @@ export async function cadastrarPaciente() {
         || "";
 
 
-    /*************************************************
-                    VALIDAÇÃO
-    *************************************************/
-
     if (!nome) {
 
         mensagem(
@@ -184,60 +182,105 @@ export async function cadastrarPaciente() {
     }
 
 
-    /*************************************************
-                SALVAR NO FIRESTORE
-    *************************************************/
-
     try {
 
-        await addDoc(
+        /*************************************************
+                    EDITAR PACIENTE
+        *************************************************/
 
-            collection(
-                db,
-                "pacientes"
-            ),
+        if (
+            pacienteEmEdicao
+        ) {
 
-            {
+            await updateDoc(
 
-                nome,
+                doc(
+                    db,
+                    "pacientes",
+                    pacienteEmEdicao
+                ),
 
-                cpf,
+                {
 
-                nascimento,
+                    nome,
 
-                telefone,
+                    cpf,
 
-                sexo,
+                    nascimento,
 
-                cidade,
+                    telefone,
 
-                criadoEm:
-                    serverTimestamp()
+                    sexo,
 
-            }
+                    cidade,
 
-        );
+                    atualizadoEm:
+                        serverTimestamp()
 
+                }
+
+            );
+
+
+            mensagem(
+                "Paciente atualizado com sucesso."
+            );
+
+
+            pacienteEmEdicao =
+                null;
+
+
+            atualizarBotaoPaciente(
+                false
+            );
+
+        }
 
         /*************************************************
-                    LIMPAR FORMULÁRIO
+                    NOVO PACIENTE
         *************************************************/
+
+        else {
+
+            await addDoc(
+
+                collection(
+                    db,
+                    "pacientes"
+                ),
+
+                {
+
+                    nome,
+
+                    cpf,
+
+                    nascimento,
+
+                    telefone,
+
+                    sexo,
+
+                    cidade,
+
+                    criadoEm:
+                        serverTimestamp()
+
+                }
+
+            );
+
+
+            mensagem(
+                "Paciente cadastrado com sucesso."
+            );
+
+        }
+
 
         limparFormularioPaciente();
 
-
-        /*************************************************
-                    MENSAGEM
-        *************************************************/
-
-        mensagem(
-            "Paciente cadastrado com sucesso."
-        );
-
-
-        /*************************************************
-                AVISAR O SISTEMA
-        *************************************************/
 
         document.dispatchEvent(
 
@@ -250,13 +293,213 @@ export async function cadastrarPaciente() {
     } catch (erro) {
 
         console.error(
-            "Erro ao cadastrar paciente:",
+            "Erro ao salvar paciente:",
             erro
         );
 
 
         mensagem(
-            "Não foi possível cadastrar o paciente."
+            "Não foi possível salvar o paciente."
+        );
+
+    }
+
+}
+
+
+/*************************************************
+                EDITAR PACIENTE
+*************************************************/
+
+export function editarPaciente(
+    id
+) {
+
+    const paciente =
+        pacientes.find(
+            (p) =>
+                p.id === id
+        );
+
+
+    if (!paciente) {
+
+        mensagem(
+            "Paciente não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    pacienteEmEdicao =
+        id;
+
+
+    document
+        .getElementById(
+            "pacienteNome"
+        )
+        .value =
+        paciente.nome || "";
+
+
+    document
+        .getElementById(
+            "pacienteCpf"
+        )
+        .value =
+        paciente.cpf || "";
+
+
+    document
+        .getElementById(
+            "pacienteNascimento"
+        )
+        .value =
+        paciente.nascimento || "";
+
+
+    document
+        .getElementById(
+            "pacienteTelefone"
+        )
+        .value =
+        paciente.telefone || "";
+
+
+    document
+        .getElementById(
+            "pacienteSexo"
+        )
+        .value =
+        paciente.sexo || "";
+
+
+    document
+        .getElementById(
+            "pacienteCidade"
+        )
+        .value =
+        paciente.cidade || "";
+
+
+    atualizarBotaoPaciente(
+        true
+    );
+
+
+    document
+        .getElementById(
+            "secaoPacientes"
+        )
+        ?.scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    mensagem(
+        "Paciente carregado para edição."
+    );
+
+}
+
+
+/*************************************************
+                EXCLUIR PACIENTE
+*************************************************/
+
+export async function excluirPaciente(
+    id
+) {
+
+    const paciente =
+        pacientes.find(
+            (p) =>
+                p.id === id
+        );
+
+
+    if (!paciente) {
+
+        mensagem(
+            "Paciente não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    const resposta =
+        confirmar(
+            `Deseja realmente excluir o paciente "${paciente.nome}"?`
+        );
+
+
+    if (!resposta) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await deleteDoc(
+
+            doc(
+                db,
+                "pacientes",
+                id
+            )
+
+        );
+
+
+        if (
+            pacienteEmEdicao ===
+            id
+        ) {
+
+            pacienteEmEdicao =
+                null;
+
+
+            limparFormularioPaciente();
+
+
+            atualizarBotaoPaciente(
+                false
+            );
+
+        }
+
+
+        mensagem(
+            "Paciente excluído com sucesso."
+        );
+
+
+        document.dispatchEvent(
+
+            new CustomEvent(
+                "sirmed:dados-alterados"
+            )
+
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir paciente:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível excluir o paciente."
         );
 
     }
@@ -283,10 +526,6 @@ export function renderPacientes() {
     }
 
 
-    /*************************************************
-                LISTA VAZIA
-    *************************************************/
-
     if (
         pacientes.length === 0
     ) {
@@ -306,10 +545,6 @@ export function renderPacientes() {
 
     }
 
-
-    /*************************************************
-                RENDERIZAR LISTA
-    *************************************************/
 
     lista.innerHTML =
 
@@ -399,10 +634,89 @@ export function renderPacientes() {
 
                     </span>
 
+
+                    <div class="acoes-registro">
+
+                        <button
+                            type="button"
+                            class="btn-editar"
+                            data-editar-paciente="${p.id}"
+                        >
+                            ✏️ Editar
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn-excluir"
+                            data-excluir-paciente="${p.id}"
+                        >
+                            🗑️ Excluir
+                        </button>
+
+                    </div>
+
                 </li>
 
             `
         ).join("");
+
+
+    ligarBotoesPacientes();
+
+}
+
+
+/*************************************************
+            LIGAR BOTÕES DA LISTA
+*************************************************/
+
+function ligarBotoesPacientes() {
+
+    document
+        .querySelectorAll(
+            "[data-editar-paciente]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        editarPaciente(
+                            botao.dataset
+                                .editarPaciente
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-excluir-paciente]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        excluirPaciente(
+                            botao.dataset
+                                .excluirPaciente
+                        );
+
+                    }
+                );
+
+            }
+        );
 
 }
 
@@ -508,13 +822,54 @@ export function limparFormularioPaciente() {
         }
     );
 
+
+    pacienteEmEdicao =
+        null;
+
+
+    atualizarBotaoPaciente(
+        false
+    );
+
 }
 
 
 /*************************************************
-                LOG DO SISTEMA
+            ALTERAR TEXTO DO BOTÃO
+*************************************************/
+
+function atualizarBotaoPaciente(
+    editando
+) {
+
+    const botao =
+        document.getElementById(
+            "btnCadastrarPaciente"
+        );
+
+
+    if (!botao) {
+
+        return;
+
+    }
+
+
+    botao.textContent =
+
+        editando
+
+        ? "💾 Salvar alterações"
+
+        : "Cadastrar paciente";
+
+}
+
+
+/*************************************************
+                LOG
 *************************************************/
 
 console.log(
-    "✅ pacientes.js carregado"
+    "✅ pacientes.js V4.1 carregado"
 );
