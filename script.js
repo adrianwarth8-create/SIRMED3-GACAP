@@ -36,7 +36,8 @@ import {
 
 import {
     carregarProntuarios,
-    renderProntuarios
+    renderProntuarios,
+    filtrarProntuarios
 } from "./prontuarios.js";
 
 
@@ -218,8 +219,14 @@ async function atualizarSistema() {
                 LIGAR EVENTOS
 *************************************************/
 
-function ligarEventos() {
-
+document
+    .getElementById(
+        "pesquisaProntuario"
+    )
+    ?.addEventListener(
+        "input",
+        filtrarProntuarios
+    );
 
     /*************************************************
                         LOGIN
