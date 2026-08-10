@@ -1,3 +1,7 @@
+/*************************************************
+                 LOGIN.JS - SIRMED V4
+*************************************************/
+
 import {
     auth,
     db,
@@ -7,101 +11,79 @@ import {
     doc,
     getDoc
 } from "./firebase.js";
+
+import {
+    mensagem
+} from "./utils.js";
+
+
 /*************************************************
-                LOGIN.JS - SIRMED V4
+                VARIÁVEIS
 *************************************************/
 
-let perfilUsuario = "";
+let perfil = "";
+
 let usuarioAtual = null;
 
+
 /*************************************************
-                ENTRAR
+                    ENTRAR
 *************************************************/
 
 export async function entrar() {
 
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value;
+    const email =
+        document
+            .getElementById("email")
+            ?.value
+            .trim()
+        || "";
 
-    if (!email || !senha) {
-        alert("Informe o e-mail e a senha.");
-        return;
-    }
+    const senha =
+        document
+            .getElementById("senha")
+            ?.value
+        || "";
 
-    try {
 
-        await signInWithEmailAndPassword(auth, email, senha);
+    if (
+        !email ||
+        !senha
+    ) {
 
-    } catch (erro) {
-
-        console.error(erro);
-
-        alert("Usuário ou senha inválidos.");
-
-    }
-
-}
-
-/*************************************************
-            LOGIN AUTOMÁTICO
-*************************************************/
-
-onAuthStateChanged(auth, async (user) => {
-
-    if (!user) {
-
-        document.getElementById("login").style.display = "block";
-        document.getElementById("sistema").style.display = "none";
-        return;
-
-    }
-
-    usuarioAtual = user;
-
-    document.getElementById("login").style.display = "none";
-    document.getElementById("sistema").style.display = "block";
-
-    await carregarPerfil();
-
-    document.getElementById("usuarioLogado").innerHTML =
-        `👤 ${user.email} (${perfilUsuario})`;
-
-    renderizarTudo();
-
-    aplicarPermissoes();
-
-});
-/*************************************************
-            CARREGAR PERFIL
-*************************************************/
-
-export async function carregarPerfil() {
-
-    try {
-
-        const docUser = await getDoc(
-            doc(db, "usuarios", usuarioAtual.uid)
+        mensagem(
+            "Informe o e-mail e a senha."
         );
 
-        if (docUser.exists()) {
+        return;
 
-            perfilUsuario = docUser.data().perfil;
+    }
 
-        } else {
 
-            perfilUsuario = "operador";
+    try {
 
-        }
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            senha
+        );
 
     } catch (erro) {
 
-        console.error(erro);
+        console.error(
+            "Erro no login:",
+            erro
+        );
 
-        perfilUsuario = "operador";
+
+        mensagem(
+            "Usuário ou senha inválidos."
+        );
 
     }
 
 }
+
 
 /*************************************************
                     SAIR
@@ -109,15 +91,264 @@ export async function carregarPerfil() {
 
 export async function sair() {
 
-    await signOut(auth);
+    try {
+
+        await signOut(
+            auth
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao sair:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível encerrar a sessão."
+        );
+
+    }
 
 }
 
+
 /*************************************************
-                EXPORTAÇÃO
+                CARREGAR PERFIL
 *************************************************/
 
-export const perfilUsuarioAtual = () => perfilUsuario;
-export const usuarioAtualLogado = () => usuarioAtual;
+export async function carregarPerfil() {
 
-console.log("✅ login.js carregado");
+    if (!usuarioAtual) {
+
+        perfil = "";
+
+        return perfil;
+
+    }
+
+
+    try {
+
+        const docUser =
+            await getDoc(
+
+                doc(
+                    db,
+                    "usuarios",
+                    usuarioAtual.uid
+                )
+
+            );
+
+
+        if (
+            docUser.exists()
+        ) {
+
+            perfil =
+                String(
+                    docUser
+                        .data()
+                        .perfil
+                    ||
+                    "operador"
+                )
+                .toLowerCase();
+
+        } else {
+
+            perfil =
+                "operador";
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar perfil:",
+            erro
+        );
+
+
+        perfil =
+            "operador";
+
+    }
+
+
+    return perfil;
+
+}
+
+
+/*************************************************
+            PERFIL DO USUÁRIO ATUAL
+*************************************************/
+
+export function perfilUsuarioAtual() {
+
+    return perfil;
+
+}
+
+
+/*************************************************
+            USUÁRIO ATUAL LOGADO
+*************************************************/
+
+export function usuarioAtualLogado() {
+
+    return usuarioAtual;
+
+}
+
+
+/*************************************************
+            OBSERVADOR DE AUTENTICAÇÃO
+*************************************************/
+
+export function iniciarObservadorAuth({
+    aoEntrar,
+    aoSair
+} = {}) {
+
+    return onAuthStateChanged(
+
+        auth,
+
+        async (user) => {
+
+            const login =
+                document.getElementById(
+                    "login"
+                );
+
+
+            const sistema =
+                document.getElementById(
+                    "sistema"
+                );
+
+
+            const usuarioLogado =
+                document.getElementById(
+                    "usuarioLogado"
+                );
+
+
+            /*************************************
+                        SEM LOGIN
+            *************************************/
+
+            if (!user) {
+
+                usuarioAtual =
+                    null;
+
+
+                perfil =
+                    "";
+
+
+                if (login) {
+
+                    login.style.display =
+                        "block";
+
+                }
+
+
+                if (sistema) {
+
+                    sistema.style.display =
+                        "none";
+
+                }
+
+
+                if (usuarioLogado) {
+
+                    usuarioLogado.textContent =
+                        "";
+
+                }
+
+
+                if (
+                    typeof aoSair ===
+                    "function"
+                ) {
+
+                    await aoSair();
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*************************************
+                        COM LOGIN
+            *************************************/
+
+            usuarioAtual =
+                user;
+
+
+            await carregarPerfil();
+
+
+            if (login) {
+
+                login.style.display =
+                    "none";
+
+            }
+
+
+            if (sistema) {
+
+                sistema.style.display =
+                    "block";
+
+            }
+
+
+            if (usuarioLogado) {
+
+                usuarioLogado.textContent =
+                    `👤 ${user.email} (${perfil})`;
+
+            }
+
+
+            if (
+                typeof aoEntrar ===
+                "function"
+            ) {
+
+                await aoEntrar(
+                    user,
+                    perfil
+                );
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/*************************************************
+                LOG DO SISTEMA
+*************************************************/
+
+console.log(
+    "✅ login.js carregado"
+);
