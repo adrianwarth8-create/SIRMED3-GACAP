@@ -1,5 +1,5 @@
 /*************************************************
-            PROFISSIONAIS.JS - SIRMED V4
+            PROFISSIONAIS.JS - SIRMED V4.1
 *************************************************/
 
 import {
@@ -7,20 +7,26 @@ import {
     collection,
     addDoc,
     getDocs,
+    updateDoc,
+    deleteDoc,
+    doc,
     serverTimestamp
 } from "./firebase.js";
 
 import {
     mensagem,
+    confirmar,
     escaparHTML
 } from "./utils.js";
 
 
 /*************************************************
-                VARIÁVEL PRINCIPAL
+                VARIÁVEIS
 *************************************************/
 
 const profissionais = [];
+
+let profissionalEmEdicao = null;
 
 
 /*************************************************
@@ -28,74 +34,54 @@ const profissionais = [];
 *************************************************/
 
 export function obterProfissionais() {
-
     return profissionais;
-
 }
 
 
 /*************************************************
-            TOTAL DE PROFISSIONAIS
+                TOTAL PROFISSIONAIS
 *************************************************/
 
 export function totalProfissionais() {
-
     return profissionais.length;
-
 }
 
 
 /*************************************************
-            CARREGAR PROFISSIONAIS
+                CARREGAR PROFISSIONAIS
 *************************************************/
 
 export async function carregarProfissionais() {
 
-    const snap =
-        await getDocs(
-            collection(
-                db,
-                "profissionais"
-            )
-        );
-
+    const snap = await getDocs(
+        collection(
+            db,
+            "profissionais"
+        )
+    );
 
     profissionais.length = 0;
-
 
     snap.forEach(
         (docSnap) => {
 
             profissionais.push({
-
-                id:
-                    docSnap.id,
-
+                id: docSnap.id,
                 ...docSnap.data()
-
             });
 
         }
     );
 
-
-    /*************************************************
-                ORDENAR POR NOME
-    *************************************************/
-
     profissionais.sort(
         (a, b) =>
-
             String(
                 a.nome || ""
             ).localeCompare(
-
                 String(
                     b.nome || ""
                 ),
-
                 "pt-BR"
-
             )
     );
 
@@ -103,7 +89,7 @@ export async function carregarProfissionais() {
 
 
 /*************************************************
-            CADASTRAR PROFISSIONAL
+            CADASTRAR / SALVAR PROFISSIONAL
 *************************************************/
 
 export async function cadastrarProfissional() {
@@ -117,7 +103,6 @@ export async function cadastrarProfissional() {
             .trim()
         || "";
 
-
     const funcao =
         document
             .getElementById(
@@ -125,7 +110,6 @@ export async function cadastrarProfissional() {
             )
             ?.value
         || "";
-
 
     const registro =
         document
@@ -155,73 +139,96 @@ export async function cadastrarProfissional() {
     }
 
 
-    /*************************************************
-                SALVAR NO FIRESTORE
-    *************************************************/
-
     try {
 
-        await addDoc(
+        /*************************************************
+                    EDITAR PROFISSIONAL
+        *************************************************/
 
-            collection(
-                db,
-                "profissionais"
-            ),
+        if (
+            profissionalEmEdicao
+        ) {
 
-            {
+            await updateDoc(
 
-                nome,
+                doc(
+                    db,
+                    "profissionais",
+                    profissionalEmEdicao
+                ),
 
-                funcao,
+                {
+                    nome,
+                    funcao,
+                    registro,
+                    atualizadoEm:
+                        serverTimestamp()
+                }
 
-                registro,
+            );
 
-                criadoEm:
-                    serverTimestamp()
+            mensagem(
+                "Profissional atualizado com sucesso."
+            );
 
-            }
+            profissionalEmEdicao =
+                null;
 
-        );
+            atualizarBotaoProfissional(
+                false
+            );
+
+        }
 
 
         /*************************************************
-                    LIMPAR FORMULÁRIO
+                    NOVO PROFISSIONAL
         *************************************************/
+
+        else {
+
+            await addDoc(
+
+                collection(
+                    db,
+                    "profissionais"
+                ),
+
+                {
+                    nome,
+                    funcao,
+                    registro,
+                    criadoEm:
+                        serverTimestamp()
+                }
+
+            );
+
+            mensagem(
+                "Profissional cadastrado com sucesso."
+            );
+
+        }
+
 
         limparFormularioProfissional();
 
 
-        /*************************************************
-                    MENSAGEM
-        *************************************************/
-
-        mensagem(
-            "Profissional cadastrado com sucesso."
-        );
-
-
-        /*************************************************
-                AVISAR O SISTEMA
-        *************************************************/
-
         document.dispatchEvent(
-
             new CustomEvent(
                 "sirmed:dados-alterados"
             )
-
         );
 
     } catch (erro) {
 
         console.error(
-            "Erro ao cadastrar profissional:",
+            "Erro ao salvar profissional:",
             erro
         );
 
-
         mensagem(
-            "Não foi possível cadastrar o profissional."
+            "Não foi possível salvar o profissional."
         );
 
     }
@@ -230,7 +237,170 @@ export async function cadastrarProfissional() {
 
 
 /*************************************************
-            RENDER PROFISSIONAIS
+                EDITAR PROFISSIONAL
+*************************************************/
+
+export function editarProfissional(id) {
+
+    const profissional =
+        profissionais.find(
+            (p) =>
+                p.id === id
+        );
+
+
+    if (!profissional) {
+
+        mensagem(
+            "Profissional não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    profissionalEmEdicao =
+        id;
+
+
+    document
+        .getElementById(
+            "profissionalNome"
+        )
+        .value =
+        profissional.nome || "";
+
+
+    document
+        .getElementById(
+            "profissionalFuncao"
+        )
+        .value =
+        profissional.funcao || "";
+
+
+    document
+        .getElementById(
+            "profissionalRegistro"
+        )
+        .value =
+        profissional.registro || "";
+
+
+    atualizarBotaoProfissional(
+        true
+    );
+
+
+    document
+        .getElementById(
+            "secaoProfissionais"
+        )
+        ?.scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    mensagem(
+        "Profissional carregado para edição."
+    );
+
+}
+
+
+/*************************************************
+                EXCLUIR PROFISSIONAL
+*************************************************/
+
+export async function excluirProfissional(id) {
+
+    const profissional =
+        profissionais.find(
+            (p) =>
+                p.id === id
+        );
+
+
+    if (!profissional) {
+
+        mensagem(
+            "Profissional não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    const resposta =
+        confirmar(
+            `Deseja realmente excluir o profissional "${profissional.nome}"?`
+        );
+
+
+    if (!resposta) {
+        return;
+    }
+
+
+    try {
+
+        await deleteDoc(
+            doc(
+                db,
+                "profissionais",
+                id
+            )
+        );
+
+
+        if (
+            profissionalEmEdicao ===
+            id
+        ) {
+
+            profissionalEmEdicao =
+                null;
+
+            limparFormularioProfissional();
+
+            atualizarBotaoProfissional(
+                false
+            );
+
+        }
+
+
+        mensagem(
+            "Profissional excluído com sucesso."
+        );
+
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "sirmed:dados-alterados"
+            )
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir profissional:",
+            erro
+        );
+
+        mensagem(
+            "Não foi possível excluir o profissional."
+        );
+
+    }
+
+}
+
+
+/*************************************************
+                RENDER PROFISSIONAIS
 *************************************************/
 
 export function renderProfissionais() {
@@ -242,15 +412,9 @@ export function renderProfissionais() {
 
 
     if (!lista) {
-
         return;
-
     }
 
-
-    /*************************************************
-                LISTA VAZIA
-    *************************************************/
 
     if (
         profissionais.length === 0
@@ -259,22 +423,15 @@ export function renderProfissionais() {
         lista.innerHTML = `
 
             <li class="lista-vazia">
-
                 Nenhum profissional encontrado.
-
             </li>
 
         `;
-
 
         return;
 
     }
 
-
-    /*************************************************
-                RENDERIZAR LISTA
-    *************************************************/
 
     lista.innerHTML =
 
@@ -296,11 +453,9 @@ export function renderProfissionais() {
 
                         <b>Função:</b>
 
-                        ${
-                            escaparHTML(
-                                p.funcao || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            p.funcao || "-"
+                        )}
 
                     </span>
 
@@ -309,18 +464,95 @@ export function renderProfissionais() {
 
                         <b>Registro:</b>
 
-                        ${
-                            escaparHTML(
-                                p.registro || "-"
-                            )
-                        }
+                        ${escaparHTML(
+                            p.registro || "-"
+                        )}
 
                     </span>
+
+
+                    <div class="acoes-registro">
+
+                        <button
+                            type="button"
+                            class="btn-editar"
+                            data-editar-profissional="${p.id}"
+                        >
+                            ✏️ Editar
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn-excluir"
+                            data-excluir-profissional="${p.id}"
+                        >
+                            🗑️ Excluir
+                        </button>
+
+                    </div>
 
                 </li>
 
             `
         ).join("");
+
+
+    ligarBotoesProfissionais();
+
+}
+
+
+/*************************************************
+        LIGAR BOTÕES DOS PROFISSIONAIS
+*************************************************/
+
+function ligarBotoesProfissionais() {
+
+    document
+        .querySelectorAll(
+            "[data-editar-profissional]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        editarProfissional(
+                            botao.dataset
+                                .editarProfissional
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-excluir-profissional]"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        excluirProfissional(
+                            botao.dataset
+                                .excluirProfissional
+                        );
+
+                    }
+                );
+
+            }
+        );
 
 }
 
@@ -396,9 +628,7 @@ export function limparFormularioProfissional() {
 
 
             if (!campo) {
-
                 return;
-
             }
 
 
@@ -420,13 +650,50 @@ export function limparFormularioProfissional() {
         }
     );
 
+
+    profissionalEmEdicao =
+        null;
+
+
+    atualizarBotaoProfissional(
+        false
+    );
+
 }
 
 
 /*************************************************
-                LOG DO SISTEMA
+            ALTERAR TEXTO DO BOTÃO
+*************************************************/
+
+function atualizarBotaoProfissional(editando) {
+
+    const botao =
+        document.getElementById(
+            "btnCadastrarProfissional"
+        );
+
+
+    if (!botao) {
+        return;
+    }
+
+
+    botao.textContent =
+
+        editando
+
+        ? "💾 Salvar alterações"
+
+        : "Cadastrar profissional";
+
+}
+
+
+/*************************************************
+                    LOG
 *************************************************/
 
 console.log(
-    "✅ profissionais.js carregado"
+    "✅ profissionais.js V4.1 carregado"
 );
