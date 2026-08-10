@@ -432,6 +432,7 @@ document
     /*************************************************
         EVENTO INTERNO DE ATUALIZAÇÃO DO SIRMED
     *************************************************/
+function ligareventos() {
 
     document
         .addEventListener(
@@ -440,8 +441,6 @@ document
         );
 
 }
-
-
 /*************************************************
             INICIAR O SIRMED
 *************************************************/
