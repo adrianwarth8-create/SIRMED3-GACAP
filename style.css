@@ -943,3 +943,35 @@ label {
     }
 
 }
+
+/*==================================================
+            AÇÕES DOS REGISTROS
+==================================================*/
+
+.acoes-registro {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.acoes-registro button {
+    width: auto;
+    flex: 1 1 130px;
+}
+
+.btn-editar {
+    background: #f9a825;
+}
+
+.btn-editar:hover {
+    background: #f57f17;
+}
+
+.btn-excluir {
+    background: #d32f2f;
+}
+
+.btn-excluir:hover {
+    background: #b71c1c;
+}
