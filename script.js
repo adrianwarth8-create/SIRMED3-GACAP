@@ -1,5 +1,5 @@
 /*************************************************
-                SCRIPT.JS - SIRMED V4.1
+                SCRIPT.JS - SIRMED V4.2
 *************************************************/
 
 import {
@@ -132,6 +132,213 @@ export function renderizarTudo() {
 
 
 /*************************************************
+                ABRIR UMA TELA
+*************************************************/
+
+export function abrirSecao(
+    secaoId
+) {
+
+    const secao =
+        document.getElementById(
+            secaoId
+        );
+
+
+    if (!secao) {
+
+        console.warn(
+            "Seção não encontrada:",
+            secaoId
+        );
+
+        return;
+
+    }
+
+
+    /*
+        Se a seção estiver bloqueada
+        pelo perfil do usuário,
+        não permite a abertura.
+    */
+
+    if (
+        secao.hidden
+    ) {
+
+        mensagem(
+            "Você não possui permissão para acessar esta área."
+        );
+
+        return;
+
+    }
+
+
+    /*************************************************
+                ESCONDER TODAS
+    *************************************************/
+
+    document
+        .querySelectorAll(
+            ".tela-sistema"
+        )
+        .forEach(
+            (tela) => {
+
+                tela.classList.remove(
+                    "tela-ativa"
+                );
+
+            }
+        );
+
+
+    /*************************************************
+                MOSTRAR ESCOLHIDA
+    *************************************************/
+
+    secao.classList.add(
+        "tela-ativa"
+    );
+
+
+    /*************************************************
+                ATUALIZAR MENU
+    *************************************************/
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.classList.toggle(
+
+                    "ativo",
+
+                    botao.dataset.secao ===
+                    secaoId
+
+                );
+
+            }
+        );
+
+
+    /*************************************************
+                VOLTAR AO TOPO
+    *************************************************/
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+/*************************************************
+            CONFIGURAR MENU PRINCIPAL
+*************************************************/
+
+function configurarMenu() {
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        const secaoId =
+                            botao.dataset.secao;
+
+
+                        if (!secaoId) {
+
+                            return;
+
+                        }
+
+
+                        abrirSecao(
+                            secaoId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/*************************************************
+            SINCRONIZAR MENU E PERMISSÕES
+*************************************************/
+
+function sincronizarMenuPermissoes() {
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
+
+                const secaoId =
+                    botao.dataset.secao;
+
+
+                if (
+                    !secaoId
+                    ||
+                    secaoId === "inicio"
+                ) {
+
+                    botao.hidden =
+                        false;
+
+                    return;
+
+                }
+
+
+                const secao =
+                    document.getElementById(
+                        secaoId
+                    );
+
+
+                /*
+                    Se a seção foi escondida
+                    pelas permissões,
+                    o botão do menu também some.
+                */
+
+                botao.hidden =
+                    !secao
+                    ||
+                    secao.hidden;
+
+            }
+        );
+
+}
+
+
+/*************************************************
                 ATUALIZAR SISTEMA
 *************************************************/
 
@@ -157,13 +364,32 @@ async function atualizarSistema() {
                     );
 
 
+                    /*********************************
+                        CARREGAR FIRESTORE
+                    *********************************/
+
                     await carregarTudo();
 
+
+                    /*********************************
+                        RENDERIZAR INTERFACE
+                    *********************************/
 
                     renderizarTudo();
 
 
+                    /*********************************
+                        PERMISSÕES
+                    *********************************/
+
                     aplicarPermissoes();
+
+
+                    /*********************************
+                        MENU POR PERFIL
+                    *********************************/
+
+                    sincronizarMenuPermissoes();
 
 
                     console.log(
@@ -230,7 +456,7 @@ function ligarEventos() {
 
 
     /*************************************************
-                    ENTER NA SENHA
+                ENTER PARA LOGIN
     *************************************************/
 
     document
@@ -421,7 +647,7 @@ function ligarEventos() {
 
 
     /*************************************************
-            EVENTO INTERNO DO SIRMED
+            DADOS ALTERADOS
     *************************************************/
 
     document
@@ -434,7 +660,7 @@ function ligarEventos() {
 
 
 /*************************************************
-            INICIAR O SIRMED
+                INICIAR SIRMED
 *************************************************/
 
 document.addEventListener(
@@ -444,15 +670,22 @@ document.addEventListener(
     () => {
 
         console.log(
-            "🏥 SIRMED V4.1 carregado"
+            "🏥 SIRMED V4.2 carregado"
         );
 
 
         /*************************************
-                LIGAR EVENTOS
+                EVENTOS
         *************************************/
 
         ligarEventos();
+
+
+        /*************************************
+                MENU
+        *************************************/
+
+        configurarMenu();
 
 
         /*************************************
@@ -461,10 +694,24 @@ document.addEventListener(
 
         iniciarObservadorAuth({
 
+            /*********************************
+                    AO ENTRAR
+            *********************************/
+
             aoEntrar:
                 async () => {
 
                     await atualizarSistema();
+
+
+                    /*
+                        Sempre abre o painel
+                        inicial após o login.
+                    */
+
+                    abrirSecao(
+                        "inicio"
+                    );
 
 
                     mensagem(
@@ -474,8 +721,41 @@ document.addEventListener(
                 },
 
 
+            /*********************************
+                    AO SAIR
+            *********************************/
+
             aoSair:
                 async () => {
+
+                    /*
+                        Retorna a navegação
+                        para o início.
+                    */
+
+                    document
+                        .querySelectorAll(
+                            ".tela-sistema"
+                        )
+                        .forEach(
+                            (tela) => {
+
+                                tela.classList.remove(
+                                    "tela-ativa"
+                                );
+
+                            }
+                        );
+
+
+                    document
+                        .getElementById(
+                            "inicio"
+                        )
+                        ?.classList.add(
+                            "tela-ativa"
+                        );
+
 
                     console.log(
                         "🔒 Sessão encerrada."
@@ -495,5 +775,5 @@ document.addEventListener(
 *************************************************/
 
 console.log(
-    "✅ script.js V4.1 carregado"
+    "✅ script.js V4.2 carregado"
 );
