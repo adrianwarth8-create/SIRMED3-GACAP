@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
@@ -10,18 +11,26 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="theme-color"
+        content="#1565C0"
+    >
+
     <title>
         SIRMED - Sistema Integrado de Registros Médicos
     </title>
 
+
+    <!-- CSS PRINCIPAL -->
     <link
         rel="stylesheet"
         href="./style.css"
     >
 
+
     <!-- jsPDF -->
     <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
     ></script>
 
 </head>
@@ -30,210 +39,222 @@
 <body>
 
 
-    <!-- ==================================================
-                         LOGIN
-    =================================================== -->
+<!-- ==================================================
+                        LOGIN
+=================================================== -->
 
-    <main
-        id="login"
-        class="login-box"
-    >
+<section
+    id="login"
+    class="login-container"
+>
 
-        <h2>
-            🏥 SIRMED
-        </h2>
+    <div class="login-card">
+
+        <div class="login-logo">
+            🏥
+        </div>
+
+
+        <h1>
+            SIRMED
+        </h1>
+
 
         <p>
             Sistema Integrado de Registros Médicos
         </p>
 
-        <input
-            id="email"
-            type="email"
-            autocomplete="username"
-            placeholder="E-mail"
-        >
 
-        <input
-            id="senha"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Senha"
-        >
+        <div class="login-form">
 
-        <button
-            id="btnEntrar"
-            class="btn-principal"
-            type="button"
-        >
-            Entrar
-        </button>
 
-    </main>
+            <label for="email">
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                autocomplete="username"
+                placeholder="Digite seu e-mail"
+            >
+
+
+            <label for="senha">
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="senha"
+                autocomplete="current-password"
+                placeholder="Digite sua senha"
+            >
+
+
+            <button
+                type="button"
+                id="btnEntrar"
+                class="btn-principal"
+            >
+                🔐 Entrar
+            </button>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ==================================================
+                        SISTEMA
+=================================================== -->
+
+<div
+    id="sistema"
+    style="display: none;"
+>
 
 
     <!-- ==================================================
-                        SISTEMA
+                        CABEÇALHO
     =================================================== -->
 
-    <main
-        id="sistema"
-        style="display:none;"
-    >
+    <header class="cabecalho-sistema">
 
+        <div>
 
-        <!-- ==============================================
-                        CABEÇALHO
-        =============================================== -->
+            <h1>
+                🏥 SIRMED
+            </h1>
 
-        <header class="cabecalho">
-
-            <div>
-
-                <h1>
-                    🏥 SIRMED
-                </h1>
-
-                <p>
-                    Sistema Integrado de Registros Médicos
-                </p>
-
-            </div>
-
-        </header>
-
-
-        <!-- ==============================================
-                    USUÁRIO LOGADO
-        =============================================== -->
-
-        <div class="usuario-barra">
-
-            <span
-                id="usuarioLogado"
-                class="usuario-logado"
-            ></span>
-
-            <button
-                id="btnSair"
-                class="btn-sair"
-                type="button"
-            >
-                Sair
-            </button>
+            <p>
+                Sistema Integrado de Registros Médicos
+            </p>
 
         </div>
 
 
-        <!-- ==============================================
-                    MENU PRINCIPAL
-        =============================================== -->
+        <div class="usuario-area">
 
-        <nav
-            id="menuPrincipal"
-            class="menu-principal"
+            <span id="usuarioLogado"></span>
+
+
+            <button
+                type="button"
+                id="btnSair"
+                class="btn-sair"
+            >
+                🚪 Sair
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ==================================================
+                            MENU
+    =================================================== -->
+
+    <nav class="menu-principal">
+
+
+        <button
+            type="button"
+            class="menu-item ativo"
+            data-secao="inicio"
         >
+            🏠 Início
+        </button>
 
 
-            <!-- INÍCIO -->
-
-            <button
-                type="button"
-                class="menu-item ativo"
-                data-secao="inicio"
-            >
-                🏠 Início
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoPacientes"
+        >
+            👤 Pacientes
+        </button>
 
 
-            <!-- PACIENTES -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoPacientes"
-            >
-                👤 Pacientes
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoProfissionais"
+        >
+            👨‍⚕️ Profissionais
+        </button>
 
 
-            <!-- PROFISSIONAIS -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoProfissionais"
-            >
-                👨‍⚕️ Profissionais
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoTriagem"
+        >
+            🩹 Triagem
+        </button>
 
 
-            <!-- TRIAGEM -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoTriagem"
-            >
-                🩹 Triagem
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoConsultas"
+        >
+            🩺 Consultas
+        </button>
 
 
-            <!-- CONSULTAS -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoConsultas"
-            >
-                🩺 Consultas
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoHistorico"
+        >
+            📋 Histórico
+        </button>
 
 
-            <!-- HISTÓRICO -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoHistorico"
-            >
-                📋 Histórico
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoProntuarios"
+        >
+            📁 Prontuários
+        </button>
 
 
-            <!-- PRONTUÁRIOS -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoProntuarios"
-            >
-                📁 Prontuários
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="financeiro"
+        >
+            💰 Financeiro
+        </button>
 
 
-            <!-- FINANCEIRO -->
-
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="financeiro"
-            >
-                💰 Financeiro
-            </button>
+        <button
+            type="button"
+            class="menu-item"
+            data-secao="secaoRelatorios"
+        >
+            📊 Relatórios
+        </button>
 
 
-            <!-- RELATÓRIOS -->
+    </nav>
 
-            <button
-                type="button"
-                class="menu-item"
-                data-secao="secaoRelatorios"
-            >
-                📊 Relatórios
-            </button>
 
-        </nav>
+
+    <!-- ==================================================
+                    CONTEÚDO PRINCIPAL
+    =================================================== -->
+
+    <main class="conteudo-sistema">
+
 
 
         <!-- ==================================================
@@ -246,75 +267,90 @@
         >
 
             <h2>
-                🏠 Painel Inicial
+                🏠 Painel Principal
             </h2>
 
 
-            <div class="dashboard">
+            <p class="descricao-secao">
+                Visão geral do SIRMED.
+            </p>
 
 
-                <!-- PACIENTES -->
+            <div class="dashboard-cards">
 
-                <div class="card-dashboard">
 
-                    <h3>
-                        👤 Pacientes
-                    </h3>
+                <div class="dashboard-card">
 
-                    <span id="totalPacientes">
+                    <span class="dashboard-icone">
+                        👤
+                    </span>
+
+                    <strong id="totalPacientes">
                         0
+                    </strong>
+
+                    <span>
+                        Pacientes
                     </span>
 
                 </div>
 
 
-                <!-- PROFISSIONAIS -->
+                <div class="dashboard-card">
 
-                <div class="card-dashboard">
+                    <span class="dashboard-icone">
+                        👨‍⚕️
+                    </span>
 
-                    <h3>
-                        👨‍⚕️ Profissionais
-                    </h3>
-
-                    <span id="totalProfissionais">
+                    <strong id="totalProfissionais">
                         0
+                    </strong>
+
+                    <span>
+                        Profissionais
                     </span>
 
                 </div>
 
 
-                <!-- CONSULTAS -->
+                <div class="dashboard-card">
 
-                <div class="card-dashboard">
+                    <span class="dashboard-icone">
+                        🩺
+                    </span>
 
-                    <h3>
-                        🏥 Consultas
-                    </h3>
-
-                    <span id="totalConsultas">
+                    <strong id="totalConsultas">
                         0
+                    </strong>
+
+                    <span>
+                        Consultas
                     </span>
 
                 </div>
 
 
-                <!-- FINANCEIRO -->
+                <div class="dashboard-card">
 
-                <div class="card-dashboard">
+                    <span class="dashboard-icone">
+                        💰
+                    </span>
 
-                    <h3>
-                        💰 Financeiro
-                    </h3>
-
-                    <span id="totalGastos">
+                    <strong id="totalGastos">
                         R$ 0,00
+                    </strong>
+
+                    <span>
+                        Financeiro
                     </span>
 
                 </div>
+
 
             </div>
 
         </section>
+
 
 
         <!-- ==================================================
@@ -344,7 +380,6 @@
                 <input
                     id="pacienteCpf"
                     inputmode="numeric"
-                    maxlength="14"
                     placeholder="CPF"
                 >
 
@@ -352,14 +387,6 @@
                 <input
                     id="pacienteNascimento"
                     type="date"
-                >
-
-
-                <input
-                    id="pacienteTelefone"
-                    inputmode="tel"
-                    maxlength="15"
-                    placeholder="Telefone"
                 >
 
 
@@ -381,25 +408,68 @@
                         Outro
                     </option>
 
-                    <option value="Não informado">
-                        Não informado
-                    </option>
-
                 </select>
 
 
                 <input
-                    id="pacienteCidade"
+                    id="pacienteTelefone"
+                    inputmode="tel"
+                    placeholder="Telefone"
+                >
+
+
+                <input
+                    id="pacienteEmail"
+                    type="email"
+                    placeholder="E-mail"
+                >
+
+
+                <input
+                    id="pacienteEndereco"
                     class="campo-largo"
+                    placeholder="Endereço"
+                >
+
+
+                <input
+                    id="pacienteCidade"
                     placeholder="Cidade"
                 >
+
+
+                <input
+                    id="pacienteEstado"
+                    placeholder="Estado"
+                >
+
+
+                <input
+                    id="pacienteConvenio"
+                    placeholder="Convênio"
+                >
+
+
+                <input
+                    id="pacienteNumeroConvenio"
+                    placeholder="Número do convênio"
+                >
+
+
+                <textarea
+                    id="pacienteObservacoes"
+                    class="campo-largo"
+                    placeholder="Observações"
+                ></textarea>
+
 
             </div>
 
 
             <button
-                id="btnCadastrarPaciente"
                 type="button"
+                id="btnCadastrarPaciente"
+                class="btn-principal"
             >
                 Cadastrar paciente
             </button>
@@ -408,9 +478,14 @@
             <hr>
 
 
+            <h3>
+                Pacientes cadastrados
+            </h3>
+
+
             <input
                 id="pesquisaPaciente"
-                type="search"
+                class="campo-pesquisa"
                 placeholder="🔎 Pesquisar paciente"
             >
 
@@ -418,6 +493,7 @@
             <ul id="listaPacientes"></ul>
 
         </section>
+
 
 
         <!-- ==================================================
@@ -446,7 +522,7 @@
                 <select id="profissionalFuncao">
 
                     <option value="">
-                        Selecione a função *
+                        Selecione a função
                     </option>
 
                     <option value="Médico">
@@ -457,20 +533,8 @@
                         Enfermeiro
                     </option>
 
-                    <option value="Técnico em Enfermagem">
-                        Técnico em Enfermagem
-                    </option>
-
-                    <option value="Dentista">
-                        Dentista
-                    </option>
-
-                    <option value="Fisioterapeuta">
-                        Fisioterapeuta
-                    </option>
-
-                    <option value="Psicólogo">
-                        Psicólogo
+                    <option value="Técnico de Enfermagem">
+                        Técnico de Enfermagem
                     </option>
 
                     <option value="Outro">
@@ -482,16 +546,37 @@
 
                 <input
                     id="profissionalRegistro"
-                    class="campo-largo"
                     placeholder="Registro profissional"
                 >
+
+
+                <input
+                    id="profissionalEspecialidade"
+                    placeholder="Especialidade"
+                >
+
+
+                <input
+                    id="profissionalTelefone"
+                    inputmode="tel"
+                    placeholder="Telefone"
+                >
+
+
+                <input
+                    id="profissionalEmail"
+                    type="email"
+                    placeholder="E-mail"
+                >
+
 
             </div>
 
 
             <button
-                id="btnCadastrarProfissional"
                 type="button"
+                id="btnCadastrarProfissional"
+                class="btn-principal"
             >
                 Cadastrar profissional
             </button>
@@ -502,7 +587,7 @@
 
             <input
                 id="pesquisaProfissional"
-                type="search"
+                class="campo-pesquisa"
                 placeholder="🔎 Pesquisar profissional"
             >
 
@@ -510,6 +595,7 @@
             <ul id="listaProfissionais"></ul>
 
         </section>
+
 
 
         <!-- ==================================================
@@ -535,11 +621,9 @@
             <div class="grid-form">
 
 
-                <!-- PACIENTE -->
-
                 <label class="campo-largo">
 
-                    Paciente *
+                    Paciente
 
                     <select id="triagemPaciente">
 
@@ -552,306 +636,105 @@
                 </label>
 
 
-                <!-- DATA -->
+                <input
+                    id="triagemPA"
+                    placeholder="Pressão arterial"
+                >
 
-                <label>
 
-                    Data
+                <input
+                    id="triagemFC"
+                    inputmode="numeric"
+                    placeholder="Frequência cardíaca"
+                >
 
-                    <input
-                        id="triagemData"
-                        type="date"
-                    >
 
-                </label>
+                <input
+                    id="triagemFR"
+                    inputmode="numeric"
+                    placeholder="Frequência respiratória"
+                >
 
 
-                <!-- HORA -->
+                <input
+                    id="triagemTemperatura"
+                    inputmode="decimal"
+                    placeholder="Temperatura"
+                >
 
-                <label>
 
-                    Hora
+                <input
+                    id="triagemSaturacao"
+                    inputmode="numeric"
+                    placeholder="Saturação O₂ (%)"
+                >
 
-                    <input
-                        id="triagemHora"
-                        type="time"
-                    >
 
-                </label>
+                <input
+                    id="triagemPeso"
+                    inputmode="decimal"
+                    placeholder="Peso (kg)"
+                >
 
 
-                <!-- PA -->
+                <input
+                    id="triagemAltura"
+                    inputmode="decimal"
+                    placeholder="Altura"
+                >
 
-                <label>
 
-                    Pressão arterial
+                <input
+                    id="triagemGlicemia"
+                    inputmode="numeric"
+                    placeholder="Glicemia"
+                >
 
-                    <input
-                        id="triagemPA"
-                        type="text"
-                        placeholder="Ex.: 120/80"
-                    >
 
-                </label>
+                <select id="triagemDor">
 
+                    <option value="">
+                        Escala de dor
+                    </option>
 
-                <!-- FC -->
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
 
-                <label>
+                </select>
 
-                    Frequência cardíaca (bpm)
 
-                    <input
-                        id="triagemFC"
-                        type="number"
-                        min="0"
-                        placeholder="Ex.: 80"
-                    >
+                <textarea
+                    id="triagemQueixa"
+                    class="campo-largo"
+                    placeholder="Queixa principal"
+                ></textarea>
 
-                </label>
 
+                <textarea
+                    id="triagemObservacoes"
+                    class="campo-largo"
+                    placeholder="Observações da triagem"
+                ></textarea>
 
-                <!-- FR -->
-
-                <label>
-
-                    Frequência respiratória (irpm)
-
-                    <input
-                        id="triagemFR"
-                        type="number"
-                        min="0"
-                        placeholder="Ex.: 18"
-                    >
-
-                </label>
-
-
-                <!-- SATURAÇÃO -->
-
-                <label>
-
-                    Saturação SpO₂ (%)
-
-                    <input
-                        id="triagemSaturacao"
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="Ex.: 98"
-                    >
-
-                </label>
-
-
-                <!-- TEMPERATURA -->
-
-                <label>
-
-                    Temperatura (°C)
-
-                    <input
-                        id="triagemTemperatura"
-                        type="number"
-                        min="25"
-                        max="45"
-                        step="0.1"
-                        placeholder="Ex.: 36.5"
-                    >
-
-                </label>
-
-
-                <!-- GLICEMIA -->
-
-                <label>
-
-                    Glicemia (mg/dL)
-
-                    <input
-                        id="triagemGlicemia"
-                        type="number"
-                        min="0"
-                        placeholder="Ex.: 100"
-                    >
-
-                </label>
-
-
-                <!-- PESO -->
-
-                <label>
-
-                    Peso (kg)
-
-                    <input
-                        id="triagemPeso"
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        placeholder="Ex.: 75.5"
-                    >
-
-                </label>
-
-
-                <!-- ALTURA -->
-
-                <label>
-
-                    Altura (m)
-
-                    <input
-                        id="triagemAltura"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="Ex.: 1.75"
-                    >
-
-                </label>
-
-
-                <!-- IMC -->
-
-                <label>
-
-                    IMC
-
-                    <input
-                        id="triagemIMC"
-                        type="text"
-                        placeholder="Calculado automaticamente"
-                        readonly
-                    >
-
-                </label>
-
-
-                <!-- DOR -->
-
-                <label>
-
-                    Escala de dor (0 a 10)
-
-                    <select id="triagemDor">
-
-                        <option value="">
-                            Selecione
-                        </option>
-
-                        <option value="0">
-                            0 - Sem dor
-                        </option>
-
-                        <option value="1">
-                            1
-                        </option>
-
-                        <option value="2">
-                            2
-                        </option>
-
-                        <option value="3">
-                            3
-                        </option>
-
-                        <option value="4">
-                            4
-                        </option>
-
-                        <option value="5">
-                            5 - Moderada
-                        </option>
-
-                        <option value="6">
-                            6
-                        </option>
-
-                        <option value="7">
-                            7
-                        </option>
-
-                        <option value="8">
-                            8
-                        </option>
-
-                        <option value="9">
-                            9
-                        </option>
-
-                        <option value="10">
-                            10 - Intensa
-                        </option>
-
-                    </select>
-
-                </label>
-
-
-                <!-- QUEIXA -->
-
-                <label class="campo-largo">
-
-                    Queixa principal
-
-                    <textarea
-                        id="triagemQueixa"
-                        placeholder="Descreva a queixa principal do paciente"
-                    ></textarea>
-
-                </label>
-
-
-                <!-- ALERGIAS -->
-
-                <label class="campo-largo">
-
-                    Alergias
-
-                    <textarea
-                        id="triagemAlergias"
-                        placeholder="Informe alergias conhecidas ou 'Nega'"
-                    ></textarea>
-
-                </label>
-
-
-                <!-- MEDICAMENTOS -->
-
-                <label class="campo-largo">
-
-                    Medicamentos em uso
-
-                    <textarea
-                        id="triagemMedicamentos"
-                        placeholder="Informe medicamentos de uso contínuo"
-                    ></textarea>
-
-                </label>
-
-
-                <!-- OBSERVAÇÕES -->
-
-                <label class="campo-largo">
-
-                    Observações da triagem
-
-                    <textarea
-                        id="triagemObservacoes"
-                        placeholder="Outras informações relevantes"
-                    ></textarea>
-
-                </label>
 
             </div>
 
 
             <button
-                id="btnRegistrarTriagem"
                 type="button"
+                id="btnRegistrarTriagem"
+                class="btn-principal"
             >
-                💾 Registrar Triagem
+                Registrar triagem
             </button>
 
 
@@ -859,20 +742,14 @@
 
 
             <h3>
-                📋 Triagens Recentes
+                Triagens
             </h3>
-
-
-            <input
-                id="pesquisaTriagem"
-                type="search"
-                placeholder="🔎 Pesquisar triagem por paciente"
-            >
 
 
             <ul id="listaTriagens"></ul>
 
         </section>
+
 
 
         <!-- ==================================================
@@ -919,7 +796,7 @@
 
                 <input
                     id="consultaPA"
-                    placeholder="Pressão arterial (ex.: 120/80)"
+                    placeholder="Pressão arterial"
                 >
 
 
@@ -933,4 +810,280 @@
                 <input
                     id="consultaTemperatura"
                     inputmode="decimal"
-      
+                    placeholder="Temperatura"
+                >
+
+
+                <textarea
+                    id="consultaExameFisico"
+                    class="campo-largo"
+                    placeholder="Exame físico"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaDiagnostico"
+                    class="campo-largo"
+                    placeholder="Diagnóstico"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaPrescricao"
+                    class="campo-largo"
+                    placeholder="Prescrição"
+                ></textarea>
+
+
+                <textarea
+                    id="consultaObservacoes"
+                    class="campo-largo"
+                    placeholder="Observações"
+                ></textarea>
+
+
+                <input
+                    id="consultaValor"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Valor da consulta"
+                >
+
+
+            </div>
+
+
+            <button
+                type="button"
+                id="btnRegistrarConsulta"
+                class="btn-principal"
+            >
+                Registrar consulta
+            </button>
+
+
+            <hr>
+
+
+            <h3>
+                Consultas registradas
+            </h3>
+
+
+            <input
+                id="pesquisaConsulta"
+                class="campo-pesquisa"
+                placeholder="🔎 Pesquisar consulta"
+            >
+
+
+            <ul id="listaConsultas"></ul>
+
+        </section>
+
+
+
+        <!-- ==================================================
+                            HISTÓRICO
+        =================================================== -->
+
+        <section
+            id="secaoHistorico"
+            class="tela-sistema"
+        >
+
+            <h2>
+                📋 Histórico
+            </h2>
+
+
+            <p class="descricao-secao">
+                Histórico de atendimentos registrados no SIRMED.
+            </p>
+
+
+            <input
+                id="pesquisaHistorico"
+                class="campo-pesquisa"
+                placeholder="🔎 Pesquisar no histórico"
+            >
+
+
+            <ul id="listaHistorico">
+
+                <li class="lista-vazia">
+                    O histórico será exibido nesta área.
+                </li>
+
+            </ul>
+
+        </section>
+
+
+
+        <!-- ==================================================
+                        PRONTUÁRIOS
+        =================================================== -->
+
+        <section
+            id="secaoProntuarios"
+            class="tela-sistema"
+        >
+
+            <h2>
+                📁 Prontuários
+            </h2>
+
+
+            <p class="descricao-secao">
+                Consulte os prontuários clínicos dos pacientes.
+            </p>
+
+
+            <input
+                id="pesquisaProntuario"
+                class="campo-pesquisa"
+                placeholder="🔎 Pesquisar prontuário"
+            >
+
+
+            <ul id="listaProntuarios"></ul>
+
+        </section>
+
+
+
+        <!-- ==================================================
+                            FINANCEIRO
+        =================================================== -->
+
+        <section
+            id="financeiro"
+            class="tela-sistema"
+        >
+
+            <h2>
+                💰 Financeiro
+            </h2>
+
+
+            <p class="descricao-secao">
+                Movimentações financeiras geradas pelas consultas.
+            </p>
+
+
+            <div class="dashboard-card">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="totalFinanceiroTela">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <input
+                id="pesquisaFinanceiro"
+                class="campo-pesquisa"
+                placeholder="🔎 Pesquisar movimentação"
+            >
+
+
+            <ul id="listaGastos"></ul>
+
+        </section>
+
+
+
+        <!-- ==================================================
+                            RELATÓRIOS
+        =================================================== -->
+
+        <section
+            id="secaoRelatorios"
+            class="tela-sistema"
+        >
+
+            <h2>
+                📊 Relatórios
+            </h2>
+
+
+            <p class="descricao-secao">
+                Área destinada aos relatórios do SIRMED.
+            </p>
+
+
+            <div class="grid-form">
+
+
+                <button
+                    type="button"
+                    id="btnRelatorioPacientes"
+                    class="btn-principal"
+                >
+                    👤 Relatório de pacientes
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnRelatorioConsultas"
+                    class="btn-principal"
+                >
+                    🩺 Relatório de consultas
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnRelatorioFinanceiro"
+                    class="btn-principal"
+                >
+                    💰 Relatório financeiro
+                </button>
+
+
+            </div>
+
+
+            <div id="areaRelatorio"></div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ==================================================
+                    MENSAGENS
+=================================================== -->
+
+<div
+    id="mensagemSistema"
+    class="mensagem-sistema"
+    aria-live="polite"
+></div>
+
+
+
+<!-- ==================================================
+                JAVASCRIPT PRINCIPAL
+=================================================== -->
+
+<script
+    type="module"
+    src="./script.js"
+></script>
+
+
+</body>
+
+</html>
