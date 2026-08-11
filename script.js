@@ -1,5 +1,5 @@
 /*************************************************
-          SCRIPT.JS - SIRMED V4.5
+          SCRIPT.JS - SIRMED V4.6
 *************************************************/
 
 
@@ -104,6 +104,14 @@ import {
 
 
 /*************************************************
+          CONTROLE DE ATUALIZAÇÃO
+*************************************************/
+
+let atualizacaoEmAndamento =
+    false;
+
+
+/*************************************************
               OBTER PERFIL ATUAL
 *************************************************/
 
@@ -122,7 +130,9 @@ function obterPerfil() {
               ABRIR UMA SEÇÃO
 *************************************************/
 
-export function abrirSecao(secaoId) {
+export function abrirSecao(
+    secaoId
+) {
 
     if (!secaoId) {
 
@@ -131,12 +141,15 @@ export function abrirSecao(secaoId) {
     }
 
 
-    /*
-        Verifica a permissão antes
-        de abrir a tela.
-    */
+    /*************************************************
+                VERIFICAR PERMISSÃO
+    *************************************************/
 
-    if (!temPermissao(secaoId)) {
+    if (
+        !temPermissao(
+            secaoId
+        )
+    ) {
 
         alert(
             "Você não possui permissão para acessar esta área."
@@ -148,7 +161,9 @@ export function abrirSecao(secaoId) {
 
 
     const secao =
-        document.getElementById(secaoId);
+        document.getElementById(
+            secaoId
+        );
 
 
     if (!secao) {
@@ -163,63 +178,100 @@ export function abrirSecao(secaoId) {
     }
 
 
-    /*
-        Fecha todas as telas.
-    */
+    /*************************************************
+                ESCONDER TELAS
+    *************************************************/
 
     document
-        .querySelectorAll(".tela-sistema")
-        .forEach(tela => {
+        .querySelectorAll(
+            ".tela-sistema"
+        )
+        .forEach(
+            (tela) => {
 
-            tela.classList.remove(
-                "tela-ativa"
-            );
+                tela.classList.remove(
+                    "tela-ativa"
+                );
 
-        });
+            }
+        );
 
 
-    /*
-        Abre a tela selecionada.
-    */
+    /*************************************************
+                MOSTRAR SEÇÃO
+    *************************************************/
 
-    secao.hidden = false;
+    secao.hidden =
+        false;
+
 
     secao.classList.add(
         "tela-ativa"
     );
 
 
-    /*
-        Atualiza botão ativo do menu.
-    */
+    /*************************************************
+                MENU ATIVO
+    *************************************************/
 
     document
-        .querySelectorAll(".menu-item")
-        .forEach(botao => {
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
 
-            botao.classList.toggle(
-                "ativo",
-                botao.dataset.secao === secaoId
-            );
+                botao.classList.toggle(
 
-        });
+                    "ativo",
+
+                    botao.dataset.secao ===
+                        secaoId
+
+                );
+
+            }
+        );
 
 
-    /*
-        Sempre atualiza o select
-        quando abrir a Triagem.
-    */
+    /*************************************************
+                ABRIR TRIAGEM
+    *************************************************/
 
-    if (secaoId === "secaoTriagem") {
+    if (
+        secaoId ===
+        "secaoTriagem"
+    ) {
 
         preencherPacientesTriagem();
 
     }
 
 
+    /*************************************************
+                ABRIR CONSULTAS
+    *************************************************/
+
+    if (
+        secaoId ===
+        "secaoConsultas"
+    ) {
+
+        preencherSelectsConsulta();
+
+    }
+
+
+    /*************************************************
+                  TOPO DA TELA
+    *************************************************/
+
     window.scrollTo({
+
         top: 0,
+
         behavior: "smooth"
+
     });
 
 }
@@ -245,19 +297,27 @@ export async function carregarTudo() {
                     GESTOR
     *************************************************/
 
-    if (perfil === "gestor") {
+    if (
+        perfil ===
+        "gestor"
+    ) {
 
-        await carregarPacientes();
+        await Promise.all([
 
-        await carregarProfissionais();
+            carregarPacientes(),
 
-        await carregarConsultas();
+            carregarProfissionais(),
 
-        await carregarProntuarios();
+            carregarConsultas(),
 
-        await carregarGastos();
+            carregarProntuarios(),
 
-        await carregarTriagens();
+            carregarGastos(),
+
+            carregarTriagens()
+
+        ]);
+
 
         return;
 
@@ -268,17 +328,25 @@ export async function carregarTudo() {
                     MÉDICO
     *************************************************/
 
-    if (perfil === "medico") {
+    if (
+        perfil ===
+        "medico"
+    ) {
 
-        await carregarPacientes();
+        await Promise.all([
 
-        await carregarProfissionais();
+            carregarPacientes(),
 
-        await carregarConsultas();
+            carregarProfissionais(),
 
-        await carregarProntuarios();
+            carregarConsultas(),
 
-        await carregarTriagens();
+            carregarProntuarios(),
+
+            carregarTriagens()
+
+        ]);
+
 
         return;
 
@@ -289,15 +357,34 @@ export async function carregarTudo() {
                     OPERADOR
     *************************************************/
 
-    if (perfil === "operador") {
+    if (
+        perfil ===
+        "operador"
+    ) {
 
-        await carregarPacientes();
+        /*
+            O operador vê:
 
-        await carregarProfissionais();
+            - Início
+            - Financeiro
+            - Relatórios
 
-        await carregarConsultas();
+            Porém os relatórios podem utilizar
+            pacientes, profissionais e consultas.
+        */
 
-        await carregarGastos();
+        await Promise.all([
+
+            carregarPacientes(),
+
+            carregarProfissionais(),
+
+            carregarConsultas(),
+
+            carregarGastos()
+
+        ]);
+
 
         return;
 
@@ -308,11 +395,27 @@ export async function carregarTudo() {
                     TRIAGEM
     *************************************************/
 
-    if (perfil === "triagem") {
+    if (
+        perfil ===
+        "triagem"
+    ) {
 
-        await carregarPacientes();
+        /*
+            A Triagem utiliza:
 
-        await carregarTriagens();
+            - Início
+            - Pacientes
+            - Triagem
+        */
+
+        await Promise.all([
+
+            carregarPacientes(),
+
+            carregarTriagens()
+
+        ]);
+
 
         return;
 
@@ -341,7 +444,10 @@ export function renderizarTudo() {
                     GESTOR
     *************************************************/
 
-    if (perfil === "gestor") {
+    if (
+        perfil ===
+        "gestor"
+    ) {
 
         renderPacientes();
 
@@ -363,6 +469,7 @@ export function renderizarTudo() {
 
         atualizarDashboard();
 
+
         return;
 
     }
@@ -372,7 +479,10 @@ export function renderizarTudo() {
                     MÉDICO
     *************************************************/
 
-    if (perfil === "medico") {
+    if (
+        perfil ===
+        "medico"
+    ) {
 
         renderPacientes();
 
@@ -382,16 +492,15 @@ export function renderizarTudo() {
 
 
         /*
-            Precisamos dos profissionais
-            carregados para o select da consulta,
-            mesmo que a tela Profissionais
-            esteja oculta para o médico.
+            O médico precisa dos profissionais
+            no select da consulta.
         */
 
         preencherSelectsConsulta();
 
 
         atualizarDashboard();
+
 
         return;
 
@@ -402,11 +511,16 @@ export function renderizarTudo() {
                     OPERADOR
     *************************************************/
 
-    if (perfil === "operador") {
+    if (
+        perfil ===
+        "operador"
+    ) {
 
         renderGastos();
 
+
         atualizarDashboard();
+
 
         return;
 
@@ -417,15 +531,25 @@ export function renderizarTudo() {
                     TRIAGEM
     *************************************************/
 
-    if (perfil === "triagem") {
+    if (
+        perfil ===
+        "triagem"
+    ) {
 
         renderPacientes();
 
         renderTriagens();
 
+
+        /*
+            Atualiza o select automaticamente.
+        */
+
         preencherPacientesTriagem();
 
+
         atualizarDashboard();
+
 
         return;
 
@@ -435,7 +559,87 @@ export function renderizarTudo() {
 
 
 /*************************************************
-              INICIALIZAR USUÁRIO
+          ATUALIZAR SISTEMA COMPLETO
+*************************************************/
+
+async function atualizarSistema() {
+
+    /*
+        Evita duas atualizações simultâneas.
+    */
+
+    if (
+        atualizacaoEmAndamento
+    ) {
+
+        console.log(
+            "⏳ Atualização já em andamento."
+        );
+
+        return;
+
+    }
+
+
+    atualizacaoEmAndamento =
+        true;
+
+
+    try {
+
+        console.log(
+            "🔄 Atualizando dados do SIRMED..."
+        );
+
+
+        /*************************************************
+                RECARREGAR FIRESTORE
+        *************************************************/
+
+        await carregarTudo();
+
+
+        /*************************************************
+                    RENDERIZAR
+        *************************************************/
+
+        renderizarTudo();
+
+
+        /*************************************************
+                REAPLICAR PERMISSÕES
+        *************************************************/
+
+        aplicarPermissoes();
+
+
+        console.log(
+            "✅ Dados do SIRMED atualizados."
+        );
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "❌ Erro ao atualizar SIRMED:",
+            erro
+        );
+
+    }
+
+    finally {
+
+        atualizacaoEmAndamento =
+            false;
+
+    }
+
+}
+
+
+/*************************************************
+            INICIALIZAR USUÁRIO
 *************************************************/
 
 async function inicializarUsuario() {
@@ -447,43 +651,41 @@ async function inicializarUsuario() {
         );
 
 
-        /*
-            Primeiro aplica o menu
-            conforme o perfil.
-        */
+        /*************************************************
+                APLICAR PERMISSÕES
+        *************************************************/
 
         aplicarPermissoes();
 
 
-        /*
-            Depois carrega apenas os dados
-            permitidos para aquele perfil.
-        */
+        /*************************************************
+                  CARREGAR DADOS
+        *************************************************/
 
         await carregarTudo();
 
 
-        /*
-            Renderiza.
-        */
+        /*************************************************
+                    RENDERIZAR
+        *************************************************/
 
         renderizarTudo();
 
 
-        /*
-            Reaplica as permissões para
-            garantir que nenhuma renderização
-            reexibiu uma tela proibida.
-        */
+        /*************************************************
+                REAPLICAR PERMISSÕES
+        *************************************************/
 
         aplicarPermissoes();
 
 
-        /*
-            Abre início.
-        */
+        /*************************************************
+                    ABRIR INÍCIO
+        *************************************************/
 
-        abrirSecao("inicio");
+        abrirSecao(
+            "inicio"
+        );
 
 
         console.log(
@@ -500,11 +702,6 @@ async function inicializarUsuario() {
         );
 
 
-        /*
-            O sistema continua aberto mesmo
-            se algum carregamento falhar.
-        */
-
         aplicarPermissoes();
 
     }
@@ -519,26 +716,39 @@ async function inicializarUsuario() {
 function configurarMenu() {
 
     document
-        .querySelectorAll(".menu-item")
-        .forEach(botao => {
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            (botao) => {
 
-            botao.addEventListener(
-                "click",
-                () => {
+                botao.addEventListener(
 
-                    const destino =
-                        botao.dataset.secao;
+                    "click",
 
-                    if (destino) {
+                    () => {
 
-                        abrirSecao(destino);
+                        const destino =
+                            botao.dataset.secao;
+
+
+                        if (!destino) {
+
+                            return;
+
+                        }
+
+
+                        abrirSecao(
+                            destino
+                        );
 
                     }
 
-                }
-            );
+                );
 
-        });
+            }
+        );
 
 }
 
@@ -550,7 +760,9 @@ function configurarMenu() {
 function configurarLogin() {
 
     document
-        .getElementById("btnEntrar")
+        .getElementById(
+            "btnEntrar"
+        )
         ?.addEventListener(
             "click",
             entrar
@@ -558,7 +770,9 @@ function configurarLogin() {
 
 
     document
-        .getElementById("btnSair")
+        .getElementById(
+            "btnSair"
+        )
         ?.addEventListener(
             "click",
             sair
@@ -566,18 +780,26 @@ function configurarLogin() {
 
 
     document
-        .getElementById("senha")
+        .getElementById(
+            "senha"
+        )
         ?.addEventListener(
-            "keydown",
-            evento => {
 
-                if (evento.key === "Enter") {
+            "keydown",
+
+            (evento) => {
+
+                if (
+                    evento.key ===
+                    "Enter"
+                ) {
 
                     entrar();
 
                 }
 
             }
+
         );
 
 }
@@ -668,16 +890,8 @@ function configurarConsultas() {
 
 
 /*************************************************
-          FILTRO DE PRONTUÁRIOS
+          CONFIGURAR PRONTUÁRIOS
 *************************************************/
-
-/*
-    Não importamos filtrarProntuarios(),
-    pois o prontuarios.js original
-    não possui essa função.
-
-    Fazemos o filtro diretamente aqui.
-*/
 
 function configurarProntuarios() {
 
@@ -695,7 +909,9 @@ function configurarProntuarios() {
 
 
     pesquisa.addEventListener(
+
         "input",
+
         () => {
 
             const filtro =
@@ -708,37 +924,116 @@ function configurarProntuarios() {
                 .querySelectorAll(
                     "#listaProntuarios li"
                 )
-                .forEach(li => {
+                .forEach(
+                    (li) => {
 
-                    li.style.display =
+                        li.style.display =
 
-                        li.textContent
-                            .toLowerCase()
-                            .includes(filtro)
+                            li.textContent
+                                .toLowerCase()
+                                .includes(
+                                    filtro
+                                )
 
-                            ? ""
+                                ? ""
 
-                            : "none";
+                                : "none";
 
-                });
+                    }
+                );
 
         }
+
     );
 
 }
 
 
 /*************************************************
-          ATUALIZAR APÓS CADASTROS
+        EVENTO GLOBAL: DADOS ALTERADOS
 *************************************************/
 
 /*
-    Os módulos antigos chamam funções
-    globais como atualizarDashboard()
-    e preencherSelectsConsulta().
+    pacientes.js,
+    profissionais.js
+    e consultas.js
 
-    Por isso garantimos que essas funções
-    estejam disponíveis no window.
+    podem disparar:
+
+    sirmed:dados-alterados
+
+    Quando isso acontecer,
+    recarregamos automaticamente
+    os dados do Firebase.
+*/
+
+function configurarAtualizacaoAutomatica() {
+
+    document.addEventListener(
+
+        "sirmed:dados-alterados",
+
+        async () => {
+
+            console.log(
+                "🔔 Alteração detectada no SIRMED."
+            );
+
+
+            await atualizarSistema();
+
+
+            /*
+                Reforço específico para
+                o select da Triagem.
+            */
+
+            const perfil =
+                obterPerfil();
+
+
+            if (
+                perfil === "triagem"
+                ||
+                perfil === "gestor"
+            ) {
+
+                preencherPacientesTriagem();
+
+            }
+
+
+            /*
+                Atualiza também selects
+                de consultas.
+            */
+
+            if (
+                perfil === "medico"
+                ||
+                perfil === "gestor"
+            ) {
+
+                preencherSelectsConsulta();
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/*************************************************
+          EXPORTAÇÕES GLOBAIS
+*************************************************/
+
+/*
+    Algumas versões anteriores dos módulos
+    utilizam funções globais.
+
+    Mantemos por compatibilidade.
 */
 
 window.atualizarDashboard =
@@ -753,16 +1048,30 @@ window.preencherPacientesTriagem =
     preencherPacientesTriagem;
 
 
+window.carregarTudo =
+    carregarTudo;
+
+
+window.renderizarTudo =
+    renderizarTudo;
+
+
+window.abrirSecao =
+    abrirSecao;
+
+
 /*************************************************
             INICIAR APLICAÇÃO
 *************************************************/
 
 document.addEventListener(
+
     "DOMContentLoaded",
+
     () => {
 
         console.log(
-            "🏥 Iniciando SIRMED V4.5..."
+            "🏥 Iniciando SIRMED V4.6..."
         );
 
 
@@ -782,7 +1091,19 @@ document.addEventListener(
 
         configurarProntuarios();
 
+
+        /*************************************************
+                  EVENTOS TRIAGEM
+        *************************************************/
+
         configurarEventosTriagem();
+
+
+        /*************************************************
+              ATUALIZAÇÃO AUTOMÁTICA
+        *************************************************/
+
+        configurarAtualizacaoAutomatica();
 
 
         /*************************************************
@@ -792,6 +1113,7 @@ document.addEventListener(
         iniciarObservadorAuth({
 
             aoEntrar:
+
                 async () => {
 
                     await inicializarUsuario();
@@ -800,6 +1122,7 @@ document.addEventListener(
 
 
             aoSair:
+
                 async () => {
 
                     console.log(
@@ -811,23 +1134,8 @@ document.addEventListener(
         });
 
     }
+
 );
-
-
-/*************************************************
-              EXPORTAÇÃO GLOBAL
-*************************************************/
-
-window.carregarTudo =
-    carregarTudo;
-
-
-window.renderizarTudo =
-    renderizarTudo;
-
-
-window.abrirSecao =
-    abrirSecao;
 
 
 /*************************************************
@@ -835,5 +1143,5 @@ window.abrirSecao =
 *************************************************/
 
 console.log(
-    "✅ script.js V4.5 carregado"
+    "✅ script.js V4.6 carregado"
 );
