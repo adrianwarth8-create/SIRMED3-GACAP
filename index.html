@@ -54,11 +54,9 @@
             🏥
         </div>
 
-
         <h1>
             SIRMED
         </h1>
-
 
         <p>
             Sistema Integrado de Registros Médicos
@@ -66,7 +64,6 @@
 
 
         <div class="login-form">
-
 
             <label for="email">
                 E-mail
@@ -99,7 +96,6 @@
             >
                 🔐 Entrar
             </button>
-
 
         </div>
 
@@ -142,7 +138,6 @@
 
             <span id="usuarioLogado"></span>
 
-
             <button
                 type="button"
                 id="btnSair"
@@ -162,7 +157,6 @@
     =================================================== -->
 
     <nav class="menu-principal">
-
 
         <button
             type="button"
@@ -244,7 +238,6 @@
             📊 Relatórios
         </button>
 
-
     </nav>
 
 
@@ -254,7 +247,6 @@
     =================================================== -->
 
     <main class="conteudo-sistema">
-
 
 
         <!-- ==================================================
@@ -345,7 +337,6 @@
                     </span>
 
                 </div>
-
 
             </div>
 
@@ -462,7 +453,6 @@
                     placeholder="Observações"
                 ></textarea>
 
-
             </div>
 
 
@@ -569,7 +559,6 @@
                     placeholder="E-mail"
                 >
 
-
             </div>
 
 
@@ -583,6 +572,11 @@
 
 
             <hr>
+
+
+            <h3>
+                Profissionais cadastrados
+            </h3>
 
 
             <input
@@ -599,7 +593,7 @@
 
 
         <!-- ==================================================
-                            TRIAGEM
+                            TRIAGEM V4.6
         =================================================== -->
 
         <section
@@ -621,6 +615,8 @@
             <div class="grid-form">
 
 
+                <!-- PACIENTE -->
+
                 <label class="campo-largo">
 
                     Paciente
@@ -636,39 +632,94 @@
                 </label>
 
 
+                <!-- DATA -->
+
+                <label>
+
+                    Data
+
+                    <input
+                        id="triagemData"
+                        type="date"
+                    >
+
+                </label>
+
+
+                <!-- HORA -->
+
+                <label>
+
+                    Hora
+
+                    <input
+                        id="triagemHora"
+                        type="time"
+                    >
+
+                </label>
+
+
+                <!-- PRESSÃO -->
+
                 <input
                     id="triagemPA"
-                    placeholder="Pressão arterial"
+                    placeholder="Pressão arterial (ex.: 120/80)"
                 >
 
+
+                <!-- FREQUÊNCIA CARDÍACA -->
 
                 <input
                     id="triagemFC"
+                    type="number"
                     inputmode="numeric"
-                    placeholder="Frequência cardíaca"
+                    placeholder="Frequência cardíaca (bpm)"
                 >
 
+
+                <!-- FREQUÊNCIA RESPIRATÓRIA -->
 
                 <input
                     id="triagemFR"
+                    type="number"
                     inputmode="numeric"
-                    placeholder="Frequência respiratória"
+                    placeholder="Frequência respiratória (irpm)"
                 >
 
+
+                <!-- SATURAÇÃO -->
+
+                <input
+                    id="triagemSaturacao"
+                    type="number"
+                    inputmode="numeric"
+                    min="0"
+                    max="100"
+                    placeholder="Saturação O₂ (%)"
+                >
+
+
+                <!-- TEMPERATURA -->
 
                 <input
                     id="triagemTemperatura"
                     inputmode="decimal"
-                    placeholder="Temperatura"
+                    placeholder="Temperatura (°C)"
                 >
 
+
+                <!-- GLICEMIA -->
 
                 <input
-                    id="triagemSaturacao"
+                    id="triagemGlicemia"
+                    type="number"
                     inputmode="numeric"
-                    placeholder="Saturação O₂ (%)"
+                    placeholder="Glicemia (mg/dL)"
                 >
 
+
+                <!-- PESO -->
 
                 <input
                     id="triagemPeso"
@@ -677,19 +728,25 @@
                 >
 
 
+                <!-- ALTURA -->
+
                 <input
                     id="triagemAltura"
                     inputmode="decimal"
-                    placeholder="Altura"
+                    placeholder="Altura (m ou cm)"
                 >
 
+
+                <!-- IMC -->
 
                 <input
-                    id="triagemGlicemia"
-                    inputmode="numeric"
-                    placeholder="Glicemia"
+                    id="triagemIMC"
+                    placeholder="IMC"
+                    readonly
                 >
 
+
+                <!-- DOR -->
 
                 <select id="triagemDor">
 
@@ -697,20 +754,36 @@
                         Escala de dor
                     </option>
 
-                    <option value="0">0</option>
+                    <option value="0">
+                        0 - Sem dor
+                    </option>
+
                     <option value="1">1</option>
+
                     <option value="2">2</option>
+
                     <option value="3">3</option>
+
                     <option value="4">4</option>
+
                     <option value="5">5</option>
+
                     <option value="6">6</option>
+
                     <option value="7">7</option>
+
                     <option value="8">8</option>
+
                     <option value="9">9</option>
-                    <option value="10">10</option>
+
+                    <option value="10">
+                        10 - Dor máxima
+                    </option>
 
                 </select>
 
+
+                <!-- QUEIXA -->
 
                 <textarea
                     id="triagemQueixa"
@@ -719,12 +792,31 @@
                 ></textarea>
 
 
+                <!-- ALERGIAS -->
+
+                <textarea
+                    id="triagemAlergias"
+                    class="campo-largo"
+                    placeholder="Alergias"
+                ></textarea>
+
+
+                <!-- MEDICAMENTOS -->
+
+                <textarea
+                    id="triagemMedicamentos"
+                    class="campo-largo"
+                    placeholder="Medicamentos em uso"
+                ></textarea>
+
+
+                <!-- OBSERVAÇÕES -->
+
                 <textarea
                     id="triagemObservacoes"
                     class="campo-largo"
                     placeholder="Observações da triagem"
                 ></textarea>
-
 
             </div>
 
@@ -734,7 +826,7 @@
                 id="btnRegistrarTriagem"
                 class="btn-principal"
             >
-                Registrar triagem
+                🩹 Registrar triagem
             </button>
 
 
@@ -742,8 +834,15 @@
 
 
             <h3>
-                Triagens
+                Triagens registradas
             </h3>
+
+
+            <input
+                id="pesquisaTriagem"
+                class="campo-pesquisa"
+                placeholder="🔎 Pesquisar triagem"
+            >
 
 
             <ul id="listaTriagens"></ul>
@@ -849,7 +948,6 @@
                     step="0.01"
                     placeholder="Valor da consulta"
                 >
-
 
             </div>
 
@@ -1046,7 +1144,6 @@
                 >
                     💰 Relatório financeiro
                 </button>
-
 
             </div>
 
