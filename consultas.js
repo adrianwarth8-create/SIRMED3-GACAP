@@ -1,5 +1,11 @@
 /*************************************************
-              CONSULTAS.JS - SIRMED V4.1
+          CONSULTAS.JS - SIRMED V4.7
+          INTEGRADO À TRIAGEM
+*************************************************/
+
+
+/*************************************************
+                    FIREBASE
 *************************************************/
 
 import {
@@ -15,13 +21,37 @@ import {
     serverTimestamp
 } from "./firebase.js";
 
+
+/*************************************************
+                    PACIENTES
+*************************************************/
+
 import {
     obterPacientes
 } from "./pacientes.js";
 
+
+/*************************************************
+                  PROFISSIONAIS
+*************************************************/
+
 import {
     obterProfissionais
 } from "./profissionais.js";
+
+
+/*************************************************
+                    TRIAGEM
+*************************************************/
+
+import {
+    ultimaTriagemPaciente
+} from "./triagem.js";
+
+
+/*************************************************
+                    UTILS
+*************************************************/
 
 import {
     mensagem,
@@ -66,42 +96,598 @@ export function totalConsultas() {
 
 
 /*************************************************
-                CARREGAR CONSULTAS
+              CARREGAR CONSULTAS
 *************************************************/
 
 export async function carregarConsultas() {
 
-    const snap =
-        await getDocs(
-            collection(
-                db,
-                "consultas"
-            )
+    try {
+
+        const snap =
+            await getDocs(
+                collection(
+                    db,
+                    "consultas"
+                )
+            );
+
+
+        consultas.length = 0;
+
+
+        snap.forEach(
+            (docSnap) => {
+
+                consultas.push({
+
+                    id:
+                        docSnap.id,
+
+                    ...docSnap.data()
+
+                });
+
+            }
         );
 
 
-    consultas.length = 0;
+        console.log(
+            "🩺 Consultas carregadas:",
+            consultas.length
+        );
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar consultas:",
+            erro
+        );
+
+    }
+
+}
 
 
-    snap.forEach(
-        (docSnap) => {
+/*************************************************
+        CRIAR PAINEL DA TRIAGEM NA CONSULTA
+*************************************************/
 
-            consultas.push({
+function criarPainelTriagemConsulta() {
 
-                id: docSnap.id,
+    let painel =
+        document.getElementById(
+            "painelTriagemConsulta"
+        );
 
-                ...docSnap.data()
 
-            });
+    if (painel) {
+
+        return painel;
+
+    }
+
+
+    const secao =
+        document.getElementById(
+            "secaoConsultas"
+        );
+
+
+    if (!secao) {
+
+        return null;
+
+    }
+
+
+    painel =
+        document.createElement(
+            "div"
+        );
+
+
+    painel.id =
+        "painelTriagemConsulta";
+
+
+    painel.style.display =
+        "none";
+
+
+    painel.style.margin =
+        "15px 0 25px";
+
+
+    painel.style.padding =
+        "18px";
+
+
+    painel.style.background =
+        "rgba(35, 48, 25, 0.95)";
+
+
+    painel.style.border =
+        "1px solid #b8953d";
+
+
+    painel.style.borderLeft =
+        "5px solid #b8953d";
+
+
+    painel.style.borderRadius =
+        "4px";
+
+
+    /*
+        Colocamos o painel antes
+        do formulário da consulta.
+    */
+
+    const formulario =
+        secao.querySelector(
+            ".grid-form"
+        );
+
+
+    if (formulario) {
+
+        secao.insertBefore(
+            painel,
+            formulario
+        );
+
+    }
+
+    else {
+
+        secao.appendChild(
+            painel
+        );
+
+    }
+
+
+    return painel;
+
+}
+
+
+/*************************************************
+          LIMPAR PAINEL DA TRIAGEM
+*************************************************/
+
+function limparPainelTriagem() {
+
+    const painel =
+        criarPainelTriagemConsulta();
+
+
+    if (!painel) {
+
+        return;
+
+    }
+
+
+    painel.innerHTML = "";
+
+    painel.style.display =
+        "none";
+
+}
+
+
+/*************************************************
+          MOSTRAR ÚLTIMA TRIAGEM
+*************************************************/
+
+export function mostrarTriagemPaciente(
+    preencherCampos = true
+) {
+
+    const pacienteSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    if (!pacienteSelect) {
+
+        return;
+
+    }
+
+
+    const pacienteId =
+        pacienteSelect.value;
+
+
+    const pacienteNome =
+        pacienteSelect
+            .selectedOptions[0]
+            ?.textContent
+            ?.trim()
+        || "";
+
+
+    /*************************************************
+                SEM PACIENTE
+    *************************************************/
+
+    if (!pacienteId) {
+
+        limparPainelTriagem();
+
+        return;
+
+    }
+
+
+    /*************************************************
+            BUSCAR ÚLTIMA TRIAGEM
+    *************************************************/
+
+    let triagem =
+        ultimaTriagemPaciente(
+            pacienteId
+        );
+
+
+    /*
+        Compatibilidade com triagens antigas
+        que possam ter sido salvas somente
+        com o nome do paciente.
+    */
+
+    if (!triagem) {
+
+        triagem =
+            ultimaTriagemPaciente(
+                pacienteNome
+            );
+
+    }
+
+
+    const painel =
+        criarPainelTriagemConsulta();
+
+
+    if (!painel) {
+
+        return;
+
+    }
+
+
+    /*************************************************
+                SEM TRIAGEM
+    *************************************************/
+
+    if (!triagem) {
+
+        painel.style.display =
+            "block";
+
+
+        painel.innerHTML = `
+
+            <h3 style="
+                margin-top:0;
+                color:#d7b85c;
+            ">
+                🩹 Última Triagem
+            </h3>
+
+            <p>
+                Nenhuma triagem encontrada
+                para este paciente.
+            </p>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    /*************************************************
+                EXIBIR TRIAGEM
+    *************************************************/
+
+    painel.style.display =
+        "block";
+
+
+    painel.innerHTML = `
+
+        <h3 style="
+            margin-top:0;
+            color:#d7b85c;
+        ">
+            🩹 Última Triagem do Paciente
+        </h3>
+
+
+        <div style="
+            display:grid;
+            grid-template-columns:
+                repeat(auto-fit,minmax(150px,1fr));
+            gap:10px;
+            margin-bottom:15px;
+        ">
+
+            <div>
+                <strong>📅 Data</strong><br>
+                ${escaparHTML(
+                    formatarDataTriagem(
+                        triagem.data
+                    )
+                )}
+            </div>
+
+            <div>
+                <strong>🕐 Hora</strong><br>
+                ${escaparHTML(
+                    triagem.hora || "-"
+                )}
+            </div>
+
+            <div>
+                <strong>🩸 PA</strong><br>
+                ${escaparHTML(
+                    triagem.pa || "-"
+                )}
+            </div>
+
+            <div>
+                <strong>❤️ FC</strong><br>
+                ${escaparHTML(
+                    triagem.fc ?? "-"
+                )} bpm
+            </div>
+
+            <div>
+                <strong>🫁 FR</strong><br>
+                ${escaparHTML(
+                    triagem.fr ?? "-"
+                )} irpm
+            </div>
+
+            <div>
+                <strong>🫁 SpO₂</strong><br>
+                ${escaparHTML(
+                    triagem.saturacao ?? "-"
+                )} %
+            </div>
+
+            <div>
+                <strong>🌡️ Temperatura</strong><br>
+                ${escaparHTML(
+                    triagem.temperatura ?? "-"
+                )} °C
+            </div>
+
+            <div>
+                <strong>🩸 Glicemia</strong><br>
+                ${escaparHTML(
+                    triagem.glicemia ?? "-"
+                )} mg/dL
+            </div>
+
+            <div>
+                <strong>⚖️ Peso</strong><br>
+                ${escaparHTML(
+                    triagem.peso ?? "-"
+                )} kg
+            </div>
+
+            <div>
+                <strong>📏 Altura</strong><br>
+                ${escaparHTML(
+                    triagem.altura ?? "-"
+                )}
+            </div>
+
+            <div>
+                <strong>📊 IMC</strong><br>
+                ${escaparHTML(
+                    triagem.imc ?? "-"
+                )}
+            </div>
+
+            <div>
+                <strong>😣 Dor</strong><br>
+                ${escaparHTML(
+                    triagem.dor ?? "-"
+                )}/10
+            </div>
+
+        </div>
+
+
+        <hr style="
+            border:0;
+            border-top:1px solid #56633a;
+            margin:15px 0;
+        ">
+
+
+        <p>
+            <strong>
+                🩺 Queixa principal:
+            </strong>
+            <br>
+            ${escaparHTML(
+                triagem.queixa || "-"
+            )}
+        </p>
+
+
+        <p>
+            <strong>
+                ⚠️ Alergias:
+            </strong>
+            <br>
+            ${escaparHTML(
+                triagem.alergias || "-"
+            )}
+        </p>
+
+
+        <p>
+            <strong>
+                💊 Medicamentos em uso:
+            </strong>
+            <br>
+            ${escaparHTML(
+                triagem.medicamentos || "-"
+            )}
+        </p>
+
+
+        <p>
+            <strong>
+                📝 Observações:
+            </strong>
+            <br>
+            ${escaparHTML(
+                triagem.observacoes || "-"
+            )}
+        </p>
+
+    `;
+
+
+    /*************************************************
+        PREENCHER CAMPOS DA CONSULTA
+    *************************************************/
+
+    if (
+        preencherCampos
+    ) {
+
+        /*
+            PA
+        */
+
+        definirValor(
+            "consultaPA",
+            triagem.pa || ""
+        );
+
+
+        /*
+            FC
+        */
+
+        definirValor(
+            "consultaFC",
+            triagem.fc ?? ""
+        );
+
+
+        /*
+            TEMPERATURA
+        */
+
+        definirValor(
+            "consultaTemperatura",
+            triagem.temperatura ?? ""
+        );
+
+
+        /*
+            QUEIXA
+
+            Só preenche caso o médico
+            ainda não tenha digitado algo.
+        */
+
+        const campoQueixa =
+            document.getElementById(
+                "consultaQueixa"
+            );
+
+
+        if (
+            campoQueixa
+            &&
+            !campoQueixa.value.trim()
+        ) {
+
+            campoQueixa.value =
+                triagem.queixa || "";
 
         }
+
+    }
+
+
+    console.log(
+        "🩹 Triagem carregada para consulta:",
+        triagem
     );
 
 }
 
 
 /*************************************************
-                REGISTRAR CONSULTA
+          FORMATAR DATA DA TRIAGEM
+*************************************************/
+
+function formatarDataTriagem(
+    data
+) {
+
+    if (!data) {
+
+        return "-";
+
+    }
+
+
+    const texto =
+        String(
+            data
+        );
+
+
+    const partes =
+        texto.split(
+            "-"
+        );
+
+
+    if (
+        partes.length === 3
+    ) {
+
+        return (
+            partes[2]
+            +
+            "/"
+            +
+            partes[1]
+            +
+            "/"
+            +
+            partes[0]
+        );
+
+    }
+
+
+    return texto;
+
+}
+
+
+/*************************************************
+              REGISTRAR CONSULTA
 *************************************************/
 
 export async function registrarConsulta() {
@@ -143,95 +729,61 @@ export async function registrarConsulta() {
 
 
     const queixa =
-        document
-            .getElementById(
-                "consultaQueixa"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaQueixa"
+        );
 
 
     const pa =
-        document
-            .getElementById(
-                "consultaPA"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaPA"
+        );
 
 
     const fc =
-        document
-            .getElementById(
-                "consultaFC"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaFC"
+        );
 
 
     const temperatura =
-        document
-            .getElementById(
-                "consultaTemperatura"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaTemperatura"
+        );
 
 
     const diagnostico =
-        document
-            .getElementById(
-                "consultaDiagnostico"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaDiagnostico"
+        );
 
 
     const exameFisico =
-        document
-            .getElementById(
-                "consultaExameFisico"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaExameFisico"
+        );
 
 
     const prescricao =
-        document
-            .getElementById(
-                "consultaPrescricao"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaPrescricao"
+        );
 
 
     const observacoes =
-        document
-            .getElementById(
-                "consultaObservacoes"
-            )
-            ?.value
-            .trim()
-        || "";
+        obterValor(
+            "consultaObservacoes"
+        );
 
 
     const valor =
         Number(
-
             document
                 .getElementById(
                     "consultaValor"
                 )
                 ?.value
             || 0
-
         );
 
 
@@ -240,7 +792,8 @@ export async function registrarConsulta() {
     *************************************************/
 
     if (
-        !pacienteId ||
+        !pacienteId
+        ||
         !profissionalId
     ) {
 
@@ -272,13 +825,19 @@ export async function registrarConsulta() {
                 profissional,
 
                 queixa,
+
                 pa,
+
                 fc,
+
                 temperatura,
 
                 diagnostico,
+
                 exameFisico,
+
                 prescricao,
+
                 observacoes,
 
                 valor
@@ -313,6 +872,26 @@ export async function registrarConsulta() {
 
 
             /*************************************************
+                CAPTURAR TRIAGEM UTILIZADA
+            *************************************************/
+
+            let triagem =
+                ultimaTriagemPaciente(
+                    pacienteId
+                );
+
+
+            if (!triagem) {
+
+                triagem =
+                    ultimaTriagemPaciente(
+                        paciente
+                    );
+
+            }
+
+
+            /*************************************************
                 CRIAR CONSULTA PRINCIPAL
             *************************************************/
 
@@ -327,9 +906,11 @@ export async function registrarConsulta() {
                     {
 
                         pacienteId,
+
                         paciente,
 
                         profissionalId,
+
                         profissional,
 
                         queixa,
@@ -351,6 +932,16 @@ export async function registrarConsulta() {
                         valor,
 
                         data,
+
+
+                        /*
+                            Guarda referência da
+                            triagem utilizada.
+                        */
+
+                        triagemId:
+                            triagem?.id || "",
+
 
                         criadoEm:
                             serverTimestamp()
@@ -378,6 +969,9 @@ export async function registrarConsulta() {
                 {
 
                     consultaId,
+
+                    triagemId:
+                        triagem?.id || "",
 
                     pacienteId,
 
@@ -455,12 +1049,12 @@ export async function registrarConsulta() {
         }
 
 
+        /*************************************************
+                LIMPAR E ATUALIZAR
+        *************************************************/
+
         limparFormularioConsulta();
 
-
-        /*************************************************
-                ATUALIZAR TODO O SISTEMA
-        *************************************************/
 
         document.dispatchEvent(
 
@@ -470,7 +1064,9 @@ export async function registrarConsulta() {
 
         );
 
-    } catch (erro) {
+    }
+
+    catch (erro) {
 
         console.error(
             "Erro ao registrar consulta:",
@@ -518,7 +1114,7 @@ export function editarConsulta(
 
 
     /*************************************************
-                    SELECT PACIENTE
+                SELECT PACIENTE
     *************************************************/
 
     const pacienteSelect =
@@ -538,7 +1134,9 @@ export function editarConsulta(
             pacienteSelect.value =
                 consulta.pacienteId;
 
-        } else {
+        }
+
+        else {
 
             const option =
                 [
@@ -564,7 +1162,22 @@ export function editarConsulta(
 
 
     /*************************************************
-                SELECT PROFISSIONAL
+              MOSTRAR TRIAGEM
+    *************************************************/
+
+    /*
+        Mostra a triagem,
+        mas NÃO sobrescreve os dados
+        da consulta já registrada.
+    */
+
+    mostrarTriagemPaciente(
+        false
+    );
+
+
+    /*************************************************
+              SELECT PROFISSIONAL
     *************************************************/
 
     const profissionalSelect =
@@ -584,7 +1197,9 @@ export function editarConsulta(
             profissionalSelect.value =
                 consulta.profissionalId;
 
-        } else {
+        }
+
+        else {
 
             const option =
                 [
@@ -687,7 +1302,7 @@ export function editarConsulta(
 
 
 /*************************************************
-                ATUALIZAR CONSULTA
+              ATUALIZAR CONSULTA
 *************************************************/
 
 async function atualizarConsulta(
@@ -917,7 +1532,7 @@ export async function excluirConsulta(
     try {
 
         /*************************************************
-                EXCLUIR PRONTUÁRIO VINCULADO
+            EXCLUIR PRONTUÁRIO VINCULADO
         *************************************************/
 
         const prontuarioQuery =
@@ -962,7 +1577,7 @@ export async function excluirConsulta(
 
 
         /*************************************************
-                EXCLUIR FINANCEIRO VINCULADO
+            EXCLUIR FINANCEIRO VINCULADO
         *************************************************/
 
         const financeiroQuery =
@@ -1007,7 +1622,7 @@ export async function excluirConsulta(
 
 
         /*************************************************
-                    EXCLUIR CONSULTA
+                EXCLUIR CONSULTA
         *************************************************/
 
         await deleteDoc(
@@ -1044,7 +1659,9 @@ export async function excluirConsulta(
 
         );
 
-    } catch (erro) {
+    }
+
+    catch (erro) {
 
         console.error(
             "Erro ao excluir consulta:",
@@ -1108,11 +1725,8 @@ export function renderConsultas() {
                 <li class="item-registro">
 
                     <strong>
-
                         🏥 Consulta
-
                     </strong>
-
 
                     <span>
 
@@ -1228,7 +1842,7 @@ export function renderConsultas() {
 
 
 /*************************************************
-            LIGAR BOTÕES CONSULTAS
+          LIGAR BOTÕES CONSULTAS
 *************************************************/
 
 function ligarBotoesConsultas() {
@@ -1282,7 +1896,7 @@ function ligarBotoesConsultas() {
 
 
 /*************************************************
-                FILTRAR CONSULTAS
+              FILTRAR CONSULTAS
 *************************************************/
 
 export function filtrarConsultas() {
@@ -1308,16 +1922,15 @@ export function filtrarConsultas() {
 
                 li.style.display =
 
-                    li
-                        .textContent
+                    li.textContent
                         .toLowerCase()
                         .includes(
                             filtro
                         )
 
-                    ? ""
+                        ? ""
 
-                    : "none";
+                        : "none";
 
             }
         );
@@ -1326,7 +1939,7 @@ export function filtrarConsultas() {
 
 
 /*************************************************
-            PREENCHER SELECTS CONSULTA
+          PREENCHER SELECTS CONSULTA
 *************************************************/
 
 export function preencherSelectsConsulta() {
@@ -1406,11 +2019,44 @@ export function preencherSelectsConsulta() {
 
         }
 
+
+        /*************************************************
+              EVENTO SELECIONAR PACIENTE
+        *************************************************/
+
+        if (
+            pacienteSelect.dataset
+                .triagemConfigurada
+            !== "true"
+        ) {
+
+            pacienteSelect
+                .addEventListener(
+
+                    "change",
+
+                    () => {
+
+                        mostrarTriagemPaciente(
+                            true
+                        );
+
+                    }
+
+                );
+
+
+            pacienteSelect.dataset
+                .triagemConfigurada =
+                "true";
+
+        }
+
     }
 
 
     /*************************************************
-                    PROFISSIONAIS
+                  PROFISSIONAIS
     *************************************************/
 
     if (
@@ -1478,7 +2124,7 @@ export function preencherSelectsConsulta() {
 
 
 /*************************************************
-            LIMPAR FORMULÁRIO CONSULTA
+          LIMPAR FORMULÁRIO CONSULTA
 *************************************************/
 
 function limparFormularioConsulta() {
@@ -1534,6 +2180,9 @@ function limparFormularioConsulta() {
     }
 
 
+    limparPainelTriagem();
+
+
     consultaEmEdicao =
         null;
 
@@ -1541,6 +2190,25 @@ function limparFormularioConsulta() {
     atualizarBotaoConsulta(
         false
     );
+
+}
+
+
+/*************************************************
+                OBTER VALOR
+*************************************************/
+
+function obterValor(
+    id
+) {
+
+    return document
+        .getElementById(
+            id
+        )
+        ?.value
+        ?.trim()
+        || "";
 
 }
 
@@ -1571,7 +2239,7 @@ function definirValor(
 
 
 /*************************************************
-            ALTERAR TEXTO DO BOTÃO
+          ALTERAR TEXTO DO BOTÃO
 *************************************************/
 
 function atualizarBotaoConsulta(
@@ -1595,11 +2263,19 @@ function atualizarBotaoConsulta(
 
         editando
 
-        ? "💾 Salvar alterações"
+            ? "💾 Salvar alterações"
 
-        : "Registrar consulta";
+            : "Registrar consulta";
 
 }
+
+
+/*************************************************
+              EXPORTAÇÃO GLOBAL
+*************************************************/
+
+window.mostrarTriagemPaciente =
+    mostrarTriagemPaciente;
 
 
 /*************************************************
@@ -1607,5 +2283,5 @@ function atualizarBotaoConsulta(
 *************************************************/
 
 console.log(
-    "✅ consultas.js V4.1 carregado"
+    "✅ consultas.js V4.7 + Triagem carregado"
 );
