@@ -228,6 +228,11 @@ function criarPainelTriagemConsulta() {
         "4px";
 
 
+    /*
+        Colocamos o painel antes
+        do formulário da consulta.
+    */
+
     const formulario =
         secao.querySelector(
             ".grid-form"
@@ -315,6 +320,10 @@ export function mostrarTriagemPaciente(
         || "";
 
 
+    /*************************************************
+                SEM PACIENTE
+    *************************************************/
+
     if (!pacienteId) {
 
         limparPainelTriagem();
@@ -324,11 +333,21 @@ export function mostrarTriagemPaciente(
     }
 
 
+    /*************************************************
+            BUSCAR ÚLTIMA TRIAGEM
+    *************************************************/
+
     let triagem =
         ultimaTriagemPaciente(
             pacienteId
         );
 
+
+    /*
+        Compatibilidade com triagens antigas
+        que possam ter sido salvas somente
+        com o nome do paciente.
+    */
 
     if (!triagem) {
 
@@ -350,6 +369,10 @@ export function mostrarTriagemPaciente(
 
     }
 
+
+    /*************************************************
+                SEM TRIAGEM
+    *************************************************/
 
     if (!triagem) {
 
@@ -378,6 +401,10 @@ export function mostrarTriagemPaciente(
 
     }
 
+
+    /*************************************************
+                EXIBIR TRIAGEM
+    *************************************************/
 
     painel.style.display =
         "block";
@@ -543,103 +570,81 @@ export function mostrarTriagemPaciente(
     `;
 
 
+    /*************************************************
+        PREENCHER CAMPOS DA CONSULTA
+    *************************************************/
+
     if (
         preencherCampos
     ) {
 
-        preencherConsultaComTriagem(
-            triagem
+        /*
+            PA
+        */
+
+        definirValor(
+            "consultaPA",
+            triagem.pa || ""
         );
 
+
+        /*
+            FC
+        */
+
+        definirValor(
+            "consultaFC",
+            triagem.fc ?? ""
+        );
+
+
+        /*
+            TEMPERATURA
+        */
+
+        definirValor(
+            "consultaTemperatura",
+            triagem.temperatura ?? ""
+        );
+
+
+        /*
+            QUEIXA
+
+            Só preenche caso o médico
+            ainda não tenha digitado algo.
+        */
+
+        const campoQueixa =
+            document.getElementById(
+                "consultaQueixa"
+            );
+
+
+        if (
+            campoQueixa
+            &&
+            !campoQueixa.value.trim()
+        ) {
+
+            campoQueixa.value =
+                triagem.queixa || "";
+
+        }
+
     }
+
+
+    console.log(
+        "🩹 Triagem carregada para consulta:",
+        triagem
+    );
 
 }
 
 
 /*************************************************
-        PREENCHER CONSULTA COM TRIAGEM
-*************************************************/
-
-function preencherConsultaComTriagem(
-    triagem
-) {
-
-    const campoQueixa =
-        document.getElementById(
-            "consultaQueixa"
-        );
-
-
-    const campoPA =
-        document.getElementById(
-            "consultaPA"
-        );
-
-
-    const campoFC =
-        document.getElementById(
-            "consultaFC"
-        );
-
-
-    const campoTemperatura =
-        document.getElementById(
-            "consultaTemperatura"
-        );
-
-
-    if (
-        campoQueixa
-        &&
-        !campoQueixa.value
-    ) {
-
-        campoQueixa.value =
-            triagem.queixa || "";
-
-    }
-
-
-    if (
-        campoPA
-        &&
-        !campoPA.value
-    ) {
-
-        campoPA.value =
-            triagem.pa || "";
-
-    }
-
-
-    if (
-        campoFC
-        &&
-        !campoFC.value
-    ) {
-
-        campoFC.value =
-            triagem.fc || "";
-
-    }
-
-
-    if (
-        campoTemperatura
-        &&
-        !campoTemperatura.value
-    ) {
-
-        campoTemperatura.value =
-            triagem.temperatura || "";
-
-    }
-
-}
-
-
-/*************************************************
-            FORMATAR DATA TRIAGEM
+          FORMATAR DATA DA TRIAGEM
 *************************************************/
 
 function formatarDataTriagem(
@@ -653,223 +658,123 @@ function formatarDataTriagem(
     }
 
 
-    if (
-        typeof data === "string"
-        &&
-        /^\d{4}-\d{2}-\d{2}$/.test(
+    const texto =
+        String(
             data
-        )
+        );
+
+
+    const partes =
+        texto.split(
+            "-"
+        );
+
+
+    if (
+        partes.length === 3
     ) {
 
-        const [
-            ano,
-            mes,
-            dia
-        ] =
-            data.split("-");
-
-
-        return `${dia}/${mes}/${ano}`;
+        return (
+            partes[2]
+            +
+            "/"
+            +
+            partes[1]
+            +
+            "/"
+            +
+            partes[0]
+        );
 
     }
 
 
-    return String(
-        data
-    );
+    return texto;
 
 }
 
 
 /*************************************************
-        CONFIGURAR SELECT DE PACIENTE
+        DISPENSAÇÃO - FUNÇÕES AUXILIARES
 *************************************************/
 
-function configurarPacienteConsulta() {
-
-    const select =
-        document.getElementById(
-            "consultaPaciente"
-        );
-
-
-    if (
-        !select
-        ||
-        select.dataset.triagemConfigurada
-            === "true"
-    ) {
-
-        return;
-
-    }
-
-
-    select.addEventListener(
-        "change",
-        () => {
-
-            mostrarTriagemPaciente(
-                true
-            );
-
-        }
-    );
-
-
-    select.dataset.triagemConfigurada =
-        "true";
-
-}
-
-
-/*************************************************
-        PREENCHER SELECTS DA CONSULTA
-*************************************************/
-
-export function preencherSelectsConsulta() {
-
-    const pacienteSelect =
-        document.getElementById(
-            "consultaPaciente"
-        );
-
-
-    const profissionalSelect =
-        document.getElementById(
-            "consultaProfissional"
-        );
-
-
-    if (
-        !pacienteSelect
-        ||
-        !profissionalSelect
-    ) {
-
-        return;
-
-    }
-
-
-    const pacienteSelecionado =
-        pacienteSelect.value;
-
-
-    const profissionalSelecionado =
-        profissionalSelect.value;
-
-
-    pacienteSelect.innerHTML =
-        `
-            <option value="">
-                Selecione o paciente
-            </option>
-        `;
-
-
-    profissionalSelect.innerHTML =
-        `
-            <option value="">
-                Selecione o profissional
-            </option>
-        `;
-
-
-    obterPacientes()
-        .forEach(
-            (paciente) => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    paciente.id;
-
-
-                option.textContent =
-                    paciente.nome;
-
-
-                pacienteSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    obterProfissionais()
-        .forEach(
-            (profissional) => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    profissional.id;
-
-
-                option.textContent =
-                    profissional.nome;
-
-
-                profissionalSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    if (
-        pacienteSelecionado
-    ) {
-
-        pacienteSelect.value =
-            pacienteSelecionado;
-
-    }
-
-
-    if (
-        profissionalSelecionado
-    ) {
-
-        profissionalSelect.value =
-            profissionalSelecionado;
-
-    }
-
-
-    configurarPacienteConsulta();
-
-}
-
-
-/*************************************************
-            OBTER VALOR DE CAMPO
-*************************************************/
-
-function obterValor(
-    id
-) {
-
-    return (
-        document
-            .getElementById(
-                id
+function obterMedicamentoDispensacaoFormulario() {
+
+    return {
+
+        medicamento:
+            obterValor(
+                "dispensacaoMedicamento"
+            ),
+
+        quantidade:
+            Number(
+                document
+                    .getElementById(
+                        "dispensacaoQuantidade"
+                    )
+                    ?.value
+                || 0
+            ),
+
+        unidade:
+            obterValor(
+                "dispensacaoUnidade"
+            ),
+
+        posologia:
+            obterValor(
+                "dispensacaoPosologia"
+            ),
+
+        observacao:
+            obterValor(
+                "dispensacaoObservacao"
             )
-            ?.value
-            ?.trim()
-        || ""
-    );
+
+    };
+
+}
+
+
+/*************************************************
+        ADICIONAR MEDICAMENTO À LISTA
+*************************************************/
+
+function adicionarMedicamentoDispensacao() {
+
+    const item =
+        obterMedicamentoDispensacaoFormulario();
+
+
+    if (
+        !item.medicamento
+        ||
+        item.quantidade <= 0
+    ) {
+
+        mensagem(
+            "Informe o medicamento e uma quantidade válida para dispensação."
+        );
+
+        return;
+
+    }
+
+
+    medicamentosDispensacao.push({
+
+        ...item,
+
+        status:
+            "pendente"
+
+    });
+
+
+    limparCamposDispensacao();
+
+    renderMedicamentosDispensacao();
 
 }
 
@@ -880,7 +785,7 @@ function obterValor(
 
 function limparCamposDispensacao() {
 
-    const ids = [
+    limparCampos([
 
         "dispensacaoMedicamento",
 
@@ -892,32 +797,13 @@ function limparCamposDispensacao() {
 
         "dispensacaoObservacao"
 
-    ];
-
-
-    ids.forEach(
-        (id) => {
-
-            const campo =
-                document.getElementById(
-                    id
-                );
-
-
-            if (campo) {
-
-                campo.value = "";
-
-            }
-
-        }
-    );
+    ]);
 
 }
 
 
 /*************************************************
-      RENDERIZAR MEDICAMENTOS DISPENSAÇÃO
+        RENDER MEDICAMENTOS DA DISPENSAÇÃO
 *************************************************/
 
 function renderMedicamentosDispensacao() {
@@ -935,9 +821,6 @@ function renderMedicamentosDispensacao() {
     }
 
 
-    lista.innerHTML = "";
-
-
     if (
         medicamentosDispensacao.length === 0
     ) {
@@ -950,140 +833,110 @@ function renderMedicamentosDispensacao() {
 
         `;
 
-
         return;
 
     }
 
 
-    medicamentosDispensacao.forEach(
-        (
-            item,
-            indice
-        ) => {
+    lista.innerHTML =
+        medicamentosDispensacao
+            .map(
+                (item, indice) => {
 
-            const li =
-                document.createElement(
-                    "li"
-                );
+                    const status =
+                        item.status || "pendente";
 
 
-            li.className =
-                "item-lista";
+                    const bloqueado =
+                        status !== "pendente";
 
 
-            const status =
-                String(
-                    item.status || "pendente"
-                )
-                .toLowerCase();
+                    const statusTexto =
+                        status === "dispensada"
+
+                            ? "✅ Dispensada"
+
+                            : status === "parcial"
+
+                                ? "🟡 Parcialmente dispensada"
+
+                                : "⏳ Pendente";
 
 
-            const bloqueado =
-                status !== "pendente";
+                    return `
 
+                        <li class="item-registro">
 
-            li.innerHTML = `
+                            <strong>
+                                💊 ${escaparHTML(
+                                    item.medicamento || "-"
+                                )}
+                            </strong>
 
-                <div class="item-lista-conteudo">
-
-                    <strong>
-                        💊 ${escaparHTML(
-                            item.medicamento
-                        )}
-                    </strong>
-
-                    <span>
-                        Quantidade:
-                        ${escaparHTML(
-                            item.quantidade
-                        )}
-                        ${escaparHTML(
-                            item.unidade || ""
-                        )}
-                    </span>
-
-                    ${
-                        item.posologia
-                        ? `
                             <span>
-                                Posologia:
+                                <b>Quantidade:</b>
                                 ${escaparHTML(
-                                    item.posologia
+                                    item.quantidade ?? "-"
+                                )}
+                                ${escaparHTML(
+                                    item.unidade || ""
                                 )}
                             </span>
-                        `
-                        : ""
-                    }
 
-                    ${
-                        item.observacao
-                        ? `
                             <span>
-                                Observação:
+                                <b>Posologia:</b>
                                 ${escaparHTML(
-                                    item.observacao
+                                    item.posologia || "-"
                                 )}
                             </span>
-                        `
-                        : ""
-                    }
 
-                    ${
-                        bloqueado
-                        ? `
                             <span>
-                                Status:
+                                <b>Observação:</b>
                                 ${escaparHTML(
-                                    status
+                                    item.observacao || "-"
                                 )}
                             </span>
-                        `
-                        : ""
-                    }
 
-                </div>
-
-
-                <div class="acoes-lista">
-
-                    ${
-                        bloqueado
-                        ? `
-                            <button
-                                type="button"
-                                disabled
-                            >
-                                🔒 Já processado
-                            </button>
-                        `
-                        : `
-                            <button
-                                type="button"
-                                class="btn-excluir btn-remover-medicamento"
-                                data-indice="${indice}"
-                            >
-                                🗑️ Remover
-                            </button>
-                        `
-                    }
-
-                </div>
-
-            `;
+                            <span>
+                                <b>Status:</b>
+                                ${statusTexto}
+                            </span>
 
 
-            lista.appendChild(
-                li
-            );
+                            ${
+                                bloqueado
 
-        }
-    );
+                                    ? ""
+
+                                    : `
+
+                                        <div class="acoes-registro">
+
+                                            <button
+                                                type="button"
+                                                class="btn-excluir"
+                                                data-remover-dispensacao="${indice}"
+                                            >
+                                                🗑️ Remover
+                                            </button>
+
+                                        </div>
+
+                                      `
+                            }
+
+                        </li>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 
     lista
         .querySelectorAll(
-            ".btn-remover-medicamento"
+            "[data-remover-dispensacao]"
         )
         .forEach(
             (botao) => {
@@ -1094,17 +947,14 @@ function renderMedicamentosDispensacao() {
 
                         const indice =
                             Number(
-                                botao.dataset.indice
+                                botao.dataset
+                                    .removerDispensacao
                             );
 
 
-                        medicamentosDispensacao.splice(
-                            indice,
-                            1
+                        removerMedicamentoDispensacao(
+                            indice
                         );
-
-
-                        renderMedicamentosDispensacao();
 
                     }
                 );
@@ -1116,51 +966,20 @@ function renderMedicamentosDispensacao() {
 
 
 /*************************************************
-          ADICIONAR MEDICAMENTO
+        REMOVER MEDICAMENTO DA LISTA
 *************************************************/
 
-function adicionarMedicamentoDispensacao() {
+function removerMedicamentoDispensacao(
+    indice
+) {
 
-    const medicamento =
-        obterValor(
-            "dispensacaoMedicamento"
-        );
-
-
-    const quantidade =
-        Number(
-            document
-                .getElementById(
-                    "dispensacaoQuantidade"
-                )
-                ?.value
-            || 0
-        );
+    const item =
+        medicamentosDispensacao[
+            indice
+        ];
 
 
-    const unidade =
-        obterValor(
-            "dispensacaoUnidade"
-        );
-
-
-    const posologia =
-        obterValor(
-            "dispensacaoPosologia"
-        );
-
-
-    const observacao =
-        obterValor(
-            "dispensacaoObservacao"
-        );
-
-
-    if (!medicamento) {
-
-        mensagem(
-            "Informe o medicamento para dispensação."
-        );
+    if (!item) {
 
         return;
 
@@ -1168,15 +987,13 @@ function adicionarMedicamentoDispensacao() {
 
 
     if (
-        !Number.isFinite(
-            quantidade
-        )
-        ||
-        quantidade <= 0
+        item.status
+        &&
+        item.status !== "pendente"
     ) {
 
         mensagem(
-            "Informe uma quantidade válida para dispensação."
+            "Este medicamento já foi processado pela farmácia e não pode ser removido."
         );
 
         return;
@@ -1184,55 +1001,63 @@ function adicionarMedicamentoDispensacao() {
     }
 
 
-    medicamentosDispensacao.push({
-
-        id: null,
-
-        medicamento,
-
-        quantidade,
-
-        unidade,
-
-        posologia,
-
-        observacao,
-
-        status:
-            "pendente"
-
-    });
-
-
-    limparCamposDispensacao();
+    medicamentosDispensacao.splice(
+        indice,
+        1
+    );
 
 
     renderMedicamentosDispensacao();
-
-
-    mensagem(
-        "Medicamento adicionado à dispensação."
-    );
 
 }
 
 
 /*************************************************
-        SALVAR PRESCRIÇÕES DA FARMÁCIA
+        CONFIGURAR ÁREA DE DISPENSAÇÃO
+*************************************************/
+
+function configurarDispensacaoConsulta() {
+
+    const botao =
+        document.getElementById(
+            "btnAdicionarMedicamento"
+        );
+
+
+    if (
+        botao
+        &&
+        botao.dataset.configurado
+            !== "true"
+    ) {
+
+        botao.addEventListener(
+            "click",
+            adicionarMedicamentoDispensacao
+        );
+
+
+        botao.dataset.configurado =
+            "true";
+
+    }
+
+
+    renderMedicamentosDispensacao();
+
+}
+/*************************************************
+        SALVAR PRESCRIÇÕES NA FARMÁCIA
 *************************************************/
 
 async function salvarPrescricoesFarmacia(
     consultaId,
-    {
-        pacienteId,
-        paciente,
-        profissionalId,
-        profissional,
-        data
-    }
+    dadosConsulta
 ) {
 
     if (
+        !consultaId
+        ||
         medicamentosDispensacao.length === 0
     ) {
 
@@ -1257,18 +1082,20 @@ async function salvarPrescricoesFarmacia(
 
                 consultaId,
 
-                pacienteId,
+                pacienteId:
+                    dadosConsulta.pacienteId || "",
 
                 pacienteNome:
-                    paciente,
+                    dadosConsulta.paciente || "",
 
-                profissionalId,
+                profissionalId:
+                    dadosConsulta.profissionalId || "",
 
                 profissionalNome:
-                    profissional,
+                    dadosConsulta.profissional || "",
 
                 medicamento:
-                    item.medicamento,
+                    item.medicamento || "",
 
                 quantidadePrescrita:
                     Number(
@@ -1287,16 +1114,37 @@ async function salvarPrescricoesFarmacia(
                 status:
                     "pendente",
 
+                produtoSisfarId:
+                    "",
+
+                produtoSisfarNome:
+                    "",
+
+                loteSisfarId:
+                    "",
+
+                loteSisfar:
+                    "",
+
+                quantidadeDispensada:
+                    0,
+
                 dataConsulta:
-                    data || "",
+                    dadosConsulta.data || "",
 
                 criadoEm:
+                    serverTimestamp(),
+
+                atualizadoEm:
                     serverTimestamp(),
 
                 dispensadoEm:
                     null,
 
-                dispensadoPor:
+                dispensadoPorUid:
+                    "",
+
+                dispensadoPorNome:
                     ""
 
             }
@@ -1309,14 +1157,25 @@ async function salvarPrescricoesFarmacia(
 
 
 /*************************************************
-        CARREGAR DISPENSAÇÃO DA CONSULTA
+        CARREGAR PRESCRIÇÕES DA CONSULTA
 *************************************************/
 
-async function carregarDispensacaoConsulta(
+async function carregarPrescricoesFarmacia(
     consultaId
 ) {
 
     medicamentosDispensacao = [];
+
+
+    if (
+        !consultaId
+    ) {
+
+        renderMedicamentosDispensacao();
+
+        return;
+
+    }
 
 
     try {
@@ -1402,14 +1261,25 @@ async function carregarDispensacaoConsulta(
     }
 
 }
+
+
 /*************************************************
         SINCRONIZAR PRESCRIÇÕES NA EDIÇÃO
 *************************************************/
 
 async function sincronizarPrescricoesFarmacia(
     consultaId,
-    dados
+    dadosConsulta
 ) {
+
+    if (
+        !consultaId
+    ) {
+
+        return;
+
+    }
+
 
     const consultaPrescricoes =
         query(
@@ -1434,25 +1304,38 @@ async function sincronizarPrescricoesFarmacia(
         );
 
 
-    const existentes =
-        new Map();
+    const documentosExistentes =
+        snap.docs.map(
+            (documento) => ({
 
+                id:
+                    documento.id,
 
-    for (
-        const documento
-        of snap.docs
-    ) {
+                ...documento.data()
 
-        existentes.set(
-            documento.id,
-            documento.data()
+            })
         );
 
 
+    /*************************************************
+        APAGAR SOMENTE ITENS AINDA PENDENTES
+    *************************************************/
+
+    for (
+        const itemExistente
+        of documentosExistentes
+    ) {
+
+        const status =
+            String(
+                itemExistente.status
+                || "pendente"
+            )
+            .toLowerCase();
+
+
         if (
-            (documento.data().status || "pendente")
-            ===
-            "pendente"
+            status === "pendente"
         ) {
 
             await deleteDoc(
@@ -1460,7 +1343,7 @@ async function sincronizarPrescricoesFarmacia(
                 doc(
                     db,
                     "prescricoesFarmacia",
-                    documento.id
+                    itemExistente.id
                 )
 
             );
@@ -1470,25 +1353,30 @@ async function sincronizarPrescricoesFarmacia(
     }
 
 
+    /*************************************************
+        RECRIAR SOMENTE ITENS PENDENTES ATUAIS
+    *************************************************/
+
     for (
         const item
         of medicamentosDispensacao
     ) {
 
-        const existente =
-            item.id
-                ? existentes.get(
-                    item.id
-                )
-                : null;
+        const status =
+            String(
+                item.status || "pendente"
+            )
+            .toLowerCase();
 
+
+        /*
+            Itens já dispensados ou parcialmente
+            dispensados permanecem no banco e
+            não são recriados.
+        */
 
         if (
-            existente
-            &&
-            (existente.status || "pendente")
-            !==
-            "pendente"
+            status !== "pendente"
         ) {
 
             continue;
@@ -1508,19 +1396,19 @@ async function sincronizarPrescricoesFarmacia(
                 consultaId,
 
                 pacienteId:
-                    dados.pacienteId,
+                    dadosConsulta.pacienteId || "",
 
                 pacienteNome:
-                    dados.paciente,
+                    dadosConsulta.paciente || "",
 
                 profissionalId:
-                    dados.profissionalId,
+                    dadosConsulta.profissionalId || "",
 
                 profissionalNome:
-                    dados.profissional,
+                    dadosConsulta.profissional || "",
 
                 medicamento:
-                    item.medicamento,
+                    item.medicamento || "",
 
                 quantidadePrescrita:
                     Number(
@@ -1539,16 +1427,37 @@ async function sincronizarPrescricoesFarmacia(
                 status:
                     "pendente",
 
+                produtoSisfarId:
+                    "",
+
+                produtoSisfarNome:
+                    "",
+
+                loteSisfarId:
+                    "",
+
+                loteSisfar:
+                    "",
+
+                quantidadeDispensada:
+                    0,
+
                 dataConsulta:
-                    dados.data || "",
+                    dadosConsulta.data || "",
 
                 criadoEm:
+                    serverTimestamp(),
+
+                atualizadoEm:
                     serverTimestamp(),
 
                 dispensadoEm:
                     null,
 
-                dispensadoPor:
+                dispensadoPorUid:
+                    "",
+
+                dispensadoPorNome:
                     ""
 
             }
@@ -1567,6 +1476,15 @@ async function sincronizarPrescricoesFarmacia(
 async function tratarPrescricoesAoExcluirConsulta(
     consultaId
 ) {
+
+    if (
+        !consultaId
+    ) {
+
+        return;
+
+    }
+
 
     const consultaPrescricoes =
         query(
@@ -1600,10 +1518,21 @@ async function tratarPrescricoesAoExcluirConsulta(
             documento.data();
 
 
+        const status =
+            String(
+                dados.status
+                || "pendente"
+            )
+            .toLowerCase();
+
+
+        /*
+            Se a farmácia ainda não processou,
+            podemos remover a solicitação.
+        */
+
         if (
-            (dados.status || "pendente")
-            ===
-            "pendente"
+            status === "pendente"
         ) {
 
             await deleteDoc(
@@ -1617,6 +1546,12 @@ async function tratarPrescricoesAoExcluirConsulta(
             );
 
         }
+
+
+        /*
+            Se já foi dispensado, preservamos
+            o histórico da farmácia.
+        */
 
         else {
 
@@ -1633,6 +1568,9 @@ async function tratarPrescricoesAoExcluirConsulta(
                     consultaExcluida:
                         true,
 
+                    consultaExcluidaEm:
+                        serverTimestamp(),
+
                     atualizadoEm:
                         serverTimestamp()
 
@@ -1645,44 +1583,6 @@ async function tratarPrescricoesAoExcluirConsulta(
     }
 
 }
-
-
-/*************************************************
-        CONFIGURAR BOTÃO DE DISPENSAÇÃO
-*************************************************/
-
-function configurarDispensacao() {
-
-    const botao =
-        document.getElementById(
-            "btnAdicionarMedicamento"
-        );
-
-
-    if (
-        botao
-        &&
-        botao.dataset.configurado !== "true"
-    ) {
-
-        botao.addEventListener(
-            "click",
-            adicionarMedicamentoDispensacao
-        );
-
-
-        botao.dataset.configurado =
-            "true";
-
-    }
-
-
-    renderMedicamentosDispensacao();
-
-}
-
-
-configurarDispensacao();
 
 
 /*************************************************
@@ -1751,15 +1651,15 @@ export async function registrarConsulta() {
         );
 
 
-    const diagnostico =
-        obterValor(
-            "consultaDiagnostico"
-        );
-
-
     const exameFisico =
         obterValor(
             "consultaExameFisico"
+        );
+
+
+    const diagnostico =
+        obterValor(
+            "consultaDiagnostico"
         );
 
 
@@ -1792,12 +1692,55 @@ export async function registrarConsulta() {
 
     if (
         !pacienteId
-        ||
+    ) {
+
+        mensagem(
+            "Selecione o paciente."
+        );
+
+        return;
+
+    }
+
+
+    if (
         !profissionalId
     ) {
 
         mensagem(
-            "Selecione o paciente e o profissional."
+            "Selecione o profissional."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !paciente
+        ||
+        paciente ===
+            "Selecione o paciente"
+    ) {
+
+        mensagem(
+            "Paciente inválido."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !profissional
+        ||
+        profissional ===
+            "Selecione o profissional"
+    ) {
+
+        mensagem(
+            "Profissional inválido."
         );
 
         return;
@@ -1808,7 +1751,7 @@ export async function registrarConsulta() {
     try {
 
         /*************************************************
-                    EDITAR CONSULTA
+                CONSULTA EM EDIÇÃO
         *************************************************/
 
         if (
@@ -1817,17 +1760,21 @@ export async function registrarConsulta() {
 
             const consultaAtual =
                 consultas.find(
-                    (c) =>
-                        c.id === consultaEmEdicao
+                    (consulta) =>
+                        consulta.id
+                        ===
+                        consultaEmEdicao
                 );
 
 
             const dadosAtualizados = {
 
                 pacienteId,
+
                 paciente,
 
                 profissionalId,
+
                 profissional,
 
                 queixa,
@@ -1838,9 +1785,9 @@ export async function registrarConsulta() {
 
                 temperatura,
 
-                diagnostico,
-
                 exameFisico,
+
+                diagnostico,
 
                 prescricao,
 
@@ -1850,19 +1797,226 @@ export async function registrarConsulta() {
 
                 data:
                     consultaAtual?.data
-                    || dataAtual()
+                    || dataAtual(),
+
+                atualizadoEm:
+                    serverTimestamp()
 
             };
 
 
-            await atualizarConsulta(
+            await updateDoc(
+
+                doc(
+                    db,
+                    "consultas",
+                    consultaEmEdicao
+                ),
+
                 dadosAtualizados
+
             );
 
 
+            /*************************************************
+                ATUALIZAR PRONTUÁRIO VINCULADO
+            *************************************************/
+
+            const prontuariosQuery =
+                query(
+
+                    collection(
+                        db,
+                        "prontuarios"
+                    ),
+
+                    where(
+                        "consultaId",
+                        "==",
+                        consultaEmEdicao
+                    )
+
+                );
+
+
+            const prontuariosSnap =
+                await getDocs(
+                    prontuariosQuery
+                );
+
+
+            for (
+                const prontuarioDoc
+                of prontuariosSnap.docs
+            ) {
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "prontuarios",
+                        prontuarioDoc.id
+                    ),
+
+                    {
+
+                        pacienteId,
+
+                        paciente,
+
+                        profissionalId,
+
+                        profissional,
+
+                        queixa,
+
+                        pa,
+
+                        fc,
+
+                        temperatura,
+
+                        exameFisico,
+
+                        diagnostico,
+
+                        prescricao,
+
+                        observacoes,
+
+                        atualizadoEm:
+                            serverTimestamp()
+
+                    }
+
+                );
+
+            }
+
+
+            /*************************************************
+                ATUALIZAR FINANCEIRO VINCULADO
+            *************************************************/
+
+            const financeiroQuery =
+                query(
+
+                    collection(
+                        db,
+                        "gastos"
+                    ),
+
+                    where(
+                        "consultaId",
+                        "==",
+                        consultaEmEdicao
+                    )
+
+                );
+
+
+            const financeiroSnap =
+                await getDocs(
+                    financeiroQuery
+                );
+
+
+            if (
+                financeiroSnap.empty
+                &&
+                valor > 0
+            ) {
+
+                await addDoc(
+
+                    collection(
+                        db,
+                        "gastos"
+                    ),
+
+                    {
+
+                        consultaId:
+                            consultaEmEdicao,
+
+                        pacienteId,
+
+                        paciente,
+
+                        profissionalId,
+
+                        profissional,
+
+                        descricao:
+                            "Consulta médica",
+
+                        valor,
+
+                        tipo:
+                            "consulta",
+
+                        data:
+                            dadosAtualizados.data,
+
+                        criadoEm:
+                            serverTimestamp()
+
+                    }
+
+                );
+
+            }
+
+
+            else {
+
+                for (
+                    const gastoDoc
+                    of financeiroSnap.docs
+                ) {
+
+                    await updateDoc(
+
+                        doc(
+                            db,
+                            "gastos",
+                            gastoDoc.id
+                        ),
+
+                        {
+
+                            pacienteId,
+
+                            paciente,
+
+                            profissionalId,
+
+                            profissional,
+
+                            valor,
+
+                            atualizadoEm:
+                                serverTimestamp()
+
+                        }
+
+                    );
+
+                }
+
+            }
+
+
+            /*************************************************
+                SINCRONIZAR FARMÁCIA
+            *************************************************/
+
             await sincronizarPrescricoesFarmacia(
+
                 consultaEmEdicao,
+
                 dadosAtualizados
+
             );
 
 
@@ -1875,9 +2029,13 @@ export async function registrarConsulta() {
                 null;
 
 
-            atualizarBotaoConsulta(
-                false
-            );
+            limparFormularioConsulta();
+
+
+            await carregarConsultas();
+
+
+            return;
 
         }
 
@@ -1886,107 +2044,503 @@ export async function registrarConsulta() {
                     NOVA CONSULTA
         *************************************************/
 
-        else {
-
-            const data =
-                dataAtual();
+        const data =
+            dataAtual();
 
 
-            /*************************************************
-                CAPTURAR TRIAGEM UTILIZADA
-            *************************************************/
+        /*************************************************
+              CAPTURAR TRIAGEM UTILIZADA
+        *************************************************/
 
-            let triagem =
+        let triagem =
+            ultimaTriagemPaciente(
+                pacienteId
+            );
+
+
+        if (!triagem) {
+
+            triagem =
                 ultimaTriagemPaciente(
-                    pacienteId
+                    paciente
                 );
 
+        }
 
-            if (!triagem) {
 
-                triagem =
-                    ultimaTriagemPaciente(
-                        paciente
-                    );
+        const dadosConsulta = {
+
+            pacienteId,
+
+            paciente,
+
+            profissionalId,
+
+            profissional,
+
+            queixa,
+
+            pa,
+
+            fc,
+
+            temperatura,
+
+            exameFisico,
+
+            diagnostico,
+
+            prescricao,
+
+            observacoes,
+
+            valor,
+
+            data,
+
+            triagemId:
+                triagem?.id || "",
+
+            triagemData:
+                triagem?.data || "",
+
+            triagemHora:
+                triagem?.hora || "",
+
+            criadoEm:
+                serverTimestamp(),
+
+            atualizadoEm:
+                serverTimestamp()
+
+        };
+
+
+        /*************************************************
+                CRIAR CONSULTA
+        *************************************************/
+
+        const consultaRef =
+            await addDoc(
+
+                collection(
+                    db,
+                    "consultas"
+                ),
+
+                dadosConsulta
+
+            );
+
+
+        const consultaId =
+            consultaRef.id;
+
+
+        /*************************************************
+                CRIAR PRONTUÁRIO
+        *************************************************/
+
+        await addDoc(
+
+            collection(
+                db,
+                "prontuarios"
+            ),
+
+            {
+
+                consultaId,
+
+                pacienteId,
+
+                paciente,
+
+                profissionalId,
+
+                profissional,
+
+                queixa,
+
+                pa,
+
+                fc,
+
+                temperatura,
+
+                exameFisico,
+
+                diagnostico,
+
+                prescricao,
+
+                observacoes,
+
+                data,
+
+                triagemId:
+                    triagem?.id || "",
+
+                criadoEm:
+                    serverTimestamp(),
+
+                atualizadoEm:
+                    serverTimestamp()
 
             }
-                                              )
-                        )}
 
-                    </span>
+        );
 
 
-                    <span>
+        /*************************************************
+                CRIAR FINANCEIRO
+        *************************************************/
 
-                        <b>Queixa:</b>
+        if (
+            valor > 0
+        ) {
 
-                        ${escaparHTML(
-                            c.queixa || "-"
-                        )}
+            await addDoc(
 
-                    </span>
+                collection(
+                    db,
+                    "gastos"
+                ),
 
+                {
 
-                    <span>
+                    consultaId,
 
-                        <b>Diagnóstico:</b>
+                    pacienteId,
 
-                        ${escaparHTML(
-                            c.diagnostico || "-"
-                        )}
+                    paciente,
 
-                    </span>
+                    profissionalId,
 
+                    profissional,
 
-                    <span>
+                    descricao:
+                        "Consulta médica",
 
-                        <b>Prescrição:</b>
+                    valor,
 
-                        ${escaparHTML(
-                            c.prescricao || "-"
-                        )}
+                    tipo:
+                        "consulta",
 
-                    </span>
+                    data,
 
+                    criadoEm:
+                        serverTimestamp(),
 
-                    <span>
+                    atualizadoEm:
+                        serverTimestamp()
 
-                        <b>Valor:</b>
+                }
 
-                        ${escaparHTML(
-                            formatarMoeda(
-                                c.valor
-                            )
-                        )}
+            );
 
-                    </span>
-
-
-                    <div class="acoes-registro">
-
-                        <button
-                            type="button"
-                            class="btn-editar"
-                            data-editar-consulta="${c.id}"
-                        >
-                            ✏️ Editar
-                        </button>
+        }
 
 
-                        <button
-                            type="button"
-                            class="btn-excluir"
-                            data-excluir-consulta="${c.id}"
-                        >
-                            🗑️ Excluir
-                        </button>
+        /*************************************************
+            ENCAMINHAR MEDICAMENTOS À FARMÁCIA
+        *************************************************/
 
-                    </div>
+        await salvarPrescricoesFarmacia(
 
-                </li>
+            consultaId,
 
-            `
-        ).join("");
+            dadosConsulta
+
+        );
+
+
+        /*************************************************
+                    FINALIZAR
+        *************************************************/
+
+        mensagem(
+
+            medicamentosDispensacao.length > 0
+
+                ? "Consulta registrada e medicamentos encaminhados para a farmácia."
+
+                : "Consulta registrada com sucesso."
+
+        );
+
+
+        limparFormularioConsulta();
+
+
+        await carregarConsultas();
+
+    }
+
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao registrar consulta:",
+            erro
+        );
+
+
+        mensagem(
+            "Erro ao registrar consulta."
+        );
+
+    }
+
+}
+
+
+/*************************************************
+          LIMPAR FORMULÁRIO CONSULTA
+*************************************************/
+
+function limparFormularioConsulta() {
+
+    limparCampos([
+
+        "consultaQueixa",
+
+        "consultaPA",
+
+        "consultaFC",
+
+        "consultaTemperatura",
+
+        "consultaExameFisico",
+
+        "consultaDiagnostico",
+
+        "consultaPrescricao",
+
+        "consultaObservacoes",
+
+        "consultaValor",
+
+        "dispensacaoMedicamento",
+
+        "dispensacaoQuantidade",
+
+        "dispensacaoUnidade",
+
+        "dispensacaoPosologia",
+
+        "dispensacaoObservacao"
+
+    ]);
+
+
+    const paciente =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    const profissional =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    if (
+        paciente
+    ) {
+
+        paciente.value =
+            "";
+
+    }
+
+
+    if (
+        profissional
+    ) {
+
+        profissional.value =
+            "";
+
+    }
+
+
+    medicamentosDispensacao =
+        [];
+
+
+    renderMedicamentosDispensacao();
+
+
+    limparPainelTriagem();
+
+
+    consultaEmEdicao =
+        null;
+
+
+    atualizarBotaoConsulta(
+        false
+    );
+
+}
+/*************************************************
+              LISTAR CONSULTAS
+*************************************************/
+
+export function listarConsultas() {
+
+    const lista =
+        document.getElementById(
+            "listaConsultas"
+        );
+
+
+    if (!lista) {
+
+        return;
+
+    }
+
+
+    if (
+        consultas.length === 0
+    ) {
+
+        lista.innerHTML = `
+
+            <li class="lista-vazia">
+                Nenhuma consulta registrada.
+            </li>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.innerHTML =
+        consultas
+            .map(
+                (consulta) => {
+
+                    return `
+
+                        <li class="item-registro">
+
+                            <strong>
+                                🩺 ${escaparHTML(
+                                    consulta.paciente
+                                    || "-"
+                                )}
+                            </strong>
+
+
+                            <span>
+
+                                <b>Profissional:</b>
+
+                                ${escaparHTML(
+                                    consulta.profissional
+                                    || "-"
+                                )}
+
+                            </span>
+
+
+                            <span>
+
+                                <b>Data:</b>
+
+                                ${escaparHTML(
+                                    formatarData(
+                                        consulta.data
+                                    )
+                                )}
+
+                            </span>
+
+
+                            <span>
+
+                                <b>Queixa:</b>
+
+                                ${escaparHTML(
+                                    consulta.queixa
+                                    || "-"
+                                )}
+
+                            </span>
+
+
+                            <span>
+
+                                <b>Diagnóstico:</b>
+
+                                ${escaparHTML(
+                                    consulta.diagnostico
+                                    || "-"
+                                )}
+
+                            </span>
+
+
+                            <span>
+
+                                <b>Prescrição:</b>
+
+                                ${escaparHTML(
+                                    consulta.prescricao
+                                    || "-"
+                                )}
+
+                            </span>
+
+
+                            <span>
+
+                                <b>Valor:</b>
+
+                                ${escaparHTML(
+                                    formatarMoeda(
+                                        consulta.valor
+                                        || 0
+                                    )
+                                )}
+
+                            </span>
+
+
+                            <div class="acoes-registro">
+
+                                <button
+                                    type="button"
+                                    class="btn-editar"
+                                    data-editar-consulta="${consulta.id}"
+                                >
+                                    ✏️ Editar
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="btn-excluir"
+                                    data-excluir-consulta="${consulta.id}"
+                                >
+                                    🗑️ Excluir
+                                </button>
+
+                            </div>
+
+                        </li>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 
     ligarBotoesConsultas();
@@ -2049,7 +2603,397 @@ function ligarBotoesConsultas() {
 
 
 /*************************************************
-              FILTRAR CONSULTAS
+                  EDITAR CONSULTA
+*************************************************/
+
+export async function editarConsulta(
+    id
+) {
+
+    const consulta =
+        consultas.find(
+            (item) =>
+                item.id === id
+        );
+
+
+    if (
+        !consulta
+    ) {
+
+        mensagem(
+            "Consulta não encontrada."
+        );
+
+        return;
+
+    }
+
+
+    consultaEmEdicao =
+        consulta.id;
+
+
+    /*************************************************
+              PREENCHER PACIENTE
+    *************************************************/
+
+    const pacienteSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    if (
+        pacienteSelect
+    ) {
+
+        pacienteSelect.value =
+            consulta.pacienteId || "";
+
+    }
+
+
+    /*************************************************
+            PREENCHER PROFISSIONAL
+    *************************************************/
+
+    const profissionalSelect =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    if (
+        profissionalSelect
+    ) {
+
+        profissionalSelect.value =
+            consulta.profissionalId || "";
+
+    }
+
+
+    /*************************************************
+                PREENCHER CAMPOS
+    *************************************************/
+
+    definirValor(
+        "consultaQueixa",
+        consulta.queixa || ""
+    );
+
+
+    definirValor(
+        "consultaPA",
+        consulta.pa || ""
+    );
+
+
+    definirValor(
+        "consultaFC",
+        consulta.fc || ""
+    );
+
+
+    definirValor(
+        "consultaTemperatura",
+        consulta.temperatura || ""
+    );
+
+
+    definirValor(
+        "consultaExameFisico",
+        consulta.exameFisico || ""
+    );
+
+
+    definirValor(
+        "consultaDiagnostico",
+        consulta.diagnostico || ""
+    );
+
+
+    definirValor(
+        "consultaPrescricao",
+        consulta.prescricao || ""
+    );
+
+
+    definirValor(
+        "consultaObservacoes",
+        consulta.observacoes || ""
+    );
+
+
+    definirValor(
+        "consultaValor",
+        consulta.valor || ""
+    );
+
+
+    /*************************************************
+          CARREGAR MEDICAMENTOS DA FARMÁCIA
+    *************************************************/
+
+    await carregarPrescricoesFarmacia(
+        consulta.id
+    );
+
+
+    /*************************************************
+              MOSTRAR TRIAGEM
+    *************************************************/
+
+    mostrarTriagemPaciente(
+        false
+    );
+
+
+    /*************************************************
+            ALTERAR TEXTO DO BOTÃO
+    *************************************************/
+
+    atualizarBotaoConsulta(
+        true
+    );
+
+
+    /*************************************************
+              IR PARA CONSULTA
+    *************************************************/
+
+    const secao =
+        document.getElementById(
+            "secaoConsultas"
+        );
+
+
+    if (
+        secao
+    ) {
+
+        secao.scrollIntoView({
+
+            behavior:
+                "smooth",
+
+            block:
+                "start"
+
+        });
+
+    }
+
+
+    mensagem(
+        "Consulta carregada para edição."
+    );
+
+}
+
+
+/*************************************************
+                EXCLUIR CONSULTA
+*************************************************/
+
+export async function excluirConsulta(
+    id
+) {
+
+    const consulta =
+        consultas.find(
+            (item) =>
+                item.id === id
+        );
+
+
+    if (
+        !consulta
+    ) {
+
+        mensagem(
+            "Consulta não encontrada."
+        );
+
+        return;
+
+    }
+
+
+    const resposta =
+        await confirmar(
+            `Deseja excluir a consulta de ${consulta.paciente || "este paciente"}?`
+        );
+
+
+    if (
+        !resposta
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /*************************************************
+            TRATAR PRESCRIÇÕES DA FARMÁCIA
+        *************************************************/
+
+        await tratarPrescricoesAoExcluirConsulta(
+            id
+        );
+
+
+        /*************************************************
+                EXCLUIR PRONTUÁRIOS
+        *************************************************/
+
+        const prontuariosQuery =
+            query(
+
+                collection(
+                    db,
+                    "prontuarios"
+                ),
+
+                where(
+                    "consultaId",
+                    "==",
+                    id
+                )
+
+            );
+
+
+        const prontuariosSnap =
+            await getDocs(
+                prontuariosQuery
+            );
+
+
+        for (
+            const prontuarioDoc
+            of prontuariosSnap.docs
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "prontuarios",
+                    prontuarioDoc.id
+                )
+
+            );
+
+        }
+
+
+        /*************************************************
+                EXCLUIR FINANCEIRO
+        *************************************************/
+
+        const gastosQuery =
+            query(
+
+                collection(
+                    db,
+                    "gastos"
+                ),
+
+                where(
+                    "consultaId",
+                    "==",
+                    id
+                )
+
+            );
+
+
+        const gastosSnap =
+            await getDocs(
+                gastosQuery
+            );
+
+
+        for (
+            const gastoDoc
+            of gastosSnap.docs
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "gastos",
+                    gastoDoc.id
+                )
+
+            );
+
+        }
+
+
+        /*************************************************
+                EXCLUIR CONSULTA
+        *************************************************/
+
+        await deleteDoc(
+
+            doc(
+                db,
+                "consultas",
+                id
+            )
+
+        );
+
+
+        /*************************************************
+                    ATUALIZAR TELA
+        *************************************************/
+
+        if (
+            consultaEmEdicao === id
+        ) {
+
+            limparFormularioConsulta();
+
+        }
+
+
+        await carregarConsultas();
+
+
+        mensagem(
+            "Consulta excluída com sucesso."
+        );
+
+    }
+
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao excluir consulta:",
+            erro
+        );
+
+
+        mensagem(
+            "Erro ao excluir consulta."
+        );
+
+    }
+
+}
+
+
+/*************************************************
+                FILTRAR CONSULTAS
 *************************************************/
 
 export function filtrarConsultas() {
@@ -2071,11 +3015,11 @@ export function filtrarConsultas() {
             "#listaConsultas li"
         )
         .forEach(
-            (li) => {
+            (item) => {
 
-                li.style.display =
+                item.style.display =
 
-                    li.textContent
+                    item.textContent
                         .toLowerCase()
                         .includes(
                             filtro
@@ -2092,7 +3036,7 @@ export function filtrarConsultas() {
 
 
 /*************************************************
-          PREENCHER SELECTS CONSULTA
+        PREENCHER SELECTS DA CONSULTA
 *************************************************/
 
 export function preencherSelectsConsulta() {
@@ -2124,7 +3068,7 @@ export function preencherSelectsConsulta() {
         pacienteSelect.innerHTML = `
 
             <option value="">
-                Selecione o Paciente
+                Selecione o paciente
             </option>
 
         `;
@@ -2132,7 +3076,7 @@ export function preencherSelectsConsulta() {
 
         obterPacientes()
             .forEach(
-                (p) => {
+                (paciente) => {
 
                     const option =
                         document.createElement(
@@ -2141,11 +3085,11 @@ export function preencherSelectsConsulta() {
 
 
                     option.value =
-                        p.id;
+                        paciente.id;
 
 
                     option.textContent =
-                        p.nome;
+                        paciente.nome || "Paciente";
 
 
                     pacienteSelect.appendChild(
@@ -2161,9 +3105,8 @@ export function preencherSelectsConsulta() {
                 ...pacienteSelect.options
             ]
             .some(
-                (op) =>
-                    op.value ===
-                    valorAtual
+                (option) =>
+                    option.value === valorAtual
             )
         ) {
 
@@ -2172,44 +3115,11 @@ export function preencherSelectsConsulta() {
 
         }
 
-
-        /*************************************************
-              EVENTO SELECIONAR PACIENTE
-        *************************************************/
-
-        if (
-            pacienteSelect.dataset
-                .triagemConfigurada
-            !== "true"
-        ) {
-
-            pacienteSelect
-                .addEventListener(
-
-                    "change",
-
-                    () => {
-
-                        mostrarTriagemPaciente(
-                            true
-                        );
-
-                    }
-
-                );
-
-
-            pacienteSelect.dataset
-                .triagemConfigurada =
-                "true";
-
-        }
-
     }
 
 
     /*************************************************
-                  PROFISSIONAIS
+                    PROFISSIONAIS
     *************************************************/
 
     if (
@@ -2223,7 +3133,7 @@ export function preencherSelectsConsulta() {
         profissionalSelect.innerHTML = `
 
             <option value="">
-                Selecione o Profissional
+                Selecione o profissional
             </option>
 
         `;
@@ -2231,7 +3141,7 @@ export function preencherSelectsConsulta() {
 
         obterProfissionais()
             .forEach(
-                (p) => {
+                (profissional) => {
 
                     const option =
                         document.createElement(
@@ -2240,11 +3150,11 @@ export function preencherSelectsConsulta() {
 
 
                     option.value =
-                        p.id;
+                        profissional.id;
 
 
                     option.textContent =
-                        p.nome;
+                        profissional.nome || "Profissional";
 
 
                     profissionalSelect.appendChild(
@@ -2260,9 +3170,8 @@ export function preencherSelectsConsulta() {
                 ...profissionalSelect.options
             ]
             .some(
-                (op) =>
-                    op.value ===
-                    valorAtual
+                (option) =>
+                    option.value === valorAtual
             )
         ) {
 
@@ -2273,117 +3182,86 @@ export function preencherSelectsConsulta() {
 
     }
 
+
+    /*************************************************
+            CONFIGURAR EVENTO TRIAGEM
+    *************************************************/
+
+    configurarPacienteConsulta();
+
 }
 
 
 /*************************************************
-          LIMPAR FORMULÁRIO CONSULTA
+        CONFIGURAR PACIENTE DA CONSULTA
 *************************************************/
 
-function limparFormularioConsulta() {
+function configurarPacienteConsulta() {
 
-    limparCampos([
-
-        "consultaQueixa",
-
-        "consultaPA",
-
-        "consultaFC",
-
-        "consultaTemperatura",
-
-        "consultaDiagnostico",
-
-        "consultaExameFisico",
-
-        "consultaPrescricao",
-
-        "consultaObservacoes",
-
-        "consultaValor",
-
-        "dispensacaoMedicamento",
-
-        "dispensacaoQuantidade",
-
-        "dispensacaoUnidade",
-
-        "dispensacaoPosologia",
-
-        "dispensacaoObservacao"
-
-    ]);
-
-
-    const paciente =
+    const pacienteSelect =
         document.getElementById(
             "consultaPaciente"
         );
 
 
-    const profissional =
-        document.getElementById(
-            "consultaProfissional"
-        );
+    if (
+        !pacienteSelect
+        ||
+        pacienteSelect.dataset
+            .triagemConfigurada
+            === "true"
+    ) {
 
-
-    if (paciente) {
-
-        paciente.selectedIndex =
-            0;
-
-    }
-
-
-    if (profissional) {
-
-        profissional.selectedIndex =
-            0;
+        return;
 
     }
 
 
-    limparPainelTriagem();
+    pacienteSelect.addEventListener(
 
+        "change",
 
-    medicamentosDispensacao = [];
+        () => {
 
+            mostrarTriagemPaciente(
+                true
+            );
 
-    renderMedicamentosDispensacao();
+        }
 
-
-    consultaEmEdicao =
-        null;
-
-
-    atualizarBotaoConsulta(
-        false
     );
+
+
+    pacienteSelect.dataset
+        .triagemConfigurada =
+        "true";
 
 }
 
 
 /*************************************************
-                OBTER VALOR
+            OBTER VALOR DE CAMPO
 *************************************************/
 
 function obterValor(
     id
 ) {
 
-    return document
-        .getElementById(
-            id
-        )
-        ?.value
-        ?.trim()
-        || "";
+    return (
+        document
+            .getElementById(
+                id
+            )
+            ?.value
+            ?.trim()
+        || ""
+    );
 
 }
 
 
 /*************************************************
-                DEFINIR VALOR
+            DEFINIR VALOR DE CAMPO
 *************************************************/
 
 function definirValor(
@@ -2397,7 +3275,9 @@ function definirValor(
         );
 
 
-    if (elemento) {
+    if (
+        elemento
+    ) {
 
         elemento.value =
             valor ?? "";
@@ -2408,7 +3288,7 @@ function definirValor(
 
 
 /*************************************************
-          ALTERAR TEXTO DO BOTÃO
+          ATUALIZAR BOTÃO CONSULTA
 *************************************************/
 
 function atualizarBotaoConsulta(
@@ -2421,7 +3301,9 @@ function atualizarBotaoConsulta(
         );
 
 
-    if (!botao) {
+    if (
+        !botao
+    ) {
 
         return;
 
@@ -2437,10 +3319,15 @@ function atualizarBotaoConsulta(
             : "Registrar consulta";
 
 }
+/*************************************************
+        INICIALIZAR ÁREA DE DISPENSAÇÃO
+*************************************************/
+
+configurarDispensacaoConsulta();
 
 
 /*************************************************
-              EXPORTAÇÃO GLOBAL
+        EXPOR TRIAGEM GLOBALMENTE
 *************************************************/
 
 window.mostrarTriagemPaciente =
