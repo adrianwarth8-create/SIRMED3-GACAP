@@ -1,6 +1,6 @@
 /*************************************************
-          CONSULTAS.JS - SIRMED V4.7
-          INTEGRADO À TRIAGEM
+          CONSULTAS.JS - SIRMED V4.8
+     TRIAGEM + DISPENSAÇÃO SISFAR
 *************************************************/
 
 
@@ -71,6 +71,14 @@ import {
 const consultas = [];
 
 let consultaEmEdicao = null;
+
+
+/*
+    Medicamentos estruturados que serão
+    encaminhados para dispensação na farmácia.
+*/
+
+let medicamentosDispensacao = [];
 
 
 /*************************************************
@@ -220,11 +228,6 @@ function criarPainelTriagemConsulta() {
         "4px";
 
 
-    /*
-        Colocamos o painel antes
-        do formulário da consulta.
-    */
-
     const formulario =
         secao.querySelector(
             ".grid-form"
@@ -312,10 +315,6 @@ export function mostrarTriagemPaciente(
         || "";
 
 
-    /*************************************************
-                SEM PACIENTE
-    *************************************************/
-
     if (!pacienteId) {
 
         limparPainelTriagem();
@@ -325,21 +324,11 @@ export function mostrarTriagemPaciente(
     }
 
 
-    /*************************************************
-            BUSCAR ÚLTIMA TRIAGEM
-    *************************************************/
-
     let triagem =
         ultimaTriagemPaciente(
             pacienteId
         );
 
-
-    /*
-        Compatibilidade com triagens antigas
-        que possam ter sido salvas somente
-        com o nome do paciente.
-    */
 
     if (!triagem) {
 
@@ -361,10 +350,6 @@ export function mostrarTriagemPaciente(
 
     }
 
-
-    /*************************************************
-                SEM TRIAGEM
-    *************************************************/
 
     if (!triagem) {
 
@@ -393,10 +378,6 @@ export function mostrarTriagemPaciente(
 
     }
 
-
-    /*************************************************
-                EXIBIR TRIAGEM
-    *************************************************/
 
     painel.style.display =
         "block";
@@ -562,81 +543,103 @@ export function mostrarTriagemPaciente(
     `;
 
 
-    /*************************************************
-        PREENCHER CAMPOS DA CONSULTA
-    *************************************************/
-
     if (
         preencherCampos
     ) {
 
-        /*
-            PA
-        */
-
-        definirValor(
-            "consultaPA",
-            triagem.pa || ""
+        preencherConsultaComTriagem(
+            triagem
         );
-
-
-        /*
-            FC
-        */
-
-        definirValor(
-            "consultaFC",
-            triagem.fc ?? ""
-        );
-
-
-        /*
-            TEMPERATURA
-        */
-
-        definirValor(
-            "consultaTemperatura",
-            triagem.temperatura ?? ""
-        );
-
-
-        /*
-            QUEIXA
-
-            Só preenche caso o médico
-            ainda não tenha digitado algo.
-        */
-
-        const campoQueixa =
-            document.getElementById(
-                "consultaQueixa"
-            );
-
-
-        if (
-            campoQueixa
-            &&
-            !campoQueixa.value.trim()
-        ) {
-
-            campoQueixa.value =
-                triagem.queixa || "";
-
-        }
 
     }
-
-
-    console.log(
-        "🩹 Triagem carregada para consulta:",
-        triagem
-    );
 
 }
 
 
 /*************************************************
-          FORMATAR DATA DA TRIAGEM
+        PREENCHER CONSULTA COM TRIAGEM
+*************************************************/
+
+function preencherConsultaComTriagem(
+    triagem
+) {
+
+    const campoQueixa =
+        document.getElementById(
+            "consultaQueixa"
+        );
+
+
+    const campoPA =
+        document.getElementById(
+            "consultaPA"
+        );
+
+
+    const campoFC =
+        document.getElementById(
+            "consultaFC"
+        );
+
+
+    const campoTemperatura =
+        document.getElementById(
+            "consultaTemperatura"
+        );
+
+
+    if (
+        campoQueixa
+        &&
+        !campoQueixa.value
+    ) {
+
+        campoQueixa.value =
+            triagem.queixa || "";
+
+    }
+
+
+    if (
+        campoPA
+        &&
+        !campoPA.value
+    ) {
+
+        campoPA.value =
+            triagem.pa || "";
+
+    }
+
+
+    if (
+        campoFC
+        &&
+        !campoFC.value
+    ) {
+
+        campoFC.value =
+            triagem.fc || "";
+
+    }
+
+
+    if (
+        campoTemperatura
+        &&
+        !campoTemperatura.value
+    ) {
+
+        campoTemperatura.value =
+            triagem.temperatura || "";
+
+    }
+
+}
+
+
+/*************************************************
+            FORMATAR DATA TRIAGEM
 *************************************************/
 
 function formatarDataTriagem(
@@ -650,40 +653,1036 @@ function formatarDataTriagem(
     }
 
 
-    const texto =
-        String(
-            data
-        );
-
-
-    const partes =
-        texto.split(
-            "-"
-        );
-
-
     if (
-        partes.length === 3
+        typeof data === "string"
+        &&
+        /^\d{4}-\d{2}-\d{2}$/.test(
+            data
+        )
     ) {
 
-        return (
-            partes[2]
-            +
-            "/"
-            +
-            partes[1]
-            +
-            "/"
-            +
-            partes[0]
-        );
+        const [
+            ano,
+            mes,
+            dia
+        ] =
+            data.split("-");
+
+
+        return `${dia}/${mes}/${ano}`;
 
     }
 
 
-    return texto;
+    return String(
+        data
+    );
 
 }
+
+
+/*************************************************
+        CONFIGURAR SELECT DE PACIENTE
+*************************************************/
+
+function configurarPacienteConsulta() {
+
+    const select =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    if (
+        !select
+        ||
+        select.dataset.triagemConfigurada
+            === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    select.addEventListener(
+        "change",
+        () => {
+
+            mostrarTriagemPaciente(
+                true
+            );
+
+        }
+    );
+
+
+    select.dataset.triagemConfigurada =
+        "true";
+
+}
+
+
+/*************************************************
+        PREENCHER SELECTS DA CONSULTA
+*************************************************/
+
+export function preencherSelectsConsulta() {
+
+    const pacienteSelect =
+        document.getElementById(
+            "consultaPaciente"
+        );
+
+
+    const profissionalSelect =
+        document.getElementById(
+            "consultaProfissional"
+        );
+
+
+    if (
+        !pacienteSelect
+        ||
+        !profissionalSelect
+    ) {
+
+        return;
+
+    }
+
+
+    const pacienteSelecionado =
+        pacienteSelect.value;
+
+
+    const profissionalSelecionado =
+        profissionalSelect.value;
+
+
+    pacienteSelect.innerHTML =
+        `
+            <option value="">
+                Selecione o paciente
+            </option>
+        `;
+
+
+    profissionalSelect.innerHTML =
+        `
+            <option value="">
+                Selecione o profissional
+            </option>
+        `;
+
+
+    obterPacientes()
+        .forEach(
+            (paciente) => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    paciente.id;
+
+
+                option.textContent =
+                    paciente.nome;
+
+
+                pacienteSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    obterProfissionais()
+        .forEach(
+            (profissional) => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    profissional.id;
+
+
+                option.textContent =
+                    profissional.nome;
+
+
+                profissionalSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    if (
+        pacienteSelecionado
+    ) {
+
+        pacienteSelect.value =
+            pacienteSelecionado;
+
+    }
+
+
+    if (
+        profissionalSelecionado
+    ) {
+
+        profissionalSelect.value =
+            profissionalSelecionado;
+
+    }
+
+
+    configurarPacienteConsulta();
+
+}
+
+
+/*************************************************
+            OBTER VALOR DE CAMPO
+*************************************************/
+
+function obterValor(
+    id
+) {
+
+    return (
+        document
+            .getElementById(
+                id
+            )
+            ?.value
+            ?.trim()
+        || ""
+    );
+
+}
+
+
+/*************************************************
+        LIMPAR CAMPOS DE DISPENSAÇÃO
+*************************************************/
+
+function limparCamposDispensacao() {
+
+    const ids = [
+
+        "dispensacaoMedicamento",
+
+        "dispensacaoQuantidade",
+
+        "dispensacaoUnidade",
+
+        "dispensacaoPosologia",
+
+        "dispensacaoObservacao"
+
+    ];
+
+
+    ids.forEach(
+        (id) => {
+
+            const campo =
+                document.getElementById(
+                    id
+                );
+
+
+            if (campo) {
+
+                campo.value = "";
+
+            }
+
+        }
+    );
+
+}
+
+
+/*************************************************
+      RENDERIZAR MEDICAMENTOS DISPENSAÇÃO
+*************************************************/
+
+function renderMedicamentosDispensacao() {
+
+    const lista =
+        document.getElementById(
+            "listaMedicamentosDispensacao"
+        );
+
+
+    if (!lista) {
+
+        return;
+
+    }
+
+
+    lista.innerHTML = "";
+
+
+    if (
+        medicamentosDispensacao.length === 0
+    ) {
+
+        lista.innerHTML = `
+
+            <li class="lista-vazia">
+                Nenhum medicamento adicionado.
+            </li>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    medicamentosDispensacao.forEach(
+        (
+            item,
+            indice
+        ) => {
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+
+            li.className =
+                "item-lista";
+
+
+            const status =
+                String(
+                    item.status || "pendente"
+                )
+                .toLowerCase();
+
+
+            const bloqueado =
+                status !== "pendente";
+
+
+            li.innerHTML = `
+
+                <div class="item-lista-conteudo">
+
+                    <strong>
+                        💊 ${escaparHTML(
+                            item.medicamento
+                        )}
+                    </strong>
+
+                    <span>
+                        Quantidade:
+                        ${escaparHTML(
+                            item.quantidade
+                        )}
+                        ${escaparHTML(
+                            item.unidade || ""
+                        )}
+                    </span>
+
+                    ${
+                        item.posologia
+                        ? `
+                            <span>
+                                Posologia:
+                                ${escaparHTML(
+                                    item.posologia
+                                )}
+                            </span>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        item.observacao
+                        ? `
+                            <span>
+                                Observação:
+                                ${escaparHTML(
+                                    item.observacao
+                                )}
+                            </span>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        bloqueado
+                        ? `
+                            <span>
+                                Status:
+                                ${escaparHTML(
+                                    status
+                                )}
+                            </span>
+                        `
+                        : ""
+                    }
+
+                </div>
+
+
+                <div class="acoes-lista">
+
+                    ${
+                        bloqueado
+                        ? `
+                            <button
+                                type="button"
+                                disabled
+                            >
+                                🔒 Já processado
+                            </button>
+                        `
+                        : `
+                            <button
+                                type="button"
+                                class="btn-excluir btn-remover-medicamento"
+                                data-indice="${indice}"
+                            >
+                                🗑️ Remover
+                            </button>
+                        `
+                    }
+
+                </div>
+
+            `;
+
+
+            lista.appendChild(
+                li
+            );
+
+        }
+    );
+
+
+    lista
+        .querySelectorAll(
+            ".btn-remover-medicamento"
+        )
+        .forEach(
+            (botao) => {
+
+                botao.addEventListener(
+                    "click",
+                    () => {
+
+                        const indice =
+                            Number(
+                                botao.dataset.indice
+                            );
+
+
+                        medicamentosDispensacao.splice(
+                            indice,
+                            1
+                        );
+
+
+                        renderMedicamentosDispensacao();
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/*************************************************
+          ADICIONAR MEDICAMENTO
+*************************************************/
+
+function adicionarMedicamentoDispensacao() {
+
+    const medicamento =
+        obterValor(
+            "dispensacaoMedicamento"
+        );
+
+
+    const quantidade =
+        Number(
+            document
+                .getElementById(
+                    "dispensacaoQuantidade"
+                )
+                ?.value
+            || 0
+        );
+
+
+    const unidade =
+        obterValor(
+            "dispensacaoUnidade"
+        );
+
+
+    const posologia =
+        obterValor(
+            "dispensacaoPosologia"
+        );
+
+
+    const observacao =
+        obterValor(
+            "dispensacaoObservacao"
+        );
+
+
+    if (!medicamento) {
+
+        mensagem(
+            "Informe o medicamento para dispensação."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(
+            quantidade
+        )
+        ||
+        quantidade <= 0
+    ) {
+
+        mensagem(
+            "Informe uma quantidade válida para dispensação."
+        );
+
+        return;
+
+    }
+
+
+    medicamentosDispensacao.push({
+
+        id: null,
+
+        medicamento,
+
+        quantidade,
+
+        unidade,
+
+        posologia,
+
+        observacao,
+
+        status:
+            "pendente"
+
+    });
+
+
+    limparCamposDispensacao();
+
+
+    renderMedicamentosDispensacao();
+
+
+    mensagem(
+        "Medicamento adicionado à dispensação."
+    );
+
+}
+
+
+/*************************************************
+        SALVAR PRESCRIÇÕES DA FARMÁCIA
+*************************************************/
+
+async function salvarPrescricoesFarmacia(
+    consultaId,
+    {
+        pacienteId,
+        paciente,
+        profissionalId,
+        profissional,
+        data
+    }
+) {
+
+    if (
+        medicamentosDispensacao.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    for (
+        const item
+        of medicamentosDispensacao
+    ) {
+
+        await addDoc(
+
+            collection(
+                db,
+                "prescricoesFarmacia"
+            ),
+
+            {
+
+                consultaId,
+
+                pacienteId,
+
+                pacienteNome:
+                    paciente,
+
+                profissionalId,
+
+                profissionalNome:
+                    profissional,
+
+                medicamento:
+                    item.medicamento,
+
+                quantidadePrescrita:
+                    Number(
+                        item.quantidade || 0
+                    ),
+
+                unidade:
+                    item.unidade || "",
+
+                posologia:
+                    item.posologia || "",
+
+                observacao:
+                    item.observacao || "",
+
+                status:
+                    "pendente",
+
+                dataConsulta:
+                    data || "",
+
+                criadoEm:
+                    serverTimestamp(),
+
+                dispensadoEm:
+                    null,
+
+                dispensadoPor:
+                    ""
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/*************************************************
+        CARREGAR DISPENSAÇÃO DA CONSULTA
+*************************************************/
+
+async function carregarDispensacaoConsulta(
+    consultaId
+) {
+
+    medicamentosDispensacao = [];
+
+
+    try {
+
+        const consultaPrescricoes =
+            query(
+
+                collection(
+                    db,
+                    "prescricoesFarmacia"
+                ),
+
+                where(
+                    "consultaId",
+                    "==",
+                    consultaId
+                )
+
+            );
+
+
+        const snap =
+            await getDocs(
+                consultaPrescricoes
+            );
+
+
+        snap.forEach(
+            (documento) => {
+
+                const dados =
+                    documento.data();
+
+
+                medicamentosDispensacao.push({
+
+                    id:
+                        documento.id,
+
+                    medicamento:
+                        dados.medicamento || "",
+
+                    quantidade:
+                        Number(
+                            dados.quantidadePrescrita
+                            || 0
+                        ),
+
+                    unidade:
+                        dados.unidade || "",
+
+                    posologia:
+                        dados.posologia || "",
+
+                    observacao:
+                        dados.observacao || "",
+
+                    status:
+                        dados.status || "pendente"
+
+                });
+
+            }
+        );
+
+
+        renderMedicamentosDispensacao();
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar prescrições da farmácia:",
+            erro
+        );
+
+
+        mensagem(
+            "Não foi possível carregar os medicamentos vinculados à farmácia."
+        );
+
+    }
+
+}
+/*************************************************
+        SINCRONIZAR PRESCRIÇÕES NA EDIÇÃO
+*************************************************/
+
+async function sincronizarPrescricoesFarmacia(
+    consultaId,
+    dados
+) {
+
+    const consultaPrescricoes =
+        query(
+
+            collection(
+                db,
+                "prescricoesFarmacia"
+            ),
+
+            where(
+                "consultaId",
+                "==",
+                consultaId
+            )
+
+        );
+
+
+    const snap =
+        await getDocs(
+            consultaPrescricoes
+        );
+
+
+    const existentes =
+        new Map();
+
+
+    for (
+        const documento
+        of snap.docs
+    ) {
+
+        existentes.set(
+            documento.id,
+            documento.data()
+        );
+
+
+        if (
+            (documento.data().status || "pendente")
+            ===
+            "pendente"
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "prescricoesFarmacia",
+                    documento.id
+                )
+
+            );
+
+        }
+
+    }
+
+
+    for (
+        const item
+        of medicamentosDispensacao
+    ) {
+
+        const existente =
+            item.id
+                ? existentes.get(
+                    item.id
+                )
+                : null;
+
+
+        if (
+            existente
+            &&
+            (existente.status || "pendente")
+            !==
+            "pendente"
+        ) {
+
+            continue;
+
+        }
+
+
+        await addDoc(
+
+            collection(
+                db,
+                "prescricoesFarmacia"
+            ),
+
+            {
+
+                consultaId,
+
+                pacienteId:
+                    dados.pacienteId,
+
+                pacienteNome:
+                    dados.paciente,
+
+                profissionalId:
+                    dados.profissionalId,
+
+                profissionalNome:
+                    dados.profissional,
+
+                medicamento:
+                    item.medicamento,
+
+                quantidadePrescrita:
+                    Number(
+                        item.quantidade || 0
+                    ),
+
+                unidade:
+                    item.unidade || "",
+
+                posologia:
+                    item.posologia || "",
+
+                observacao:
+                    item.observacao || "",
+
+                status:
+                    "pendente",
+
+                dataConsulta:
+                    dados.data || "",
+
+                criadoEm:
+                    serverTimestamp(),
+
+                dispensadoEm:
+                    null,
+
+                dispensadoPor:
+                    ""
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/*************************************************
+    TRATAR PRESCRIÇÕES AO EXCLUIR CONSULTA
+*************************************************/
+
+async function tratarPrescricoesAoExcluirConsulta(
+    consultaId
+) {
+
+    const consultaPrescricoes =
+        query(
+
+            collection(
+                db,
+                "prescricoesFarmacia"
+            ),
+
+            where(
+                "consultaId",
+                "==",
+                consultaId
+            )
+
+        );
+
+
+    const snap =
+        await getDocs(
+            consultaPrescricoes
+        );
+
+
+    for (
+        const documento
+        of snap.docs
+    ) {
+
+        const dados =
+            documento.data();
+
+
+        if (
+            (dados.status || "pendente")
+            ===
+            "pendente"
+        ) {
+
+            await deleteDoc(
+
+                doc(
+                    db,
+                    "prescricoesFarmacia",
+                    documento.id
+                )
+
+            );
+
+        }
+
+        else {
+
+            await updateDoc(
+
+                doc(
+                    db,
+                    "prescricoesFarmacia",
+                    documento.id
+                ),
+
+                {
+
+                    consultaExcluida:
+                        true,
+
+                    atualizadoEm:
+                        serverTimestamp()
+
+                }
+
+            );
+
+        }
+
+    }
+
+}
+
+
+/*************************************************
+        CONFIGURAR BOTÃO DE DISPENSAÇÃO
+*************************************************/
+
+function configurarDispensacao() {
+
+    const botao =
+        document.getElementById(
+            "btnAdicionarMedicamento"
+        );
+
+
+    if (
+        botao
+        &&
+        botao.dataset.configurado !== "true"
+    ) {
+
+        botao.addEventListener(
+            "click",
+            adicionarMedicamentoDispensacao
+        );
+
+
+        botao.dataset.configurado =
+            "true";
+
+    }
+
+
+    renderMedicamentosDispensacao();
+
+}
+
+
+configurarDispensacao();
 
 
 /*************************************************
@@ -816,7 +1815,14 @@ export async function registrarConsulta() {
             consultaEmEdicao
         ) {
 
-            await atualizarConsulta({
+            const consultaAtual =
+                consultas.find(
+                    (c) =>
+                        c.id === consultaEmEdicao
+                );
+
+
+            const dadosAtualizados = {
 
                 pacienteId,
                 paciente,
@@ -840,9 +1846,24 @@ export async function registrarConsulta() {
 
                 observacoes,
 
-                valor
+                valor,
 
-            });
+                data:
+                    consultaAtual?.data
+                    || dataAtual()
+
+            };
+
+
+            await atualizarConsulta(
+                dadosAtualizados
+            );
+
+
+            await sincronizarPrescricoesFarmacia(
+                consultaEmEdicao,
+                dadosAtualizados
+            );
 
 
             mensagem(
@@ -889,875 +1910,7 @@ export async function registrarConsulta() {
                     );
 
             }
-
-
-            /*************************************************
-                CRIAR CONSULTA PRINCIPAL
-            *************************************************/
-
-            const consultaRef =
-                await addDoc(
-
-                    collection(
-                        db,
-                        "consultas"
-                    ),
-
-                    {
-
-                        pacienteId,
-
-                        paciente,
-
-                        profissionalId,
-
-                        profissional,
-
-                        queixa,
-
-                        pa,
-
-                        fc,
-
-                        temperatura,
-
-                        diagnostico,
-
-                        exameFisico,
-
-                        prescricao,
-
-                        observacoes,
-
-                        valor,
-
-                        data,
-
-
-                        /*
-                            Guarda referência da
-                            triagem utilizada.
-                        */
-
-                        triagemId:
-                            triagem?.id || "",
-
-
-                        criadoEm:
-                            serverTimestamp()
-
-                    }
-
-                );
-
-
-            const consultaId =
-                consultaRef.id;
-
-
-            /*************************************************
-                    CRIAR PRONTUÁRIO
-            *************************************************/
-
-            await addDoc(
-
-                collection(
-                    db,
-                    "prontuarios"
-                ),
-
-                {
-
-                    consultaId,
-
-                    triagemId:
-                        triagem?.id || "",
-
-                    pacienteId,
-
-                    pacienteNome:
-                        paciente,
-
-                    profissionalId,
-
-                    profissional,
-
-                    data,
-
-                    queixa,
-
-                    pa,
-
-                    fc,
-
-                    temperatura,
-
-                    exameFisico,
-
-                    diagnostico,
-
-                    prescricao,
-
-                    observacoes,
-
-                    criadoEm:
-                        serverTimestamp()
-
-                }
-
-            );
-
-
-            /*************************************************
-                    CRIAR FINANCEIRO
-            *************************************************/
-
-            await addDoc(
-
-                collection(
-                    db,
-                    "gastos"
-                ),
-
-                {
-
-                    consultaId,
-
-                    tipo:
-                        "Consulta Médica",
-
-                    pacienteId,
-
-                    paciente,
-
-                    valor,
-
-                    data,
-
-                    criadoEm:
-                        serverTimestamp()
-
-                }
-
-            );
-
-
-            mensagem(
-                "Consulta registrada com sucesso."
-            );
-
-        }
-
-
-        /*************************************************
-                LIMPAR E ATUALIZAR
-        *************************************************/
-
-        limparFormularioConsulta();
-
-
-        document.dispatchEvent(
-
-            new CustomEvent(
-                "sirmed:dados-alterados"
-            )
-
-        );
-
-    }
-
-    catch (erro) {
-
-        console.error(
-            "Erro ao registrar consulta:",
-            erro
-        );
-
-
-        mensagem(
-            "Não foi possível registrar a consulta."
-        );
-
-    }
-
-}
-
-
-/*************************************************
-                EDITAR CONSULTA
-*************************************************/
-
-export function editarConsulta(
-    id
-) {
-
-    const consulta =
-        consultas.find(
-            (c) =>
-                c.id === id
-        );
-
-
-    if (!consulta) {
-
-        mensagem(
-            "Consulta não encontrada."
-        );
-
-        return;
-
-    }
-
-
-    consultaEmEdicao =
-        id;
-
-
-    /*************************************************
-                SELECT PACIENTE
-    *************************************************/
-
-    const pacienteSelect =
-        document.getElementById(
-            "consultaPaciente"
-        );
-
-
-    if (
-        pacienteSelect
-    ) {
-
-        if (
-            consulta.pacienteId
-        ) {
-
-            pacienteSelect.value =
-                consulta.pacienteId;
-
-        }
-
-        else {
-
-            const option =
-                [
-                    ...pacienteSelect.options
-                ]
-                .find(
-                    (op) =>
-                        op.textContent.trim() ===
-                        consulta.paciente
-                );
-
-
-            if (option) {
-
-                pacienteSelect.value =
-                    option.value;
-
-            }
-
-        }
-
-    }
-
-
-    /*************************************************
-              MOSTRAR TRIAGEM
-    *************************************************/
-
-    /*
-        Mostra a triagem,
-        mas NÃO sobrescreve os dados
-        da consulta já registrada.
-    */
-
-    mostrarTriagemPaciente(
-        false
-    );
-
-
-    /*************************************************
-              SELECT PROFISSIONAL
-    *************************************************/
-
-    const profissionalSelect =
-        document.getElementById(
-            "consultaProfissional"
-        );
-
-
-    if (
-        profissionalSelect
-    ) {
-
-        if (
-            consulta.profissionalId
-        ) {
-
-            profissionalSelect.value =
-                consulta.profissionalId;
-
-        }
-
-        else {
-
-            const option =
-                [
-                    ...profissionalSelect.options
-                ]
-                .find(
-                    (op) =>
-                        op.textContent.trim() ===
-                        consulta.profissional
-                );
-
-
-            if (option) {
-
-                profissionalSelect.value =
-                    option.value;
-
-            }
-
-        }
-
-    }
-
-
-    /*************************************************
-                    CAMPOS
-    *************************************************/
-
-    definirValor(
-        "consultaQueixa",
-        consulta.queixa
-    );
-
-
-    definirValor(
-        "consultaPA",
-        consulta.pa
-    );
-
-
-    definirValor(
-        "consultaFC",
-        consulta.fc
-    );
-
-
-    definirValor(
-        "consultaTemperatura",
-        consulta.temperatura
-    );
-
-
-    definirValor(
-        "consultaDiagnostico",
-        consulta.diagnostico
-    );
-
-
-    definirValor(
-        "consultaExameFisico",
-        consulta.exameFisico
-    );
-
-
-    definirValor(
-        "consultaPrescricao",
-        consulta.prescricao
-    );
-
-
-    definirValor(
-        "consultaObservacoes",
-        consulta.observacoes
-    );
-
-
-    definirValor(
-        "consultaValor",
-        consulta.valor
-    );
-
-
-    atualizarBotaoConsulta(
-        true
-    );
-
-
-    document
-        .getElementById(
-            "secaoConsultas"
-        )
-        ?.scrollIntoView({
-
-            behavior:
-                "smooth"
-
-        });
-
-}
-
-
-/*************************************************
-              ATUALIZAR CONSULTA
-*************************************************/
-
-async function atualizarConsulta(
-    dados
-) {
-
-    const id =
-        consultaEmEdicao;
-
-
-    /*************************************************
-                    CONSULTA
-    *************************************************/
-
-    await updateDoc(
-
-        doc(
-            db,
-            "consultas",
-            id
-        ),
-
-        {
-
-            ...dados,
-
-            atualizadoEm:
-                serverTimestamp()
-
-        }
-
-    );
-
-
-    /*************************************************
-                    PRONTUÁRIO
-    *************************************************/
-
-    const prontuarioQuery =
-        query(
-
-            collection(
-                db,
-                "prontuarios"
-            ),
-
-            where(
-                "consultaId",
-                "==",
-                id
-            )
-
-        );
-
-
-    const prontuarioSnap =
-        await getDocs(
-            prontuarioQuery
-        );
-
-
-    for (
-        const prontuarioDoc
-        of prontuarioSnap.docs
-    ) {
-
-        await updateDoc(
-
-            doc(
-                db,
-                "prontuarios",
-                prontuarioDoc.id
-            ),
-
-            {
-
-                pacienteId:
-                    dados.pacienteId,
-
-                pacienteNome:
-                    dados.paciente,
-
-                profissionalId:
-                    dados.profissionalId,
-
-                profissional:
-                    dados.profissional,
-
-                queixa:
-                    dados.queixa,
-
-                pa:
-                    dados.pa,
-
-                fc:
-                    dados.fc,
-
-                temperatura:
-                    dados.temperatura,
-
-                exameFisico:
-                    dados.exameFisico,
-
-                diagnostico:
-                    dados.diagnostico,
-
-                prescricao:
-                    dados.prescricao,
-
-                observacoes:
-                    dados.observacoes,
-
-                atualizadoEm:
-                    serverTimestamp()
-
-            }
-
-        );
-
-    }
-
-
-    /*************************************************
-                    FINANCEIRO
-    *************************************************/
-
-    const financeiroQuery =
-        query(
-
-            collection(
-                db,
-                "gastos"
-            ),
-
-            where(
-                "consultaId",
-                "==",
-                id
-            )
-
-        );
-
-
-    const financeiroSnap =
-        await getDocs(
-            financeiroQuery
-        );
-
-
-    for (
-        const financeiroDoc
-        of financeiroSnap.docs
-    ) {
-
-        await updateDoc(
-
-            doc(
-                db,
-                "gastos",
-                financeiroDoc.id
-            ),
-
-            {
-
-                pacienteId:
-                    dados.pacienteId,
-
-                paciente:
-                    dados.paciente,
-
-                valor:
-                    dados.valor,
-
-                atualizadoEm:
-                    serverTimestamp()
-
-            }
-
-        );
-
-    }
-
-}
-
-
-/*************************************************
-                EXCLUIR CONSULTA
-*************************************************/
-
-export async function excluirConsulta(
-    id
-) {
-
-    const consulta =
-        consultas.find(
-            (c) =>
-                c.id === id
-        );
-
-
-    if (!consulta) {
-
-        mensagem(
-            "Consulta não encontrada."
-        );
-
-        return;
-
-    }
-
-
-    const resposta =
-        confirmar(
-
-            `Deseja realmente excluir a consulta de "${consulta.paciente}"?`
-
-        );
-
-
-    if (!resposta) {
-
-        return;
-
-    }
-
-
-    try {
-
-        /*************************************************
-            EXCLUIR PRONTUÁRIO VINCULADO
-        *************************************************/
-
-        const prontuarioQuery =
-            query(
-
-                collection(
-                    db,
-                    "prontuarios"
-                ),
-
-                where(
-                    "consultaId",
-                    "==",
-                    id
-                )
-
-            );
-
-
-        const prontuarioSnap =
-            await getDocs(
-                prontuarioQuery
-            );
-
-
-        for (
-            const prontuarioDoc
-            of prontuarioSnap.docs
-        ) {
-
-            await deleteDoc(
-
-                doc(
-                    db,
-                    "prontuarios",
-                    prontuarioDoc.id
-                )
-
-            );
-
-        }
-
-
-        /*************************************************
-            EXCLUIR FINANCEIRO VINCULADO
-        *************************************************/
-
-        const financeiroQuery =
-            query(
-
-                collection(
-                    db,
-                    "gastos"
-                ),
-
-                where(
-                    "consultaId",
-                    "==",
-                    id
-                )
-
-            );
-
-
-        const financeiroSnap =
-            await getDocs(
-                financeiroQuery
-            );
-
-
-        for (
-            const financeiroDoc
-            of financeiroSnap.docs
-        ) {
-
-            await deleteDoc(
-
-                doc(
-                    db,
-                    "gastos",
-                    financeiroDoc.id
-                )
-
-            );
-
-        }
-
-
-        /*************************************************
-                EXCLUIR CONSULTA
-        *************************************************/
-
-        await deleteDoc(
-
-            doc(
-                db,
-                "consultas",
-                id
-            )
-
-        );
-
-
-        if (
-            consultaEmEdicao ===
-            id
-        ) {
-
-            limparFormularioConsulta();
-
-        }
-
-
-        mensagem(
-            "Consulta excluída com sucesso."
-        );
-
-
-        document.dispatchEvent(
-
-            new CustomEvent(
-                "sirmed:dados-alterados"
-            )
-
-        );
-
-    }
-
-    catch (erro) {
-
-        console.error(
-            "Erro ao excluir consulta:",
-            erro
-        );
-
-
-        mensagem(
-            "Não foi possível excluir a consulta."
-        );
-
-    }
-
-}
-
-
-/*************************************************
-                RENDER CONSULTAS
-*************************************************/
-
-export function renderConsultas() {
-
-    const lista =
-        document.getElementById(
-            "listaConsultas"
-        );
-
-
-    if (!lista) {
-
-        return;
-
-    }
-
-
-    if (
-        consultas.length === 0
-    ) {
-
-        lista.innerHTML = `
-
-            <li class="lista-vazia">
-
-                Nenhuma consulta encontrada.
-
-            </li>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    lista.innerHTML =
-
-        consultas.map(
-            (c) => `
-
-                <li class="item-registro">
-
-                    <strong>
-                        🏥 Consulta
-                    </strong>
-
-                    <span>
-
-                        <b>Paciente:</b>
-
-                        ${escaparHTML(
-                            c.paciente || "-"
-                        )}
-
-                    </span>
-
-
-                    <span>
-
-                        <b>Profissional:</b>
-
-                        ${escaparHTML(
-                            c.profissional || "-"
-                        )}
-
-                    </span>
-
-
-                    <span>
-
-                        <b>Data:</b>
-
-                        ${escaparHTML(
-                            formatarData(
-                                c.data
-                            )
+                                              )
                         )}
 
                     </span>
@@ -2147,7 +2300,17 @@ function limparFormularioConsulta() {
 
         "consultaObservacoes",
 
-        "consultaValor"
+        "consultaValor",
+
+        "dispensacaoMedicamento",
+
+        "dispensacaoQuantidade",
+
+        "dispensacaoUnidade",
+
+        "dispensacaoPosologia",
+
+        "dispensacaoObservacao"
 
     ]);
 
@@ -2181,6 +2344,12 @@ function limparFormularioConsulta() {
 
 
     limparPainelTriagem();
+
+
+    medicamentosDispensacao = [];
+
+
+    renderMedicamentosDispensacao();
 
 
     consultaEmEdicao =
@@ -2283,5 +2452,5 @@ window.mostrarTriagemPaciente =
 *************************************************/
 
 console.log(
-    "✅ consultas.js V4.7 + Triagem carregado"
+    "✅ consultas.js V4.8 + Triagem + Dispensação SISFAR carregado"
 );
