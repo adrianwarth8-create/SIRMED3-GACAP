@@ -22,7 +22,6 @@
 
 
     <!-- CSS PRINCIPAL -->
-
     <link
         rel="stylesheet"
         href="./style.css"
@@ -30,7 +29,6 @@
 
 
     <!-- jsPDF -->
-
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
     ></script>
@@ -760,41 +758,23 @@
                         0 - Sem dor
                     </option>
 
-                    <option value="1">
-                        1
-                    </option>
+                    <option value="1">1</option>
 
-                    <option value="2">
-                        2
-                    </option>
+                    <option value="2">2</option>
 
-                    <option value="3">
-                        3
-                    </option>
+                    <option value="3">3</option>
 
-                    <option value="4">
-                        4
-                    </option>
+                    <option value="4">4</option>
 
-                    <option value="5">
-                        5
-                    </option>
+                    <option value="5">5</option>
 
-                    <option value="6">
-                        6
-                    </option>
+                    <option value="6">6</option>
 
-                    <option value="7">
-                        7
-                    </option>
+                    <option value="7">7</option>
 
-                    <option value="8">
-                        8
-                    </option>
+                    <option value="8">8</option>
 
-                    <option value="9">
-                        9
-                    </option>
+                    <option value="9">9</option>
 
                     <option value="10">
                         10 - Dor máxima
@@ -947,128 +927,12 @@
                 ></textarea>
 
 
-                <!-- ==================================================
-                     PRESCRIÇÃO CLÍNICA
-                =================================================== -->
-
                 <textarea
                     id="consultaPrescricao"
                     class="campo-largo"
-                    placeholder="Prescrição clínica / orientações médicas"
+                    placeholder="Prescrição"
                 ></textarea>
 
-
-                <!-- ==================================================
-                     DISPENSAÇÃO PARA O SISFAR
-                =================================================== -->
-
-                <div
-                    id="areaDispensacaoConsulta"
-                    class="campo-largo area-dispensacao"
-                >
-
-                    <h3>
-                        💊 Medicamentos para dispensação
-                    </h3>
-
-
-                    <p class="descricao-secao">
-
-                        Adicione abaixo os medicamentos que deverão
-                        ser encaminhados à farmácia para dispensação.
-
-                    </p>
-
-
-                    <div class="grid-form">
-
-
-                        <!-- MEDICAMENTO -->
-
-                        <input
-                            id="dispensacaoMedicamento"
-                            class="campo-largo"
-                            placeholder="Medicamento / apresentação (ex.: Dipirona 500 mg)"
-                        >
-
-
-                        <!-- QUANTIDADE -->
-
-                        <input
-                            id="dispensacaoQuantidade"
-                            type="number"
-                            min="1"
-                            step="1"
-                            inputmode="numeric"
-                            placeholder="Quantidade a dispensar"
-                        >
-
-
-                        <!-- UNIDADE -->
-
-                        <input
-                            id="dispensacaoUnidade"
-                            placeholder="Unidade (ex.: comprimido, frasco, ampola)"
-                        >
-
-
-                        <!-- POSOLOGIA -->
-
-                        <textarea
-                            id="dispensacaoPosologia"
-                            class="campo-largo"
-                            placeholder="Posologia (ex.: 1 comprimido de 6/6h)"
-                        ></textarea>
-
-
-                        <!-- OBSERVAÇÃO -->
-
-                        <textarea
-                            id="dispensacaoObservacao"
-                            class="campo-largo"
-                            placeholder="Observação para a farmácia"
-                        ></textarea>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        id="btnAdicionarMedicamento"
-                        class="btn-principal"
-                    >
-                        ➕ Adicionar medicamento
-                    </button>
-
-
-                    <div
-                        id="medicamentosDispensacaoContainer"
-                        style="margin-top: 18px;"
-                    >
-
-                        <h4>
-                            Medicamentos adicionados
-                        </h4>
-
-
-                        <ul
-                            id="listaMedicamentosDispensacao"
-                        >
-
-                            <li class="lista-vazia">
-                                Nenhum medicamento adicionado.
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ==================================================
-                     OBSERVAÇÕES DA CONSULTA
-                =================================================== -->
 
                 <textarea
                     id="consultaObservacoes"
